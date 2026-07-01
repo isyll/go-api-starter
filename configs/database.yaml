@@ -1,0 +1,58 @@
+credentials:
+  host: ${DB_HOST:-localhost}
+  port: ${DB_PORT:-5432}
+  user: ${DB_USER:-app_owner}
+  password: ${DB_PASSWORD:-password}
+  dbname: ${DB_NAME:-appdb}
+  sslmode: ${DB_SSL_MODE:-disable}
+  timezone: ${DB_TIMEZONE:-UTC}
+
+app_credentials:
+  host: ${DB_HOST:-localhost}
+  port: ${DB_PORT:-5432}
+  user: ${DB_API_USER:-app_api}
+  password: ${DB_API_PASSWORD:-app_api_password}
+  dbname: ${DB_NAME:-appdb}
+  sslmode: ${DB_SSL_MODE:-disable}
+  timezone: ${DB_TIMEZONE:-UTC}
+
+admin_credentials:
+  host: ${DB_HOST:-localhost}
+  port: ${DB_PORT:-5432}
+  user: ${DB_WORKER_USER:-app_worker}
+  password: ${DB_WORKER_PASSWORD:-app_worker_password}
+  dbname: ${DB_NAME:-appdb}
+  sslmode: ${DB_SSL_MODE:-disable}
+  timezone: ${DB_TIMEZONE:-UTC}
+
+connection_pool:
+  max_open_connections: 50
+  max_idle_connections: 15
+  connection_max_lifetime: "1h"
+  connection_max_idle_time: "15m"
+
+app_pool:
+  max_open_connections: 50
+  max_idle_connections: 10
+  connection_max_lifetime: "1h"
+  connection_max_idle_time: "15m"
+
+admin_pool:
+  max_open_connections: 80
+  max_idle_connections: 20
+  connection_max_lifetime: "1h"
+  connection_max_idle_time: "15m"
+
+statement_timeout_ms: ${DB_STATEMENT_TIMEOUT_MS:-5000}
+
+backup:
+  enabled: true
+  schedule: "0 2 * * *" # Daily at 2 AM
+  retention_days: 30
+
+monitoring:
+  slow_query_threshold: "100ms"
+  log_queries: true
+  metrics_enabled: true
+
+log_level: "debug" # possible values: debug, info, error

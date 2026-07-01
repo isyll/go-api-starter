@@ -1,0 +1,26 @@
+redis:
+  host: ${REDIS_HOST:-localhost}
+  port: ${REDIS_PORT:-6379}
+  password: ${REDIS_PASSWORD:-password}
+  timeout: ${REDIS_TIMEOUT:-5s}
+  db: 0
+  pool_size: 10
+  min_idle_conns: 5
+  max_idle_conns: 10
+  conn_max_lifetime: "30m"
+  conn_max_idle_time: "10m"
+  pool_timeout: "10s"
+  max_retries: 3
+  min_retry_backoff: "8ms"
+  max_retry_backoff: "512ms"
+  dial_timeout: "5s"
+  read_timeout: "3s"
+  write_timeout: "3s"
+
+cache:
+  prefix: ${REDIS_CACHE_PREFIX:-app}
+  rate_limit: "1m"
+
+session:
+  key_prefix: "session:"
+  expiry: "24h"

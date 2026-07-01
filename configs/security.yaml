@@ -1,0 +1,11 @@
+auth:
+  max_inactivity_timeout: ${MAX_INACTIVITY_TIMEOUT:-1440h}
+  max_session_age: ${MAX_SESSION_AGE:-4320h}
+  max_devices_per_user: ${MAX_DEVICES_PER_USER:-5}
+  oat:
+    access_token_expiry: ${OAT_ACCESS_TOKEN_EXPIRY:-30m}
+    refresh_token_expiry: ${OAT_REFRESH_TOKEN_EXPIRY:-720h}
+
+id_obfuscation:
+  min_length: 10
+  alphabet: "vortexqabcfghijkmnpuwydz986731254s"

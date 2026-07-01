@@ -1,0 +1,243 @@
+package auth
+
+import (
+	"context"
+	"strings"
+	"time"
+
+	"github.com/isyll/go-api-starter/internal/events"
+	"github.com/isyll/go-api-starter/internal/infra/cache"
+	"github.com/isyll/go-api-starter/internal/models"
+	"github.com/isyll/go-api-starter/pkg/config"
+	"github.com/isyll/go-api-starter/pkg/logger"
+	apptoken "github.com/isyll/go-api-starter/pkg/token"
+	"github.com/isyll/go-api-starter/pkg/utils"
+)
+
+var (
+	verifyTokenTTL = cache.CacheOptions{TTL: 24 * time.Hour}
+	resetTokenTTL  = cache.CacheOptions{TTL: 1 * time.Hour}
+)
+
+// Service implements email/password authentication.
+type Service struct {
+	cfg          *config.Configs
+	logger       *logger.Logger
+	atManager    apptoken.AccessTokenManager
+	cacheManager *cache.CacheManager
+	users        UserStore
+	sessions     DeviceSessionRepository
+	settings     SettingsStore
+	refresh      RefreshTokenRepository
+	email        EmailSender
+	bus          *events.Bus
+}
+
+// NewService builds the auth Service. All collaborators are injected.
+func NewService(
+	cfg *config.Configs,
+	logx *logger.Logger,
+	atManager apptoken.AccessTokenManager,
+	cacheManager *cache.CacheManager,
+	users UserStore,
+	sessions DeviceSessionRepository,
+	settings SettingsStore,
+	refresh RefreshTokenRepository,
+	email EmailSender,
+	bus *events.Bus,
+) *Service {
+	return &Service{
+		cfg:          cfg,
+		logger:       logx,
+		atManager:    atManager,
+		cacheManager: cacheManager,
+		users:        users,
+		sessions:     sessions,
+		settings:     settings,
+		refresh:      refresh,
+		email:        email,
+		bus:          bus,
+	}
+}
+
+type tokenData struct {
+	UserID int64 `json:"user_id"`
+}
+
+// Register creates a new account, sends a verification email, and
+// opens the first session.
+func (s *Service) Register(ctx context.Context, in RegisterInput) (*TokenPair, error) {
+	if err := validatePassword(in.Password); err != nil {
+		return nil, err
+	}
+	email := normalizeEmail(in.Email)
+	if s.users.ExistsByEmail(ctx, email) {
+		return nil, ErrEmailExists
+	}
+
+	hash, err := hashPassword(in.Password)
+	if err != nil {
+		return nil, err
+	}
+	user := &models.User{
+		Email:        email,
+		PasswordHash: hash,
+		FirstName:    in.FirstName,
+		LastName:     in.LastName,
+		Status:       models.UserStatusActive,
+		Role:         models.UserRoleUser,
+	}
+	if err := s.users.Create(ctx, user); err != nil {
+		return nil, err
+	}
+
+	defaults := models.DefaultSettings()
+	if err := s.settings.Create(ctx, &models.UserSettings{
+		UserID:   user.ID,
+		Settings: defaults,
+	}); err != nil {
+		return nil, err
+	}
+
+	s.sendVerification(ctx, user)
+
+	return s.createSessionAndTokens(ctx, user, in.Device, &defaults)
+}
+
+// Login authenticates by email/password and opens a session.
+func (s *Service) Login(ctx context.Context, in LoginInput) (*TokenPair, error) {
+	email := normalizeEmail(in.Email)
+	user, err := s.users.FindByEmail(ctx, email)
+	if err != nil {
+		s.recordAttempt(ctx, email, 0, "login", "not_found")
+		return nil, ErrInvalidCredentials
+	}
+	if !checkPassword(user.PasswordHash, in.Password) {
+		s.recordAttempt(ctx, email, user.ID, "login", "wrong_password")
+		return nil, ErrInvalidCredentials
+	}
+	if !user.IsActive() {
+		s.recordAttempt(ctx, email, user.ID, "login", "blocked")
+		return nil, ErrAccountInactive
+	}
+
+	settings, _ := s.settings.GetByUserID(ctx, user.ID)
+	tokens, err := s.createSessionAndTokens(ctx, user, in.Device, settings)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.users.UpdateLastLogin(ctx, user.ID); err != nil {
+		s.logger.Warn("update last login failed", "error", err, "user_id", user.ID)
+	}
+	s.recordAttempt(ctx, email, user.ID, "login", "success")
+	return tokens, nil
+}
+
+// VerifyEmail confirms an email using a verification token.
+func (s *Service) VerifyEmail(ctx context.Context, token string) error {
+	var data tokenData
+	found, err := s.cacheManager.Get(ctx, cache.VerificationTokenKey(token), &data)
+	if err != nil || !found {
+		return ErrInvalidVerificationToken
+	}
+	if err := s.users.MarkEmailVerified(ctx, data.UserID); err != nil {
+		return err
+	}
+	_ = s.cacheManager.Delete(ctx, cache.VerificationTokenKey(token))
+	return nil
+}
+
+// ResendVerification sends a fresh verification email to the user.
+func (s *Service) ResendVerification(ctx context.Context, userID int64) error {
+	user, err := s.users.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if user.IsEmailVerified() {
+		return nil
+	}
+	s.sendVerification(ctx, user)
+	return nil
+}
+
+// RequestPasswordReset emails a reset token. It does not reveal whether
+// the email exists.
+func (s *Service) RequestPasswordReset(ctx context.Context, email string) error {
+	email = normalizeEmail(email)
+	user, err := s.users.FindByEmail(ctx, email)
+	if err != nil {
+		return nil
+	}
+	token := utils.NewUUIDNoDash()
+	if err := s.cacheManager.Set(
+		ctx, cache.PasswordResetKey(token), tokenData{UserID: user.ID}, resetTokenTTL,
+	); err != nil {
+		return err
+	}
+	if err := s.email.SendPasswordResetEmail(ctx, user.Email, token); err != nil {
+		s.logger.Warn("send reset email failed", "error", err, "user_id", user.ID)
+	}
+	return nil
+}
+
+// ResetPassword sets a new password from a reset token and revokes all
+// existing sessions.
+func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) error {
+	if err := validatePassword(newPassword); err != nil {
+		return err
+	}
+	var data tokenData
+	found, err := s.cacheManager.Get(ctx, cache.PasswordResetKey(token), &data)
+	if err != nil || !found {
+		return ErrInvalidResetToken
+	}
+	hash, err := hashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	if err := s.users.UpdatePasswordHash(ctx, data.UserID, hash); err != nil {
+		return err
+	}
+	_ = s.cacheManager.Delete(ctx, cache.PasswordResetKey(token))
+	if err := s.sessions.RevokeAllByUserID(ctx, data.UserID, "password_reset"); err != nil {
+		s.logger.Warn("revoke sessions after reset failed", "error", err)
+	}
+	return nil
+}
+
+// ChangePassword updates the password after verifying the current one.
+func (s *Service) ChangePassword(ctx context.Context, userID int64, current, next string) error {
+	user, err := s.users.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if !checkPassword(user.PasswordHash, current) {
+		return ErrIncorrectPassword
+	}
+	if err := validatePassword(next); err != nil {
+		return err
+	}
+	hash, err := hashPassword(next)
+	if err != nil {
+		return err
+	}
+	return s.users.UpdatePasswordHash(ctx, userID, hash)
+}
+
+// sendVerification issues a verification token and emails it.
+func (s *Service) sendVerification(ctx context.Context, user *models.User) {
+	token := utils.NewUUIDNoDash()
+	if err := s.cacheManager.Set(
+		ctx, cache.VerificationTokenKey(token), tokenData{UserID: user.ID}, verifyTokenTTL,
+	); err != nil {
+		s.logger.Warn("store verification token failed", "error", err)
+		return
+	}
+	if err := s.email.SendVerificationEmail(ctx, user.Email, token); err != nil {
+		s.logger.Warn("send verification email failed", "error", err, "user_id", user.ID)
+	}
+}
+
+func normalizeEmail(email string) string {
+	return strings.ToLower(strings.TrimSpace(email))
+}

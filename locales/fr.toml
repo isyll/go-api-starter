@@ -1,0 +1,26 @@
+[common.internal_error]
+other = "Une erreur est survenue. Veuillez reessayer."
+
+[common.forbidden]
+other = "Vous n'etes pas autorise a faire cela."
+
+[common.not_found]
+other = "Introuvable."
+
+[common.validation_error]
+other = "Certains champs sont invalides."
+
+[auth.invalid_credentials]
+other = "Email ou mot de passe invalide."
+
+[auth.email_exists]
+other = "Un compte avec cet email existe deja."
+
+[auth.email_not_verified]
+other = "Veuillez d'abord verifier votre email."
+
+[email.verify.subject]
+other = "Verifiez votre email"
+
+[email.reset.subject]
+other = "Reinitialisez votre mot de passe"

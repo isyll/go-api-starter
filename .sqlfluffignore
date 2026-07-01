@@ -1,0 +1,5 @@
+# Empty no-op down migration — currencies table is never rolled back
+migrations/000003_create_currencies_table.down.sql
+# Contains a custom PostgreSQL GUC (SET LOCAL app_owner.seed_mode)
+# that SQLFluff cannot parse
+migrations/000005_create_countries_table.up.sql

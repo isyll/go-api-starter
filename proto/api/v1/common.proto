@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// User is the authenticated owner view of an account.
+message User {
+  string id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string avatar = 5;
+  string bio = 6;
+  string status = 7;
+  string role = 8;
+  bool email_verified = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+// PublicUser is the public subset of a profile.
+message PublicUser {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string avatar = 4;
+  string bio = 5;
+  google.protobuf.Timestamp member_since = 6;
+}
+
+// Settings holds a user's preferences.
+message Settings {
+  string locale = 1;
+  string timezone = 2;
+  string theme = 3;
+  bool email_notifications = 4;
+  bool push_notifications = 5;
+  bool marketing_emails = 6;
+}
+
+// TokenPair is returned by every successful authentication.
+message TokenPair {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64 expires_in = 3;
+  User user = 4;
+}
+
+// DeviceInfo is optional client device metadata attached at login.
+message DeviceInfo {
+  string device_id = 1;
+  string name = 2;
+  string platform = 3;
+  string model = 4;
+  string manufacturer = 5;
+}
+
+// Device is one active session in the device list.
+message Device {
+  string device_id = 1;
+  string name = 2;
+  string platform = 3;
+  string manufacturer = 4;
+  string model = 5;
+  google.protobuf.Timestamp last_used_at = 6;
+  bool current = 7;
+}
+
+// Page is a standard pagination request.
+message Page {
+  int32 page = 1;
+  int32 page_size = 2;
+}

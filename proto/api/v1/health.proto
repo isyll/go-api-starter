@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "google/protobuf/empty.proto";
+
+// HealthService reports liveness and readiness.
+service HealthService {
+  rpc Check(google.protobuf.Empty) returns (HealthResponse);
+  rpc Ready(google.protobuf.Empty) returns (HealthResponse);
+}
+
+message HealthResponse {
+  // Status is "ok" or "degraded".
+  string status = 1;
+  string version = 2;
+  map<string, string> checks = 3;
+}

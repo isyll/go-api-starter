@@ -1,0 +1,14 @@
+outbox:
+  # Fallback periodic drain tick.
+  # Drain also fires immediately on Bus.Publish writes.
+  interval: ${EVENTS_OUTBOX_INTERVAL:-5s}
+
+  # Refresh cadence for Prometheus gauges:
+  # pending_rows, exhausted_rows, drain_lag_seconds.
+  metrics_interval: ${EVENTS_OUTBOX_METRICS_INTERVAL:-15s}
+
+  # Also run the drain loop in the API process.
+  # Default false: canonical drain runs in event-dispatcher.
+  # Enable only as a kill switch if the worker is down.
+  # Multiple drainers are safe via FOR UPDATE SKIP LOCKED.
+  drain_on_api: ${EVENTS_OUTBOX_DRAIN_ON_API:-false}

@@ -1,0 +1,23 @@
+email:
+  provider: "resend"
+  api_key: ${RESEND_API_KEY}
+
+  senders:
+    noreply:
+      address: ${EMAIL_NOREPLY:-noreply@example.com}
+      name: ${APP_NAME:-go-api-starter}
+    security:
+      address: ${EMAIL_SECURITY:-security@example.com}
+      name: ${APP_NAME:-go-api-starter} Security
+    news:
+      address: ${EMAIL_NEWS:-news@example.com}
+      name: ${APP_NAME:-go-api-starter} News
+
+  worker:
+    concurrency: ${EMAIL_WORKER_CONCURRENCY:-5}
+    retry_max: 3
+    retry_delay: 10s
+
+  templates:
+    base_path: "./templates/emails"
+    default_language: ${DEFAULT_LANGUAGE:-en}

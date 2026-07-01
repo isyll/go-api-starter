@@ -1,0 +1,26 @@
+[common.internal_error]
+other = "Something went wrong. Please try again."
+
+[common.forbidden]
+other = "You are not allowed to do that."
+
+[common.not_found]
+other = "Not found."
+
+[common.validation_error]
+other = "Some fields are invalid."
+
+[auth.invalid_credentials]
+other = "Invalid email or password."
+
+[auth.email_exists]
+other = "An account with this email already exists."
+
+[auth.email_not_verified]
+other = "Please verify your email first."
+
+[email.verify.subject]
+other = "Verify your email"
+
+[email.reset.subject]
+other = "Reset your password"

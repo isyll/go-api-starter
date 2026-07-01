@@ -1,0 +1,146 @@
+package auth
+
+import (
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"time"
+
+	"github.com/isyll/go-api-starter/internal/events"
+	"github.com/isyll/go-api-starter/internal/models"
+	"github.com/isyll/go-api-starter/internal/reqctx"
+	apptoken "github.com/isyll/go-api-starter/pkg/token"
+	"github.com/isyll/go-api-starter/pkg/utils"
+)
+
+// RefreshTokens rotates a refresh token: the presented token is
+// revoked and a fresh access+refresh pair is issued in the same
+// family. Presenting a revoked token revokes the whole family.
+func (s *Service) RefreshTokens(
+	ctx context.Context,
+	refreshToken string,
+) (*TokenPair, error) {
+	tokenHash := hashToken(refreshToken)
+
+	record, err := s.refresh.FindByTokenHash(ctx, tokenHash)
+	if err != nil {
+		s.recordAttempt(ctx, "", 0, "refresh", "not_found")
+		return nil, ErrInvalidToken
+	}
+
+	if record.IsRevoked() {
+		s.logger.Warn(
+			"revoked refresh token reused; revoking family",
+			"session_id", record.Session.ID,
+			"token_family", record.TokenFamily,
+		)
+		_ = s.refresh.RevokeByTokenFamily(ctx, record.TokenFamily, "token_reuse")
+		_, _ = s.sessions.Revoke(ctx, "token_reuse", record.Session.ID)
+		s.recordAttempt(ctx, record.Session.User.Email, record.Session.UserID, "refresh", "blocked")
+		return nil, ErrTokenRevoked
+	}
+
+	if record.IsExpired() {
+		s.recordAttempt(ctx, record.Session.User.Email, record.Session.UserID, "refresh", "not_found")
+		return nil, ErrInvalidToken
+	}
+
+	session := &record.Session
+	if !session.IsValid(s.cfg.Security.Auth.MaxInactivityTimeout) {
+		return nil, ErrSessionNotFound
+	}
+
+	_ = s.refresh.RevokeByTokenHash(ctx, tokenHash, "rotated")
+
+	access, rawRefresh, newHash, err := s.issueTokenPair(ctx, session)
+	if err != nil {
+		return nil, err
+	}
+	s.refresh.Create(ctx, &models.RefreshToken{
+		SessionID:   session.ID,
+		TokenHash:   newHash,
+		TokenFamily: record.TokenFamily,
+		ExpiresAt:   time.Now().UTC().Add(s.cfg.Security.Auth.OAT.RefreshTokenExpiry),
+	})
+
+	settings, _ := s.settings.GetByUserID(ctx, session.UserID)
+	s.recordAttempt(ctx, session.User.Email, session.UserID, "refresh", "success")
+
+	return &TokenPair{
+		AccessToken:  access,
+		RefreshToken: rawRefresh,
+		ExpiresIn:    int64(s.cfg.Security.Auth.OAT.AccessTokenExpiry.Seconds()),
+		User:         &session.User,
+		Settings:     settings,
+	}, nil
+}
+
+// generateTokenPair mints a new access+refresh pair for a session and
+// persists the refresh token in a new family.
+func (s *Service) generateTokenPair(
+	ctx context.Context,
+	user *models.User,
+	session *models.DeviceSession,
+	settings *models.Settings,
+) (*TokenPair, error) {
+	access, rawRefresh, tokenHash, err := s.issueTokenPair(ctx, session)
+	if err != nil {
+		return nil, err
+	}
+	s.refresh.Create(ctx, &models.RefreshToken{
+		SessionID:   session.ID,
+		TokenHash:   tokenHash,
+		TokenFamily: utils.NewUUIDNoDash(),
+		ExpiresAt:   time.Now().UTC().Add(s.cfg.Security.Auth.OAT.RefreshTokenExpiry),
+	})
+	return &TokenPair{
+		AccessToken:  access,
+		RefreshToken: rawRefresh,
+		ExpiresIn:    int64(s.cfg.Security.Auth.OAT.AccessTokenExpiry.Seconds()),
+		User:         user,
+		Settings:     settings,
+	}, nil
+}
+
+// issueTokenPair generates an access token and a refresh token for an
+// existing session, returning the raw refresh token and its hash.
+func (s *Service) issueTokenPair(
+	ctx context.Context,
+	session *models.DeviceSession,
+) (accessToken, rawRefresh, tokenHash string, err error) {
+	accessToken, err = s.atManager.Generate(ctx, session.ID, session.UserID, session.DeviceID)
+	if err != nil {
+		return "", "", "", fmt.Errorf("generate access token: %w", err)
+	}
+	rawRefresh, tokenHash, err = apptoken.GenerateRefreshToken()
+	if err != nil {
+		return "", "", "", fmt.Errorf("generate refresh token: %w", err)
+	}
+	return accessToken, rawRefresh, tokenHash, nil
+}
+
+// recordAttempt publishes an auth-attempt audit event (best effort).
+func (s *Service) recordAttempt(
+	ctx context.Context,
+	email string,
+	userID int64,
+	channel, outcome string,
+) {
+	if err := s.bus.Publish(ctx, &events.AuthAttemptRecorded{
+		Email:      email,
+		UserID:     userID,
+		Channel:    channel,
+		Outcome:    outcome,
+		RequestID:  reqctx.RequestIDFromContext(ctx),
+		OccurredAt: time.Now().UTC(),
+	}); err != nil {
+		s.logger.Warn("auth attempt publish failed", "error", err, "channel", channel)
+	}
+}
+
+// hashToken returns the hex SHA-256 of a raw token.
+func hashToken(token string) string {
+	sum := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(sum[:])
+}

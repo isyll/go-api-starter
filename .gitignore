@@ -1,0 +1,21 @@
+# Binaries
+*.exe
+*.out
+/bin/
+/tmp/
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+/secrets/
+
+# Go
+/vendor/
+*.test
+coverage.out
+coverage.html
+
+# Editor / OS
+.DS_Store
+.claude/settings.local.json
