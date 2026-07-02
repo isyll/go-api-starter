@@ -670,9 +670,9 @@ const file_api_v1_common_proto_rawDesc = "" +
 	"\acurrent\x18\a \x01(\bR\acurrent\"7\n" +
 	"\x04Page\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\x02 \x01(\x05R\bpageSizeB\x8d\x01\n" +
+	"\tpage_size\x18\x02 \x01(\x05R\bpageSizeB\x8e\x01\n" +
 	"\n" +
-	"com.api.v1B\vCommonProtoP\x01Z9github.com/isyll/go-api-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
+	"com.api.v1B\vCommonProtoP\x01Z:github.com/isyll/go-grpc-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
 
 var (
 	file_api_v1_common_proto_rawDescOnce sync.Once

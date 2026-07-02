@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/isyll/go-api-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/config"
 
 	"github.com/redis/go-redis/v9"
 )

@@ -3,11 +3,11 @@ package grpc
 import (
 	"net"
 
-	"github.com/isyll/go-api-starter/internal/domain/auth"
-	apiv1 "github.com/isyll/go-api-starter/internal/gen/api/v1"
-	"github.com/isyll/go-api-starter/pkg/config"
-	"github.com/isyll/go-api-starter/pkg/logger"
-	apptoken "github.com/isyll/go-api-starter/pkg/token"
+	"github.com/isyll/go-grpc-starter/internal/domain/auth"
+	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
+	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"

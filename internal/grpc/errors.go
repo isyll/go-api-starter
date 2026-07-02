@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	apperrors "github.com/isyll/go-api-starter/internal/errors"
+	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

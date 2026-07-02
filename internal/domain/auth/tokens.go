@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/isyll/go-api-starter/internal/events"
-	"github.com/isyll/go-api-starter/internal/models"
-	"github.com/isyll/go-api-starter/internal/reqctx"
-	apptoken "github.com/isyll/go-api-starter/pkg/token"
-	"github.com/isyll/go-api-starter/pkg/utils"
+	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/reqctx"
+	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
+	"github.com/isyll/go-grpc-starter/pkg/utils"
 )
 
 func (s *Service) RefreshTokens(

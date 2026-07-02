@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/isyll/go-api-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/config"
 )
 
 type DummyConfig struct {

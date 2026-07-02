@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/isyll/go-api-starter/pkg/idenc"
+	"github.com/isyll/go-grpc-starter/pkg/idenc"
 )
 
 type SuspensionReason string

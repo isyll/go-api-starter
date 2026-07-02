@@ -11,7 +11,7 @@ import (
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 
-	"github.com/isyll/go-api-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/config"
 )
 
 type Bundle struct {

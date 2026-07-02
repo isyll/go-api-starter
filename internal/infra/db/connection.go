@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/isyll/go-api-starter/pkg/config"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 
-	"github.com/isyll/go-api-starter/internal/persistence"
+	"github.com/isyll/go-grpc-starter/internal/persistence"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"

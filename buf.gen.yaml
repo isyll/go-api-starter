@@ -3,7 +3,7 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: github.com/isyll/go-api-starter/internal/gen
+      value: github.com/isyll/go-grpc-starter/internal/gen
 plugins:
   - local: protoc-gen-go
     out: internal/gen

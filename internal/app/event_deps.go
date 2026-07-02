@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/isyll/go-api-starter/internal/infra/cache"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 
 	"gorm.io/gorm"
 )

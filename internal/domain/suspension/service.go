@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	apperrors "github.com/isyll/go-api-starter/internal/errors"
-	"github.com/isyll/go-api-starter/internal/errors/codes"
-	"github.com/isyll/go-api-starter/internal/models"
+	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
+	"github.com/isyll/go-grpc-starter/internal/errors/codes"
+	"github.com/isyll/go-grpc-starter/internal/models"
 )
 
 var ErrUntilRequired = apperrors.BadRequest(codes.InvalidParam, "suspension.until_required")

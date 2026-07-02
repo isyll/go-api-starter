@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/isyll/go-api-starter/internal/authz"
+	"github.com/isyll/go-grpc-starter/internal/authz"
 )
 
 type rlsBypassKey struct{}

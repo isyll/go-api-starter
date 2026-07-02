@@ -1,4 +1,4 @@
-# go-api-starter
+# go-grpc-starter
 
 A reusable Go backend template: gRPC API, PostgreSQL (GORM + row-level security),
 Redis cache, a transactional outbox event system, and background workers.

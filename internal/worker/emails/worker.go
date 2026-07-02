@@ -10,8 +10,8 @@ import (
 
 	"github.com/hibiken/asynq"
 
-	"github.com/isyll/go-api-starter/pkg/config"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 type Worker struct {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/isyll/go-api-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/models"
 )
 
 func TestDeviceSession_IsRevoked(t *testing.T) {

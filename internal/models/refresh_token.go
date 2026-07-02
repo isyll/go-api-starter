@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/isyll/go-api-starter/pkg/utils"
+	"github.com/isyll/go-grpc-starter/pkg/utils"
 
 	"gorm.io/gorm"
 )

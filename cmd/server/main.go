@@ -4,7 +4,7 @@ package main
 import (
 	"log"
 
-	"github.com/isyll/go-api-starter/internal/app"
+	"github.com/isyll/go-grpc-starter/internal/app"
 )
 
 func main() {

@@ -1,5 +1,5 @@
 app:
-  name: ${APP_NAME:-go-api-starter}
+  name: ${APP_NAME:-go-grpc-starter}
   version: ${APP_VERSION:-0.1.0}
 
 server:

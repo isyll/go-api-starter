@@ -3,12 +3,12 @@ package grpc
 import (
 	"context"
 
-	"github.com/isyll/go-api-starter/internal/domain/notifications"
-	"github.com/isyll/go-api-starter/internal/domain/settings"
-	"github.com/isyll/go-api-starter/internal/domain/users"
-	apiv1 "github.com/isyll/go-api-starter/internal/gen/api/v1"
-	"github.com/isyll/go-api-starter/internal/models"
-	"github.com/isyll/go-api-starter/pkg/idenc"
+	"github.com/isyll/go-grpc-starter/internal/domain/notifications"
+	"github.com/isyll/go-grpc-starter/internal/domain/settings"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
+	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
+	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

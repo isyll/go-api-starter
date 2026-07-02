@@ -1,10 +1,10 @@
 package grpc
 
 import (
-	"github.com/isyll/go-api-starter/internal/domain/auth"
-	apiv1 "github.com/isyll/go-api-starter/internal/gen/api/v1"
-	"github.com/isyll/go-api-starter/internal/models"
-	"github.com/isyll/go-api-starter/pkg/idenc"
+	"github.com/isyll/go-grpc-starter/internal/domain/auth"
+	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
+	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

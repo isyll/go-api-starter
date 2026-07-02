@@ -16,8 +16,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/isyll/go-api-starter/pkg/config"
-	appenv "github.com/isyll/go-api-starter/pkg/env"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	appenv "github.com/isyll/go-grpc-starter/pkg/env"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"

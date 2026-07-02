@@ -3,7 +3,7 @@ package env_test
 import (
 	"testing"
 
-	"github.com/isyll/go-api-starter/pkg/env"
+	"github.com/isyll/go-grpc-starter/pkg/env"
 )
 
 func TestGetOrDefault(t *testing.T) {

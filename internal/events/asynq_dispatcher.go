@@ -7,8 +7,8 @@ import (
 
 	"github.com/hibiken/asynq"
 
-	"github.com/isyll/go-api-starter/internal/reqctx"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/internal/reqctx"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 const TaskTypeDispatch = "events:dispatch"

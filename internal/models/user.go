@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/isyll/go-api-starter/pkg/idenc"
+	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
 	"gorm.io/gorm"
 )

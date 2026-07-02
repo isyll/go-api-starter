@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	"github.com/isyll/go-api-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/models"
 )
 
 type UserStore interface {

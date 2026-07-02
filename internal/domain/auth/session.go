@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/isyll/go-api-starter/internal/infra/cache"
-	"github.com/isyll/go-api-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/internal/models"
 )
 
 func (s *Service) createSessionAndTokens(

@@ -525,9 +525,9 @@ const file_api_v1_auth_proto_rawDesc = "" +
 	"\rResetPassword\x12\x1c.api.v1.ResetPasswordRequest\x1a\x16.google.protobuf.Empty\x12G\n" +
 	"\x0eChangePassword\x12\x1d.api.v1.ChangePasswordRequest\x1a\x16.google.protobuf.Empty\x12B\n" +
 	"\vListDevices\x12\x16.google.protobuf.Empty\x1a\x1b.api.v1.ListDevicesResponse\x12C\n" +
-	"\fRevokeDevice\x12\x1b.api.v1.RevokeDeviceRequest\x1a\x16.google.protobuf.EmptyB\x8b\x01\n" +
+	"\fRevokeDevice\x12\x1b.api.v1.RevokeDeviceRequest\x1a\x16.google.protobuf.EmptyB\x8c\x01\n" +
 	"\n" +
-	"com.api.v1B\tAuthProtoP\x01Z9github.com/isyll/go-api-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
+	"com.api.v1B\tAuthProtoP\x01Z:github.com/isyll/go-grpc-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
 
 var (
 	file_api_v1_auth_proto_rawDescOnce sync.Once

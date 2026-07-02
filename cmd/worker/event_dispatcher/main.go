@@ -11,13 +11,13 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/isyll/go-api-starter/internal/app"
-	"github.com/isyll/go-api-starter/internal/events"
-	"github.com/isyll/go-api-starter/internal/infra/cache"
-	database "github.com/isyll/go-api-starter/internal/infra/db"
-	"github.com/isyll/go-api-starter/pkg/config"
-	appenv "github.com/isyll/go-api-starter/pkg/env"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/internal/app"
+	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	database "github.com/isyll/go-grpc-starter/internal/infra/db"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	appenv "github.com/isyll/go-grpc-starter/pkg/env"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 func main() {

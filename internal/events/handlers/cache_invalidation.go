@@ -4,10 +4,10 @@ package handlers
 import (
 	"context"
 
-	"github.com/isyll/go-api-starter/internal/events"
-	"github.com/isyll/go-api-starter/internal/infra/cache"
-	"github.com/isyll/go-api-starter/internal/metrics"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/internal/metrics"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 type CacheInvalidator struct {

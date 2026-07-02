@@ -7,8 +7,8 @@ import (
 
 	"firebase.google.com/go/v4/messaging"
 
-	"github.com/isyll/go-api-starter/internal/models"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 type RegisterTokenInput struct {

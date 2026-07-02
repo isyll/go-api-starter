@@ -14,8 +14,8 @@ import (
 	"firebase.google.com/go/v4/storage"
 	"google.golang.org/api/option"
 
-	"github.com/isyll/go-api-starter/pkg/config"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 const fbStorageURLPrefix = "https://firebasestorage.googleapis.com/v0/b/%s/o/"

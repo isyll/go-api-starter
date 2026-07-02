@@ -5,13 +5,13 @@ email:
   senders:
     noreply:
       address: ${EMAIL_NOREPLY:-noreply@example.com}
-      name: ${APP_NAME:-go-api-starter}
+      name: ${APP_NAME:-go-grpc-starter}
     security:
       address: ${EMAIL_SECURITY:-security@example.com}
-      name: ${APP_NAME:-go-api-starter} Security
+      name: ${APP_NAME:-go-grpc-starter} Security
     news:
       address: ${EMAIL_NEWS:-news@example.com}
-      name: ${APP_NAME:-go-api-starter} News
+      name: ${APP_NAME:-go-grpc-starter} News
 
   worker:
     concurrency: ${EMAIL_WORKER_CONCURRENCY:-5}

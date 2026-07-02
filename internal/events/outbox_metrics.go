@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/isyll/go-api-starter/internal/metrics"
+	"github.com/isyll/go-grpc-starter/internal/metrics"
 )
 
 func (r *OutboxRepository) UpdateMetrics(

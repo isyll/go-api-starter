@@ -3,7 +3,7 @@ package notifications
 import (
 	"strings"
 
-	"github.com/isyll/go-api-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/config"
 )
 
 func buildDeepLink(

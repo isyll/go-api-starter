@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 // testEvent is a sync-only event with no factory; we

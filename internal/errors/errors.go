@@ -5,7 +5,7 @@ import (
 	"maps"
 	"net/http"
 
-	"github.com/isyll/go-api-starter/internal/errors/codes"
+	"github.com/isyll/go-grpc-starter/internal/errors/codes"
 )
 
 type HTTPError struct {

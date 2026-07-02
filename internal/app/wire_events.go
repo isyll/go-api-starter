@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/isyll/go-api-starter/internal/events"
-	"github.com/isyll/go-api-starter/internal/events/handlers"
+	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/events/handlers"
 )
 
 func WireEventSubscriptions(bus *events.Bus, deps *EventHandlerDeps) {

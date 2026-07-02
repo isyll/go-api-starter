@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/isyll/go-api-starter/internal/events"
-	"github.com/isyll/go-api-starter/internal/models"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 type ProfileUpdate struct {

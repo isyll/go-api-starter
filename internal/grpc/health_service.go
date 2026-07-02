@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	apiv1 "github.com/isyll/go-api-starter/internal/gen/api/v1"
+	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
 
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/protobuf/types/known/emptypb"

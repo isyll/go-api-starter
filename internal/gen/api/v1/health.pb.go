@@ -97,9 +97,9 @@ const file_api_v1_health_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\x81\x01\n" +
 	"\rHealthService\x127\n" +
 	"\x05Check\x12\x16.google.protobuf.Empty\x1a\x16.api.v1.HealthResponse\x127\n" +
-	"\x05Ready\x12\x16.google.protobuf.Empty\x1a\x16.api.v1.HealthResponseB\x8d\x01\n" +
+	"\x05Ready\x12\x16.google.protobuf.Empty\x1a\x16.api.v1.HealthResponseB\x8e\x01\n" +
 	"\n" +
-	"com.api.v1B\vHealthProtoP\x01Z9github.com/isyll/go-api-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
+	"com.api.v1B\vHealthProtoP\x01Z:github.com/isyll/go-grpc-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
 
 var (
 	file_api_v1_health_proto_rawDescOnce sync.Once

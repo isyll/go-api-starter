@@ -3,9 +3,9 @@ package grpc
 import (
 	"context"
 
-	"github.com/isyll/go-api-starter/internal/domain/auth"
-	apiv1 "github.com/isyll/go-api-starter/internal/gen/api/v1"
-	"github.com/isyll/go-api-starter/pkg/idenc"
+	"github.com/isyll/go-grpc-starter/internal/domain/auth"
+	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
+	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"

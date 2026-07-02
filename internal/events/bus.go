@@ -13,9 +13,9 @@ import (
 
 	"github.com/hibiken/asynq"
 
-	"github.com/isyll/go-api-starter/internal/metrics"
-	"github.com/isyll/go-api-starter/internal/persistence"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/internal/metrics"
+	"github.com/isyll/go-grpc-starter/internal/persistence"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 var ErrEnqueueFailed = errors.New(

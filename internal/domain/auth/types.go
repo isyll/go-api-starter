@@ -4,7 +4,7 @@ package auth
 import (
 	"time"
 
-	"github.com/isyll/go-api-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/models"
 )
 
 type DeviceInfo struct {

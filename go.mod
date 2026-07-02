@@ -1,4 +1,4 @@
-module github.com/isyll/go-api-starter
+module github.com/isyll/go-grpc-starter
 
 go 1.26
 

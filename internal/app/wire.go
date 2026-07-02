@@ -3,12 +3,12 @@ package app
 import (
 	"os"
 
-	"github.com/isyll/go-api-starter/internal/domain/auth"
-	"github.com/isyll/go-api-starter/internal/domain/notifications"
-	"github.com/isyll/go-api-starter/internal/domain/settings"
-	"github.com/isyll/go-api-starter/internal/domain/suspension"
-	"github.com/isyll/go-api-starter/internal/domain/users"
-	grpcserver "github.com/isyll/go-api-starter/internal/grpc"
+	"github.com/isyll/go-grpc-starter/internal/domain/auth"
+	"github.com/isyll/go-grpc-starter/internal/domain/notifications"
+	"github.com/isyll/go-grpc-starter/internal/domain/settings"
+	"github.com/isyll/go-grpc-starter/internal/domain/suspension"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
+	grpcserver "github.com/isyll/go-grpc-starter/internal/grpc"
 )
 
 func (a *App) buildGRPCDeps() grpcserver.Deps {

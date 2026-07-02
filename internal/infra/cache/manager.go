@@ -11,7 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/sync/singleflight"
 
-	"github.com/isyll/go-api-starter/internal/metrics"
+	"github.com/isyll/go-grpc-starter/internal/metrics"
 )
 
 type CacheManager struct {

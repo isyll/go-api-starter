@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/isyll/go-api-starter/pkg/utils"
+	"github.com/isyll/go-grpc-starter/pkg/utils"
 )
 
 type TestStruct struct {

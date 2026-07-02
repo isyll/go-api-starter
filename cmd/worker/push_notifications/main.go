@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"log"
 
-	database "github.com/isyll/go-api-starter/internal/infra/db"
-	notifWorker "github.com/isyll/go-api-starter/internal/worker/notifications"
-	"github.com/isyll/go-api-starter/pkg/config"
-	appenv "github.com/isyll/go-api-starter/pkg/env"
-	"github.com/isyll/go-api-starter/pkg/firebase"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	database "github.com/isyll/go-grpc-starter/internal/infra/db"
+	notifWorker "github.com/isyll/go-grpc-starter/internal/worker/notifications"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	appenv "github.com/isyll/go-grpc-starter/pkg/env"
+	"github.com/isyll/go-grpc-starter/pkg/firebase"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 func main() {

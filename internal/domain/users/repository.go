@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	apperrors "github.com/isyll/go-api-starter/internal/errors"
-	"github.com/isyll/go-api-starter/internal/models"
+	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
+	"github.com/isyll/go-grpc-starter/internal/models"
 
 	"gorm.io/gorm"
 )

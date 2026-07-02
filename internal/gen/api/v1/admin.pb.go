@@ -363,10 +363,10 @@ const file_api_v1_admin_proto_rawDesc = "" +
 	"\aGetUser\x12\x1b.api.v1.AdminGetUserRequest\x1a\f.api.v1.User\x12A\n" +
 	"\vSuspendUser\x12\x1a.api.v1.SuspendUserRequest\x1a\x16.google.protobuf.Empty\x12E\n" +
 	"\rUnsuspendUser\x12\x1c.api.v1.UnsuspendUserRequest\x1a\x16.google.protobuf.Empty\x12A\n" +
-	"\vSetUserRole\x12\x1a.api.v1.SetUserRoleRequest\x1a\x16.google.protobuf.EmptyB\x8c\x01\n" +
+	"\vSetUserRole\x12\x1a.api.v1.SetUserRoleRequest\x1a\x16.google.protobuf.EmptyB\x8d\x01\n" +
 	"\n" +
 	"com.api.v1B\n" +
-	"AdminProtoP\x01Z9github.com/isyll/go-api-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
+	"AdminProtoP\x01Z:github.com/isyll/go-grpc-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
 
 var (
 	file_api_v1_admin_proto_rawDescOnce sync.Once

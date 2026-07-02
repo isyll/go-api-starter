@@ -2,6 +2,6 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: go-api-starter
+  - job_name: go-grpc-starter
     static_configs:
       - targets: ["server:9090"]

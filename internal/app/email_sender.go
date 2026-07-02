@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	"github.com/isyll/go-api-starter/internal/worker/emails"
+	"github.com/isyll/go-grpc-starter/internal/worker/emails"
 )
 
 type emailSender struct {

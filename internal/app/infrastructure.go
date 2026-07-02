@@ -5,14 +5,14 @@ import (
 
 	"firebase.google.com/go/v4/messaging"
 
-	"github.com/isyll/go-api-starter/internal/events"
-	"github.com/isyll/go-api-starter/internal/infra/cache"
-	"github.com/isyll/go-api-starter/internal/worker/emails"
-	"github.com/isyll/go-api-starter/internal/worker/notifications"
-	"github.com/isyll/go-api-starter/pkg/config"
-	"github.com/isyll/go-api-starter/pkg/idenc"
-	"github.com/isyll/go-api-starter/pkg/logger"
-	apptoken "github.com/isyll/go-api-starter/pkg/token"
+	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/internal/worker/emails"
+	"github.com/isyll/go-grpc-starter/internal/worker/notifications"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/idenc"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
+	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"

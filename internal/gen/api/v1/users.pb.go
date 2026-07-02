@@ -335,10 +335,10 @@ const file_api_v1_users_proto_rawDesc = "" +
 	"\x0eUpdateSettings\x12\x10.api.v1.Settings\x1a\x10.api.v1.Settings\x12M\n" +
 	"\x11RegisterPushToken\x12 .api.v1.RegisterPushTokenRequest\x1a\x16.google.protobuf.Empty\x12U\n" +
 	"\x1aGetNotificationPreferences\x12\x16.google.protobuf.Empty\x1a\x1f.api.v1.NotificationPreferences\x12a\n" +
-	"\x1dUpdateNotificationPreferences\x12\x1f.api.v1.NotificationPreferences\x1a\x1f.api.v1.NotificationPreferencesB\x8c\x01\n" +
+	"\x1dUpdateNotificationPreferences\x12\x1f.api.v1.NotificationPreferences\x1a\x1f.api.v1.NotificationPreferencesB\x8d\x01\n" +
 	"\n" +
 	"com.api.v1B\n" +
-	"UsersProtoP\x01Z9github.com/isyll/go-api-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
+	"UsersProtoP\x01Z:github.com/isyll/go-grpc-starter/internal/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
 
 var (
 	file_api_v1_users_proto_rawDescOnce sync.Once

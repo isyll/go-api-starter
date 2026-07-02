@@ -14,10 +14,10 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/resend/resend-go/v3"
 
-	"github.com/isyll/go-api-starter/internal/metrics"
-	"github.com/isyll/go-api-starter/pkg/config"
-	"github.com/isyll/go-api-starter/pkg/locale"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/internal/metrics"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/locale"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 type Processor struct {

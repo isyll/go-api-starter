@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 
-	"github.com/isyll/go-api-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/models"
 )
 
 func TestAccountSuspension_IsActive(t *testing.T) {

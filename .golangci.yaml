@@ -29,7 +29,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/isyll/go-api-starter
+        - github.com/isyll/go-grpc-starter
 
 issues:
   max-issues-per-linter: 0

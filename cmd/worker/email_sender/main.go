@@ -4,11 +4,11 @@ package main
 import (
 	"log"
 
-	"github.com/isyll/go-api-starter/internal/worker/emails"
-	"github.com/isyll/go-api-starter/pkg/config"
-	appenv "github.com/isyll/go-api-starter/pkg/env"
-	"github.com/isyll/go-api-starter/pkg/locale"
-	"github.com/isyll/go-api-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/internal/worker/emails"
+	"github.com/isyll/go-grpc-starter/pkg/config"
+	appenv "github.com/isyll/go-grpc-starter/pkg/env"
+	"github.com/isyll/go-grpc-starter/pkg/locale"
+	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 func main() {

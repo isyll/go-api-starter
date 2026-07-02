@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/isyll/go-api-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/models"
 
 	"gorm.io/gorm"
 )
