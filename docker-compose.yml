@@ -1,0 +1,116 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DB_NAME:-appdb}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${DB_NAME:-appdb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD:-password}"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - ./infra/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-password}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    command: ["/app/migrate", "-up"]
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      DB_USER: ${DB_OWNER_USER:-app_owner}
+      DB_PASSWORD: ${DB_OWNER_PASSWORD:-app_owner_password}
+      REDIS_HOST: redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  server:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    command: ["/app/server"]
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+      - "9090:9090"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  event_dispatcher:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    command: ["/app/event_dispatcher"]
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  email_sender:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    command: ["/app/email_sender"]
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  push_notifications:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    command: ["/app/push_notifications"]
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - server
+
+volumes:
+  pgdata:

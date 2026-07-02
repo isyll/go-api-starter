@@ -1,158 +1,88 @@
 set dotenv-load
 set dotenv-filename := ".env"
 
-app_name := "app_owner-api"
-build_dir := "build"
+build_dir := "bin"
 
-# Run
+# List available recipes.
+default:
+    @just --list
 
-# Run API server
+# Run the gRPC server.
 run:
-    @go run ./cmd/api
+    @go run ./cmd/server
 
-# Run API with hot reload (air)
+# Run with hot reload (air).
 dev:
-    @rm -rf tmp/ && air
+    @air
 
-# Code quality
+# Generate protobuf code (buf).
+proto:
+    @buf lint && buf generate
 
-# Format all Go code (gofumpt + goimports + golines) and SQL migrations
-format:
-    @gofumpt -w . && goimports -w . && gofmt -s -w .
-    @golines -w -m 72 --no-reformat-tags \
-        --base-formatter=gofumpt .
+# Format Go code.
+fmt:
+    @gofmt -w cmd internal pkg
     @go mod tidy
-    @sqlfluff fix --dialect postgres migrations/
 
-# Lint and auto-fix (golangci-lint + staticcheck full ruleset)
+# Lint (golangci-lint).
 lint:
-    @golangci-lint run --fix
-    @staticcheck -checks=all ./...
+    @golangci-lint run
 
-# Run staticcheck with the strictest profile (-checks=all)
-staticcheck:
-    @staticcheck -checks=all ./...
-
-# Generate Swagger docs
-swagger:
-    @swag init -g cmd/api/main.go -o swagger \
-        --outputTypes go,yaml,json
-
-# Run the standalone Swagger UI server
-swagger-serve:
-    @go run ./cmd/swagger
-
-# Tests
-
-# Run all tests
+# Run tests.
 test:
-    @go test ./... -race -shuffle=on -timeout 30s
+    @go test ./... -race -shuffle=on -timeout 60s
 
-# Run tests with coverage report
+# Tests with coverage.
 test-cover:
-    @go test ./... -race -shuffle=on -coverprofile=coverage.out \
-        -covermode=atomic -timeout 30s
+    @go test ./... -race -coverprofile=coverage.out -covermode=atomic
     @go tool cover -func=coverage.out
 
-# Run unit tests only
-test-unit:
-    @go test ./internal/helpers/... ./internal/models/... \
-        ./pkg/utils/... ./pkg/api/... \
-        ./pkg/validators/... -v -race -timeout 30s
+# Build all binaries.
+build:
+    @mkdir -p {{ build_dir }}
+    @go build -trimpath -ldflags="-s -w" -o {{ build_dir }}/ ./cmd/...
 
-# Run integration tests only
-test-integration:
-    @go test ./internal/handlers/... \
-        -v -race -timeout 60s
-
-# Migrations
-
-# Run all migrations up
-migrate-up:
+# Apply all migrations.
+migrate:
     @go run ./cmd/migrate -up
 
-# Rollback migrations (defaults to 1 step)
+# Roll back N migrations (default 1).
 migrate-down steps="1":
     @go run ./cmd/migrate -down -steps {{ steps }}
 
-# Create migration
+# Create a new migration pair.
 migrate-create name:
     @migrate create -ext sql -dir migrations -seq {{ name }}
 
-# Force version
-migrate-force version:
-    @go run ./cmd/migrate -force {{ version }}
+# Migration status.
+migrate-status:
+    @go run ./cmd/migrate -status
 
-# Build
-
-# Build API binary
-build:
-    @mkdir -p {{ build_dir }}
-    @go build -trimpath -ldflags="-s -w" \
-        -o {{ build_dir }}/{{ app_name }} ./cmd/api
-
-# Build standalone Swagger UI binary
-swagger-build:
-    @mkdir -p {{ build_dir }}
-    @go build -trimpath -ldflags="-s -w" \
-        -o {{ build_dir }}/app_owner-swagger ./cmd/swagger
-
-# Build API + migrate + all workers
-build-all:
-    @mkdir -p {{ build_dir }}
-    @go build -trimpath -ldflags="-s -w" \
-        -o {{ build_dir }}/{{ app_name }} ./cmd/api
-    @go build -trimpath -ldflags="-s -w" \
-        -o {{ build_dir }}/app_owner-swagger ./cmd/swagger
-    @go build -trimpath -ldflags="-s -w" \
-        -o {{ build_dir }}/app_owner-migrate ./cmd/migrate
-    @go build -trimpath -ldflags="-s -w" \
-        -o {{ build_dir }}/app_owner-push-worker \
-        ./cmd/worker/push_notifications
-    @go build -trimpath -ldflags="-s -w" \
-        -o {{ build_dir }}/app_owner-email-worker \
-        ./cmd/worker/email_sender
-    @go build -trimpath -ldflags="-s -w" \
-        -o {{ build_dir }}/app_owner-trip-worker \
-        ./cmd/worker/trip_lifecycle
-
-# Workers
-
-# Run push notifications worker
-worker-push:
-    @go run ./cmd/worker/push_notifications
-
-# Run email worker
+# Run the email worker.
 worker-email:
     @go run ./cmd/worker/email_sender
 
-# Run trip lifecycle worker
-worker-trips:
-    @go run ./cmd/worker/trip_lifecycle
+# Run the push worker.
+worker-push:
+    @go run ./cmd/worker/push_notifications
 
-# Scripts
+# Run the event dispatcher worker.
+worker-events:
+    @go run ./cmd/worker/event_dispatcher
 
-# Bump API version: patch | minor | major | X.Y.Z
-bump v:
-    @chmod +x scripts/bump_version.sh && ./scripts/bump_version.sh {{ v }}
+# Start postgres + redis (and everything) with docker.
+up:
+    @docker compose up -d postgres redis
 
-# Manage pg_cron session cleanup job
-pg-cron +args:
-    @chmod +x scripts/manage-pg-cron.sh && ./scripts/manage-pg-cron.sh {{ args }}
+# Start the full stack with docker.
+up-all:
+    @docker compose up -d --build
 
-# Renumber migration files from a given start number
-renumber-migrations start +args="":
-    @chmod +x scripts/renumber_migrations.sh \
-        && ./scripts/renumber_migrations.sh {{ start }} {{ args }}
+# Stop the docker stack.
+down:
+    @docker compose down
 
-# Run the trip schedule generator once
-ride-generator:
-    @chmod +x scripts/run-ride-generator.sh && ./scripts/run-ride-generator.sh
-
-# Cleanup
-
-# Clean build artifacts
+# Clean build artifacts.
 clean:
-    @rm -rf {{ build_dir }} tmp/ swagger/ logs/ \
-        secrets/ coverage.out
+    @rm -rf {{ build_dir }} tmp/ coverage.out
     @go clean

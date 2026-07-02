@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -39,6 +40,7 @@ type App struct {
 
 	server   *grpcserver.Server
 	listener net.Listener
+	obs      *http.Server
 
 	bgCtx    context.Context
 	bgCancel context.CancelFunc
@@ -203,6 +205,7 @@ func (a *App) Start() {
 		"address", a.listener.Addr().String(),
 		"startup", time.Since(a.StartTime).String(),
 	)
+	a.obs = a.startObservability()
 	go func() {
 		if err := a.server.Serve(a.listener); err != nil {
 			a.Infra.Logger.Fatal("gRPC serve failed", "error", err)
@@ -220,6 +223,12 @@ func (a *App) AwaitShutdown() {
 
 	a.bgCancel()
 	a.server.GracefulStop()
+
+	if a.obs != nil {
+		shutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = a.obs.Shutdown(shutCtx)
+	}
 
 	if sqlDB, err := a.Infra.DB.DB(); err == nil {
 		_ = sqlDB.Close()
