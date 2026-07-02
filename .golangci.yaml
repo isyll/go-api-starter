@@ -182,10 +182,6 @@ linters:
         text: "weak cryptographic primitive"
         linters:
           - gosec
-      - path: swagger/docs\.go
-        linters:
-          - gochecknoinits
-          - lll
       - path: internal/platform/cache/cachekey\.go
         text: "G101"
         linters:
