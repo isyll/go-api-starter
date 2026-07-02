@@ -10,5 +10,6 @@
   "gopls": { "ui.semanticTokens": true },
   "files.associations": { "*.proto": "proto3", "*.sqlfluffignore": "ignore" },
   "search.exclude": { "internal/gen/**": true },
-  "yaml.schemas": {}
+  "yaml.schemas": {},
+  "cSpell.enabled": false
 }
