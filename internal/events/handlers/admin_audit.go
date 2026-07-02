@@ -12,21 +12,15 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// AuditLogHandler persists AuditLogWritten events to audit.audit_logs.
-// Running the write in the event-dispatcher worker keeps it off the
-// request path and gives it outbox durability.
 type AuditLogHandler struct {
 	db     *gorm.DB
 	logger *logger.Logger
 }
 
-// NewAuditLogHandler wires an AuditLogHandler over the DB and logger.
 func NewAuditLogHandler(db *gorm.DB, logx *logger.Logger) *AuditLogHandler {
 	return &AuditLogHandler{db: db, logger: logx}
 }
 
-// OnAuditLogWritten persists the event as an audit row. On error it
-// records a metric and returns the error so Asynq can retry.
 func (h *AuditLogHandler) OnAuditLogWritten(
 	ctx context.Context,
 	evt *events.AuditLogWritten,

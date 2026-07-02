@@ -1,7 +1,4 @@
 // Command migrate applies and rolls back PostgreSQL migrations for
-// the appdb and app_worker databases. It reads the --target
-// flag to select which database and the --steps flag to control
-// how many migrations to apply or roll back.
 package main
 
 import (
@@ -29,18 +26,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// directionUp and directionDown name the two wire values stored
-// in MigrationRecord.Direction and used by the CLI switch. Kept
-// as constants so a typo at a call site is a compile error.
 const (
 	directionUp   = "up"
 	directionDown = "down"
 )
 
-// MigrationRecord is one row of the public.migration_history
-// audit table. The CLI inserts a row per executed step (up,
-// down, force, or to-version) so operators can reconstruct who
-// ran what in which environment.
 type MigrationRecord struct {
 	ID          string    `json:"id"`
 	Version     uint      `json:"version"`
@@ -54,22 +44,11 @@ type MigrationRecord struct {
 	Environment string    `json:"environment"`
 }
 
-// MigrationTracker owns the connection to the audit table
-// public.migration_history. It opens its own DB handle (separate
-// from golang-migrate's) so the audit row write does not depend
-// on the migrate driver's connection lifecycle.
 type MigrationTracker struct {
-	// db is the *sql.DB handle backing the tracker's queries.
-	db *sql.DB
-	// dsn is the libpq connection string, retained so init can
-	// reconnect lazily.
+	db  *sql.DB
 	dsn string
 }
 
-// main is the entry point of the migrate CLI. It parses flags,
-// loads the backend config, opens a tracking connection, and
-// dispatches to the requested sub-command (up/down/steps/force/
-// status/history/create).
 func main() {
 	var (
 		up    = flag.Bool("up", false, "Run all migrations up")
@@ -124,17 +103,6 @@ func main() {
 	}
 	defer tracker.close()
 
-	// Wire SIGINT/SIGTERM so Ctrl+C during a long migration is
-	// observed: the audit-row queries and version lookups stop
-	// taking new work, and executeMigrationWithTracking forwards
-	// the cancellation to golang-migrate via GracefulStop. Note
-	// that an in-flight SQL statement inside golang-migrate is
-	// not always interruptible mid-step; the goal is to abort
-	// between steps rather than to kill PostgreSQL transactions.
-	// Signal handling is wired AFTER tracker.init so the lint
-	// guard against `defer stop() not run on log.Fatal` is
-	// honored — boot-time fatals fall through to the default Go
-	// signal disposition.
 	ctx, stop := signal.NotifyContext(
 		context.Background(), os.Interrupt, syscall.SIGTERM,
 	)
@@ -181,9 +149,6 @@ func main() {
 	}
 }
 
-// init opens the tracker's DB connection and ensures the audit
-// table exists. Called once from main; subsequent recordMigration
-// calls reuse the open handle.
 func (mt *MigrationTracker) init() error {
 	db, err := sql.Open("postgres", mt.dsn)
 	if err != nil {
@@ -194,19 +159,12 @@ func (mt *MigrationTracker) init() error {
 	return mt.createHistoryTable()
 }
 
-// close releases the tracker's DB connection. Safe to call when
-// init was never run (no-op on nil db).
 func (mt *MigrationTracker) close() {
 	if mt.db != nil {
 		_ = mt.db.Close()
 	}
 }
 
-// moveTableToPublic moves a table from any non-public schema
-// to the public schema if it exists there but not in public.
-// This handles the case where migration tables were
-// accidentally created in the rides schema due to search_path
-// order.
 func (mt *MigrationTracker) moveTableToPublic(
 	ctx context.Context,
 	tableName string,
@@ -256,10 +214,6 @@ func (mt *MigrationTracker) moveTableToPublic(
 	return nil
 }
 
-// createHistoryTable is the idempotent DDL that backs
-// MigrationRecord. It must execute against the public schema so
-// the table survives every per-domain schema drop the rest of
-// the migration set might perform.
 func (mt *MigrationTracker) createHistoryTable() error {
 	ctx := context.Background()
 
@@ -291,10 +245,6 @@ func (mt *MigrationTracker) createHistoryTable() error {
 	return err
 }
 
-// recordMigration inserts a single audit row. Called from
-// executeMigrationWithTracking after every step, regardless of
-// whether the step succeeded — the Status field carries the
-// outcome.
 func (mt *MigrationTracker) recordMigration(
 	ctx context.Context,
 	record *MigrationRecord,
@@ -321,9 +271,6 @@ func (mt *MigrationTracker) recordMigration(
 	return err
 }
 
-// getHistory returns the most recent `limit` rows from
-// public.migration_history in reverse chronological order. Used
-// by the -history sub-command.
 func (mt *MigrationTracker) getHistory(
 	ctx context.Context,
 	limit int,
@@ -364,9 +311,6 @@ func (mt *MigrationTracker) getHistory(
 	return records, nil
 }
 
-// getCurrentUser reads the OS user invoking the CLI so audit
-// rows attribute the migration to a human. Falls back to
-// "unknown" when neither USER nor USERNAME is set.
 func getCurrentUser() string {
 	if user := os.Getenv("USER"); user != "" {
 		return user
@@ -377,9 +321,6 @@ func getCurrentUser() string {
 	return "unknown"
 }
 
-// getCurrentEnvironment returns the deployment environment
-// recorded against the audit row. Reads APP_ENV first, then
-// ENVIRONMENT, defaulting to "development" when neither is set.
 func getCurrentEnvironment() string {
 	if env := os.Getenv("APP_ENV"); env != "" {
 		return env
@@ -390,10 +331,6 @@ func getCurrentEnvironment() string {
 	return "development"
 }
 
-// getMigrationName resolves a version integer to the
-// human-readable name from the matching migrations/NNNNNN_*.up.sql
-// file. Returns "migration_<n>" when the file cannot be found —
-// the audit row still records the version.
 func getMigrationName(version uint) string {
 	files, err := filepath.Glob("migrations/*.up.sql")
 	if err != nil {
@@ -414,10 +351,6 @@ func getMigrationName(version uint) string {
 	return fmt.Sprintf("migration_%d", version)
 }
 
-// createMigration prints the `migrate create` invocation that
-// scaffolds a paired *.up.sql / *.down.sql under migrations/.
-// Kept as a separate sub-command so operators don't have to
-// remember the flags.
 func createMigration(name string) {
 	log.Printf("Creating migration: %s", name)
 	fmt.Printf("Run this command to create migration files:\n")
@@ -426,9 +359,6 @@ func createMigration(name string) {
 	)
 }
 
-// moveSchemamigrationsToPublic moves the schema_migrations
-// table from a non-public schema (e.g. rides) to public if
-// needed. Must run before golang-migrate initializes.
 func moveSchemamigrationsToPublic(db *sql.DB) error {
 	ctx := context.Background()
 
@@ -479,11 +409,6 @@ func moveSchemamigrationsToPublic(db *sql.DB) error {
 	return nil
 }
 
-// getMigrate constructs the golang-migrate driver wired to
-// `file://migrations` and the public schema. It runs the
-// schema-migrations relocation guard first so a misplaced
-// `rides.schema_migrations` from an earlier dev iteration is
-// silently fixed.
 func getMigrate(dsn string) (*migrate.Migrate, error) {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
@@ -521,11 +446,6 @@ func getMigrate(dsn string) (*migrate.Migrate, error) {
 	return m, nil
 }
 
-// executeMigrationWithTracking wraps a migrate operation with
-// version-diffing, timing, and audit-row insertion. It is the
-// single chokepoint every up/down/steps/to-version sub-command
-// funnels through, ensuring every executed step writes exactly
-// one history row.
 func executeMigrationWithTracking(
 	ctx context.Context,
 	dsn string,
@@ -539,10 +459,6 @@ func executeMigrationWithTracking(
 	}
 	defer func() { _, _ = m.Close() }()
 
-	// Forward Ctrl+C to golang-migrate's graceful-stop channel.
-	// The library checks GracefulStop between steps; an in-flight
-	// SQL statement will not be canceled mid-execution, but the
-	// next step in a multi-step run will not start.
 	stopForwarder := make(chan struct{})
 	go func() {
 		select {
@@ -594,9 +510,6 @@ func executeMigrationWithTracking(
 		record.ErrorMsg = err.Error()
 	}
 
-	// Use a fresh context (not ctx) for the audit-row write so a
-	// Ctrl+C between the migration step and the audit insert
-	// still records the outcome. The insert is bounded to 5 s.
 	auditCtx, cancel := context.WithTimeout(
 		context.Background(), 5*time.Second,
 	)
@@ -613,9 +526,6 @@ func executeMigrationWithTracking(
 	return err
 }
 
-// showStatus prints the current migration version and dirty
-// flag, with extra hints when the migration set has never been
-// applied. Backs the -status sub-command.
 func showStatus(dsn string) {
 	log.Println("Checking migration status...")
 
@@ -647,8 +557,6 @@ func showStatus(dsn string) {
 	)
 }
 
-// showHistory pretty-prints the last 20 entries from
-// public.migration_history. Backs the -history sub-command.
 func showHistory(ctx context.Context, tracker *MigrationTracker) {
 	log.Println("Migration history (last 20):")
 
@@ -693,9 +601,6 @@ func showHistory(ctx context.Context, tracker *MigrationTracker) {
 	}
 }
 
-// truncateString clamps s to maxLen runes, replacing the tail
-// with an ellipsis when the string was actually shortened.
-// Used only for column-fitting in showHistory.
 func truncateString(s string, maxLen int) string {
 	if len(s) <= maxLen {
 		return s
@@ -703,8 +608,6 @@ func truncateString(s string, maxLen int) string {
 	return s[:maxLen-3] + "..."
 }
 
-// migrateUp drains every pending migration in ascending order.
-// Treats ErrNoChange as a success (nothing to do).
 func migrateUp(
 	ctx context.Context,
 	dsn string,
@@ -729,9 +632,6 @@ func migrateUp(
 	log.Println("All migrations completed successfully")
 }
 
-// migrateDown rolls every applied migration back in descending
-// order. Intended for local dev reset; production rollbacks
-// should target a specific version via -version instead.
 func migrateDown(
 	ctx context.Context,
 	dsn string,
@@ -756,10 +656,6 @@ func migrateDown(
 	log.Println("All migrations rolled back successfully")
 }
 
-// migrateSteps moves the schema by `steps` versions in either
-// direction. Positive steps drive up, negative drive down — the
-// sign also determines which direction string lands in the
-// audit row.
 func migrateSteps(
 	ctx context.Context,
 	dsn string,
@@ -790,9 +686,6 @@ func migrateSteps(
 	log.Printf("Migration steps completed successfully")
 }
 
-// migrateToVersion drives the schema to a specific version,
-// computing the direction relative to the current state. Used
-// by the -version sub-command for targeted rollouts/rollbacks.
 func migrateToVersion(
 	ctx context.Context,
 	dsn string,
@@ -834,11 +727,6 @@ func migrateToVersion(
 	)
 }
 
-// forceMigration overrides the dirty bit and pins
-// schema_migrations.version to the supplied number. The escape
-// hatch for recovering from a partially-applied migration where
-// the operator has already manually undone the partial change.
-// Backs the -force sub-command.
 func forceMigration(
 	ctx context.Context,
 	dsn string,

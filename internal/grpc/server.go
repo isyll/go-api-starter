@@ -15,7 +15,6 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-// Deps is everything the gRPC server needs to serve requests.
 type Deps struct {
 	Logger   *logger.Logger
 	Config   *config.Configs
@@ -27,15 +26,11 @@ type Deps struct {
 	Health   *HealthServer
 }
 
-// Server wraps a configured *grpc.Server.
 type Server struct {
 	grpc   *grpc.Server
 	logger *logger.Logger
 }
 
-// New builds the gRPC server, wires the interceptor chain, and
-// registers every service plus reflection and the standard health
-// service.
 func New(d Deps) *Server {
 	ic := &interceptors{
 		tokens:   d.Tokens,
@@ -65,12 +60,10 @@ func New(d Deps) *Server {
 	return &Server{grpc: srv, logger: d.Logger}
 }
 
-// Serve blocks serving on the listener until GracefulStop is called.
 func (s *Server) Serve(lis net.Listener) error {
 	return s.grpc.Serve(lis)
 }
 
-// GracefulStop drains in-flight RPCs and stops the server.
 func (s *Server) GracefulStop() {
 	s.grpc.GracefulStop()
 }

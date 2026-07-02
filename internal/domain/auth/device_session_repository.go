@@ -14,67 +14,45 @@ import (
 )
 
 const (
-	// Column names for the auth.device_sessions and
-	// auth.refresh_tokens GORM Updates maps. Centralized so a
-	// schema rename is a one-line change.
 	colRevokedAt     = "revoked_at"
 	colRevokedReason = "revoked_reason"
 	colCreatedAt     = "created_at"
 )
 
-// DeviceSessionRepository defines the data-access contract for
-// auth.device_sessions rows.
 type DeviceSessionRepository interface {
-	// Create persists a new device session, panicking on unexpected DB failure.
 	Create(
 		ctx context.Context,
 		session *models.DeviceSession,
 	)
-	// FindByID retrieves a device session by its primary key, returning an
-	// error when absent.
 	FindByID(
 		ctx context.Context,
 		id int64,
 	) (*models.DeviceSession, error)
-	// FindByUserAndDeviceID returns the active session for the given user and
-	// device pair, or nil when none exists.
 	FindByUserAndDeviceID(
 		ctx context.Context,
 		userID int64,
 		deviceID string,
 	) *models.DeviceSession
-	// Revoke stamps revoked_at and the provided reason onto the session,
-	// returning the updated record.
 	Revoke(
 		ctx context.Context,
 		reason string,
 		id int64,
 	) (*models.DeviceSession, error)
-	// FindAndUpdateActivity atomically loads a session and bumps
-	// last_activity_at, returning the updated record.
 	FindAndUpdateActivity(
 		ctx context.Context,
 		id int64,
 	) (*models.DeviceSession, error)
-	// UpdateActivity bumps last_activity_at for the given session without
-	// loading the full record.
 	UpdateActivity(ctx context.Context, id int64) error
-	// CountActiveDevicesByUser returns the number of non-revoked sessions
-	// whose last_activity_at falls within the inactivity window.
 	CountActiveDevicesByUser(
 		ctx context.Context,
 		userID int64,
 		inactivityTimeout time.Duration,
 	) int64
-	// FindActiveDevicesByUser returns non-revoked sessions whose
-	// last_activity_at falls within the inactivity window.
 	FindActiveDevicesByUser(
 		ctx context.Context,
 		userID int64,
 		inactivityTimeout time.Duration,
 	) []models.DeviceSession
-	// RevokeAllByUserID revokes every active session for the given user,
-	// recording the provided reason on each row.
 	RevokeAllByUserID(
 		ctx context.Context,
 		userID int64,

@@ -5,7 +5,6 @@ import (
 	"github.com/isyll/go-api-starter/internal/errors/codes"
 )
 
-// Auth domain sentinel errors.
 var (
 	ErrInvalidCredentials = apperrors.Unauthorized(
 		codes.InvalidCredentials, "auth.invalid_credentials",

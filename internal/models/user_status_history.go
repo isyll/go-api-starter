@@ -2,9 +2,6 @@ package models
 
 import "time"
 
-// UserStatusHistory is the GORM model for auth.user_status_history.
-// Immutable audit log written by the DB trigger on every status
-// change to auth.users.
 type UserStatusHistory struct {
 	ID          int64      `gorm:"primaryKey"                       json:"id"                        msgpack:"id"`
 	UserID      int64      `gorm:"not null;index"                   json:"user_id"                   msgpack:"user_id"`
@@ -17,7 +14,6 @@ type UserStatusHistory struct {
 	CreatedAt   time.Time  `gorm:"not null;default:now()"           json:"created_at"                msgpack:"created_at"`
 }
 
-// TableName returns the schema-qualified table name for GORM.
 func (ush *UserStatusHistory) TableName() string {
 	return "auth.user_status_history"
 }

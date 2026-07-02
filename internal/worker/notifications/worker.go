@@ -14,9 +14,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// Worker wraps an Asynq server with a mux pre-wired for the
-// notification queue. Start/Run block until a stop signal is
-// received; Shutdown initiates a graceful drain.
 type Worker struct {
 	server    *asynq.Server
 	mux       *asynq.ServeMux
@@ -25,9 +22,6 @@ type Worker struct {
 	logger    *logger.Logger
 }
 
-// NewWorker constructs a Worker around the given Processor and
-// starts the Asynq server listening on the notification queues
-// defined in the config.
 func NewWorker(
 	redisAddr string,
 	redisPassword string,
@@ -100,7 +94,6 @@ func (w *Worker) Shutdown() {
 	w.server.Shutdown()
 }
 
-// asynqLogger adapts our logger to asynq's logger interface
 type asynqLogger struct {
 	logger *logger.Logger
 }

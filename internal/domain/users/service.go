@@ -9,8 +9,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// ProfileUpdate carries optional profile fields. Nil fields are left
-// unchanged.
 type ProfileUpdate struct {
 	FirstName *string
 	LastName  *string
@@ -18,7 +16,6 @@ type ProfileUpdate struct {
 	Avatar    *string
 }
 
-// Service holds user profile and account-lifecycle logic.
 type Service struct {
 	repo     Repository
 	sessions SessionRevoker
@@ -26,7 +23,6 @@ type Service struct {
 	logger   *logger.Logger
 }
 
-// NewService builds the users service.
 func NewService(
 	repo Repository,
 	sessions SessionRevoker,
@@ -36,12 +32,10 @@ func NewService(
 	return &Service{repo: repo, sessions: sessions, bus: bus, logger: logx}
 }
 
-// Get returns a user by id.
 func (s *Service) Get(ctx context.Context, id int64) (*models.User, error) {
 	return s.repo.FindByID(ctx, id)
 }
 
-// UpdateProfile applies the non-nil fields of upd to the user.
 func (s *Service) UpdateProfile(
 	ctx context.Context, id int64, upd ProfileUpdate,
 ) (*models.User, error) {
@@ -61,8 +55,6 @@ func (s *Service) UpdateProfile(
 	return s.repo.UpdateProfile(ctx, id, fields)
 }
 
-// DeleteAccount soft-deletes the user, revokes all sessions, and
-// publishes UserAccountDeleted so caches drop the account.
 func (s *Service) DeleteAccount(ctx context.Context, id int64) error {
 	if err := s.repo.SoftDeleteByID(ctx, id); err != nil {
 		return err
@@ -79,17 +71,14 @@ func (s *Service) DeleteAccount(ctx context.Context, id int64) error {
 	return nil
 }
 
-// List returns a page of users and the total count (admin).
 func (s *Service) List(ctx context.Context, offset, limit int) ([]models.User, int64, error) {
 	return s.repo.List(ctx, offset, limit)
 }
 
-// SetStatus changes a user's account status (admin).
 func (s *Service) SetStatus(ctx context.Context, id int64, status models.UserStatus) error {
 	return s.repo.UpdateStatus(ctx, id, status)
 }
 
-// SetRole changes a user's role (admin).
 func (s *Service) SetRole(ctx context.Context, id int64, role models.UserRole) error {
 	return s.repo.UpdateRole(ctx, id, role)
 }

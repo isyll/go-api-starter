@@ -1,9 +1,4 @@
 // Command email_sender is the standalone Asynq worker binary
-// that drains the emails:* queues and delivers transactional
-// email via the Resend HTTP API. Templates are read from
-// templates/emails (built by packages/email-templates) and
-// rendered through html/template before being handed to the
-// Resend client.
 package main
 
 import (
@@ -16,9 +11,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// main loads backend configs, instantiates the emails worker
-// (which owns the Resend client + template cache), then blocks
-// on asynq.Server until SIGINT / SIGTERM.
 func main() {
 	env := appenv.InitApp()
 

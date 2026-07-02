@@ -6,7 +6,6 @@ import (
 	"github.com/isyll/go-api-starter/internal/worker/emails"
 )
 
-// emailSender adapts the email worker dispatcher to auth.EmailSender.
 type emailSender struct {
 	disp   emails.Dispatcher
 	webURL string
@@ -16,7 +15,6 @@ func newEmailSender(disp emails.Dispatcher, webURL string) *emailSender {
 	return &emailSender{disp: disp, webURL: webURL}
 }
 
-// SendVerificationEmail enqueues an email-verification message.
 func (e *emailSender) SendVerificationEmail(ctx context.Context, to, token string) error {
 	return e.disp.Send(ctx, &emails.Email{
 		Type:    emails.TypeEmailVerification,
@@ -29,7 +27,6 @@ func (e *emailSender) SendVerificationEmail(ctx context.Context, to, token strin
 	})
 }
 
-// SendPasswordResetEmail enqueues a password-reset message.
 func (e *emailSender) SendPasswordResetEmail(ctx context.Context, to, token string) error {
 	return e.disp.Send(ctx, &emails.Email{
 		Type:    emails.TypePasswordReset,

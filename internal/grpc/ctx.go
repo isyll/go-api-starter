@@ -1,5 +1,4 @@
-// Package grpc holds the gRPC server, interceptors, and the service
-// implementations that adapt domain services to the generated API.
+// Package grpc holds the gRPC server, interceptors, and services.
 package grpc
 
 import (
@@ -19,7 +18,6 @@ func withUser(ctx context.Context, u *models.User) context.Context {
 	return context.WithValue(ctx, userKey, u)
 }
 
-// userFrom returns the authenticated user set by the auth interceptor.
 func userFrom(ctx context.Context) (*models.User, bool) {
 	u, ok := ctx.Value(userKey).(*models.User)
 	return u, ok

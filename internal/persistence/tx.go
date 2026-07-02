@@ -9,20 +9,14 @@ import (
 
 type txKey struct{}
 
-// Manager owns the application's *gorm.DB and exposes WithTx to run
-// a closure inside a PostgreSQL transaction that is bound to ctx.
 type Manager struct {
 	db *gorm.DB
 }
 
-// NewManager creates a Manager wrapping db.
 func NewManager(db *gorm.DB) *Manager {
 	return &Manager{db: db}
 }
 
-// WithTx runs fn inside a database transaction. The transaction is
-// committed when fn returns nil and rolled back on any error.
-// opts may be used to set the isolation level or read-only flag.
 func (m *Manager) WithTx(
 	ctx context.Context,
 	fn func(ctx context.Context) error,

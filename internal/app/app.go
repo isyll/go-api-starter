@@ -1,7 +1,4 @@
-// Package app owns the application lifecycle: it loads configuration,
-// builds shared infrastructure (DB, Redis, event bus, workers), wires
-// every domain service and gRPC handler, serves gRPC, and shuts down
-// on SIGINT/SIGTERM. All wiring is compile-time explicit.
+// Package app owns the application lifecycle and dependency wiring.
 package app
 
 import (
@@ -33,7 +30,6 @@ import (
 	apptoken "github.com/isyll/go-api-starter/pkg/token"
 )
 
-// App is the application container.
 type App struct {
 	StartTime time.Time
 	Infra     *Infrastructure
@@ -46,13 +42,11 @@ type App struct {
 	bgCancel context.CancelFunc
 }
 
-// New creates an App and stamps the start time.
 func New() *App {
 	bgCtx, bgCancel := context.WithCancel(context.Background())
 	return &App{StartTime: time.Now(), bgCtx: bgCtx, bgCancel: bgCancel}
 }
 
-// Initialize loads config and builds every shared singleton.
 func (a *App) Initialize() error {
 	cfgs, err := config.LoadAllConfigs()
 	if err != nil {
@@ -104,7 +98,6 @@ func (a *App) Initialize() error {
 	return nil
 }
 
-// initFCM returns an FCM client, or nil when Firebase is unconfigured.
 func (a *App) initFCM(env string, cfgs *config.Configs, logx *logger.Logger) *messaging.Client {
 	fb, err := firebase.InitFirebase(env, cfgs, logx)
 	if err != nil {
@@ -143,8 +136,6 @@ func buildDispatchers(cfgs *config.Configs, db *gorm.DB, logx *logger.Logger) di
 	}
 }
 
-// Bootstrap wires services, subscribes events, starts background
-// goroutines, and prepares the gRPC listener.
 func (a *App) Bootstrap() error {
 	deps := a.buildGRPCDeps()
 
@@ -167,8 +158,6 @@ func (a *App) Bootstrap() error {
 	return nil
 }
 
-// startBackground launches the outbox drain (opt-in), the outbox
-// metrics ticker, and the dead-letter queue monitor.
 func (a *App) startBackground() {
 	if a.Infra.Config.Events.Outbox.DrainOnAPI {
 		go a.Infra.EventBus.DrainOutbox(a.bgCtx, a.Infra.Config.Events.Outbox.Interval)
@@ -198,7 +187,6 @@ func (a *App) startBackground() {
 	go deadMon.Run(a.bgCtx)
 }
 
-// Start serves gRPC in a background goroutine.
 func (a *App) Start() {
 	a.Infra.Logger.Info(
 		"gRPC server starting",
@@ -213,8 +201,6 @@ func (a *App) Start() {
 	}()
 }
 
-// AwaitShutdown blocks until a termination signal, then drains and
-// closes every resource.
 func (a *App) AwaitShutdown() {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)

@@ -11,9 +11,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// TaskTypeDispatch is the single Asynq task name for
-// every async event - the worker decodes the envelope to
-// learn which handlers to run.
 const TaskTypeDispatch = "events:dispatch"
 
 type envelope struct {
@@ -22,19 +19,11 @@ type envelope struct {
 	RequestID string          `json:"request_id,omitempty"`
 }
 
-// AsynqDispatcher is the production AsyncDispatcher: it marshals
-// the published Event into a JSON envelope and enqueues a single
-// TaskTypeDispatch Asynq task for the event-dispatcher worker to
-// consume. The same Bus configuration is rebuilt on the worker so
-// async handlers run with the identical registrations.
 type AsynqDispatcher struct {
 	client *asynq.Client
 	logger *logger.Logger
 }
 
-// NewAsynqDispatcher constructs an AsynqDispatcher around an
-// existing Asynq client. The client's lifecycle is owned by the
-// dispatcher; call Close to release it.
 func NewAsynqDispatcher(
 	client *asynq.Client,
 	logx *logger.Logger,
@@ -42,10 +31,6 @@ func NewAsynqDispatcher(
 	return &AsynqDispatcher{client: client, logger: logx}
 }
 
-// Enqueue marshals evt into the dispatcher envelope (event type +
-// payload + request ID) and writes a TaskTypeDispatch task to Asynq
-// with the supplied per-subscription options (queue, idempotency
-// window, task ID).
 func (d *AsynqDispatcher) Enqueue(
 	ctx context.Context,
 	evt Event,
@@ -82,7 +67,6 @@ func (d *AsynqDispatcher) Enqueue(
 	return nil
 }
 
-// Close releases the underlying Asynq client. Idempotent.
 func (d *AsynqDispatcher) Close() error {
 	return d.client.Close()
 }

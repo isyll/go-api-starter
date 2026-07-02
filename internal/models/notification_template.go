@@ -2,9 +2,6 @@ package models
 
 import "time"
 
-// NotificationTemplate is the GORM model for
-// notifications.notification_templates. One row per event type;
-// titles and body copy live in Translations keyed by language code.
 type NotificationTemplate struct {
 	ID               int       `gorm:"primaryKey;autoIncrement" json:"id"                           msgpack:"id"`
 	EventType        string    `                                json:"event_type"                   msgpack:"event_type"`
@@ -17,15 +14,12 @@ type NotificationTemplate struct {
 	UpdatedAt        time.Time `                                json:"updated_at"                   msgpack:"updated_at"`
 
 	Translations []*NotificationTemplateTranslation `gorm:"foreignKey:TemplateID" json:"translations,omitempty" msgpack:"translations,omitempty"`
-} // @name NotificationTemplate
+}
 
-// TableName returns the schema-qualified table name for GORM.
 func (NotificationTemplate) TableName() string {
 	return "notifications.notification_templates"
 }
 
-// NotificationTemplateTranslation holds the locale-specific title
-// and body copy for one language of a NotificationTemplate.
 type NotificationTemplateTranslation struct {
 	ID         int       `gorm:"primaryKey;autoIncrement" json:"id"          msgpack:"id"`
 	TemplateID int       `                                json:"template_id" msgpack:"template_id"`
@@ -36,9 +30,8 @@ type NotificationTemplateTranslation struct {
 	UpdatedAt  time.Time `                                json:"updated_at"  msgpack:"updated_at"`
 
 	Template *NotificationTemplate `gorm:"foreignKey:TemplateID;references:ID" json:"template,omitempty" msgpack:"template,omitempty"`
-} // @name NotificationTemplateTranslation
+}
 
-// TableName returns the schema-qualified table name for GORM.
 func (NotificationTemplateTranslation) TableName() string {
 	return "notifications.notification_template_translations"
 }

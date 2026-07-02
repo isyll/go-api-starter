@@ -10,14 +10,10 @@ import (
 )
 
 const (
-	// TimezoneUTC is the canonical name for Coordinated Universal Time.
-	TimezoneUTC = "UTC"
-	// TimezoneLocal represents the Go runtime's local timezone.
+	TimezoneUTC   = "UTC"
 	TimezoneLocal = "Local"
 )
 
-// NormalizeTimezone canonicalizes a timezone string to a valid IANA location
-// name, falling back to "UTC" for empty, invalid, or unresolvable inputs.
 func NormalizeTimezone(tz string) string {
 	tz = strings.TrimSpace(tz)
 

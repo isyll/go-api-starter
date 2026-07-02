@@ -11,8 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Repository is the settings data access contract. It satisfies the
-// auth domain's SettingsStore.
 type Repository interface {
 	GetByUserID(ctx context.Context, userID int64) (*models.Settings, error)
 	Create(ctx context.Context, s *models.UserSettings) error
@@ -23,7 +21,6 @@ type repository struct {
 	db *gorm.DB
 }
 
-// NewRepository builds a settings repository over the given DB.
 func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }

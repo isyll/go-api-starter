@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// AuditDetails is a JSONB map for free-form metadata on an audit entry.
 type AuditDetails map[string]any
 
 func (d AuditDetails) Value() (driver.Value, error) {
@@ -29,8 +28,6 @@ func (d *AuditDetails) Scan(value any) error {
 	return json.Unmarshal(b, d)
 }
 
-// AuditLog is the GORM model for audit.audit_logs. Every admin action
-// is appended here; rows are never updated or deleted.
 type AuditLog struct {
 	ID         int64        `gorm:"primaryKey"               json:"id"`
 	AdminID    int64        `gorm:"not null"                 json:"admin_id"`

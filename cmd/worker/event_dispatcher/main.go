@@ -1,6 +1,4 @@
 // Command event_dispatcher is the standalone Asynq worker that drains
-// the transactional outbox and runs async event handlers. It runs
-// independently from the API so the outbox drain can scale on its own.
 package main
 
 import (
@@ -40,8 +38,6 @@ func main() {
 
 	cm := cache.NewCacheManager(rdb, cfg.Redis.Cache.Prefix)
 
-	// The outbox drain runs under the admin role, which alone may mark
-	// rows processed (RLS grants the app role INSERT only).
 	db, err := database.InitDatabase(cfg.Database, database.RoleAdmin, logx)
 	if err != nil {
 		logx.Fatal("event-dispatcher: database init failed", "error", err)

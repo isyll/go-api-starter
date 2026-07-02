@@ -13,26 +13,13 @@ import (
 )
 
 const (
-	// TaskSendNotification is the Asynq task type for
-	// immediate push notification delivery.
-	TaskSendNotification = "notification:send"
-	// TaskScheduleNotification is the Asynq task type for
-	// time-delayed notification delivery.
+	TaskSendNotification     = "notification:send"
 	TaskScheduleNotification = "notification:scheduled"
 )
 
-// Dispatcher handles push-notification task queuing. Callers enqueue
-// an Event and the worker delivers the FCM payload to the target
-// device. All queueing is fire-and-forget; handlers should never
-// await delivery confirmation in the request path.
 type Dispatcher interface {
-	// Send enqueues an immediate push-notification task. The event's
-	// IdempotencyKey, if set, prevents duplicate delivery within the
-	// asynq unique window.
 	Send(ctx context.Context, event Event) error
-	// Schedule enqueues a push-notification task for delivery at at.
 	Schedule(ctx context.Context, event Event, at time.Time) error
-	// Close releases the underlying Asynq client.
 	Close() error
 }
 
@@ -42,8 +29,6 @@ type dispatcher struct {
 	logger *logger.Logger
 }
 
-// NewDispatcher constructs a notifications Dispatcher that connects
-// to the Asynq Redis backend at redisAddr.
 func NewDispatcher(
 	redisAddr string,
 	redisPassword string,

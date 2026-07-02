@@ -18,7 +18,6 @@ const (
 	TaskBulkEmail      = "email:bulk"
 )
 
-// Dispatcher handles email task queuing
 type Dispatcher interface {
 	Send(ctx context.Context, email *Email) error
 	SendBulk(ctx context.Context, emails []*Email) error
@@ -32,7 +31,6 @@ type dispatcher struct {
 	logger *logger.Logger
 }
 
-// NewDispatcher creates a new email dispatcher
 func NewDispatcher(
 	redisAddr string,
 	redisPassword string,
@@ -105,7 +103,6 @@ func (d *dispatcher) SendBulk(
 		return nil
 	}
 
-	// Split into batches
 	batchSize := d.cfg.Email.Batch.MaxSize
 	for i := 0; i < len(emails); i += batchSize {
 		end := i + batchSize

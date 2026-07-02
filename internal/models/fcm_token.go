@@ -2,8 +2,7 @@ package models
 
 import "time"
 
-// NotificationPlatform identifies the OS targeted by a push token.
-type NotificationPlatform string // @name NotificationPlatform
+type NotificationPlatform string
 
 const (
 	PlatformAndroid NotificationPlatform = "android"
@@ -11,10 +10,6 @@ const (
 	PlatformWeb     NotificationPlatform = "web"
 )
 
-// FCMToken is the GORM model for auth.fcm_tokens. Each FCM token
-// targets one device. Tokens are rotated by the client on refresh;
-// stale tokens are deactivated (IsActive = false) when FCM reports
-// a delivery failure.
 type FCMToken struct {
 	ID         int64                `gorm:"primaryKey" json:"id"                     msgpack:"id"`
 	UserID     int64                `                  json:"user_id"                msgpack:"user_id"`
@@ -30,7 +25,6 @@ type FCMToken struct {
 	User *User `gorm:"foreignKey:UserID;references:ID" json:"user,omitempty" msgpack:"user,omitempty"`
 }
 
-// TableName returns the schema-qualified table name for GORM.
 func (FCMToken) TableName() string {
 	return "auth.fcm_tokens"
 }

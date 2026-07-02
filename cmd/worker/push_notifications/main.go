@@ -1,12 +1,4 @@
 // Command push_notifications is the standalone Asynq worker
-// binary that drains the notifications:* queues and delivers
-// in-app push notifications via Firebase Cloud Messaging.
-//
-// It wires the Firebase admin SDK, the FCM token repository,
-// and the notifications worker processor, then hands control
-// to asynq.Server. Panics inside ProcessTask are caught by the
-// worker's deferred recover() so a single malformed payload
-// does not kill the goroutine.
 package main
 
 import (
@@ -22,9 +14,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// main loads backend configs, opens the FCM and DB connections
-// needed by the push worker, then blocks on asynq.Server until
-// SIGINT / SIGTERM.
 func main() {
 	env := appenv.InitApp()
 

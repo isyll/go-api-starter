@@ -14,13 +14,11 @@ import (
 	"github.com/isyll/go-api-starter/pkg/config"
 )
 
-// Bundle is the application-lifetime translation bundle.
 type Bundle struct {
 	bundle      *goi18n.Bundle
 	defaultLang string
 }
 
-// New loads all *.toml locale files from LocalesDir and returns a Bundle.
 func New(cfg *config.AppConfig) (*Bundle, error) {
 	b := goi18n.NewBundle(language.English)
 	b.RegisterUnmarshalFunc("toml", toml.Unmarshal)
@@ -61,14 +59,10 @@ func New(cfg *config.AppConfig) (*Bundle, error) {
 	}, nil
 }
 
-// NewLocalizer returns a per-request Localizer for the given language
-// preferences (Accept-Language header value or explicit lang codes).
 func (b *Bundle) NewLocalizer(langs ...string) *goi18n.Localizer {
 	return goi18n.NewLocalizer(b.bundle, langs...)
 }
 
-// T translates a message ID directly using a language string (for
-// non-request contexts such as background workers).
 func (b *Bundle) T(
 	lang, id string,
 	data ...map[string]any,
@@ -77,7 +71,6 @@ func (b *Bundle) T(
 	return localize(loc, id, 0, false, data...)
 }
 
-// SupportedLanguages returns the language tags loaded into the bundle.
 func (b *Bundle) SupportedLanguages() []string {
 	tags := b.bundle.LanguageTags()
 	out := make([]string, len(tags))
@@ -87,13 +80,10 @@ func (b *Bundle) SupportedLanguages() []string {
 	return out
 }
 
-// DefaultLanguage returns the configured default language tag.
 func (b *Bundle) DefaultLanguage() string {
 	return b.defaultLang
 }
 
-// localize is the shared translation helper used by both Bundle.T and
-// Helper.T. It falls back to the message ID when the key is missing.
 func localize(
 	loc *goi18n.Localizer,
 	id string,

@@ -7,8 +7,7 @@ import (
 	"time"
 )
 
-// Theme is the user's preferred UI theme.
-type Theme string // @name Theme
+type Theme string
 
 const (
 	ThemeSystem Theme = "system"
@@ -16,7 +15,6 @@ const (
 	ThemeDark   Theme = "dark"
 )
 
-// IsValid reports whether t is a known Theme value.
 func (t Theme) IsValid() bool {
 	switch t {
 	case ThemeSystem, ThemeLight, ThemeDark:
@@ -25,7 +23,6 @@ func (t Theme) IsValid() bool {
 	return false
 }
 
-// Settings is the JSONB value stored in UserSettings.Settings.
 type Settings struct {
 	Locale             string `json:"locale"              msgpack:"locale"`
 	Timezone           string `json:"timezone"            msgpack:"timezone"`
@@ -33,9 +30,8 @@ type Settings struct {
 	EmailNotifications bool   `json:"email_notifications" msgpack:"email_notifications"`
 	PushNotifications  bool   `json:"push_notifications"  msgpack:"push_notifications"`
 	MarketingEmails    bool   `json:"marketing_emails"    msgpack:"marketing_emails"`
-} // @name Settings
+}
 
-// DefaultSettings returns the settings applied to a new user.
 func DefaultSettings() Settings {
 	return Settings{
 		Locale:             "en",
@@ -63,14 +59,12 @@ func (s *Settings) Scan(value any) error {
 	return json.Unmarshal(bytes, s)
 }
 
-// UserSettings is the GORM model for auth.user_settings. One row per
-// user, created at registration.
 type UserSettings struct {
 	UserID    int64     `json:"user_id"    msgpack:"user_id"    gorm:"primaryKey"`
 	Settings  Settings  `json:"settings"   msgpack:"settings"`
 	CreatedAt time.Time `json:"created_at" msgpack:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" msgpack:"updated_at"`
-} // @name UserSettings
+}
 
 func (UserSettings) TableName() string {
 	return "auth.user_settings"

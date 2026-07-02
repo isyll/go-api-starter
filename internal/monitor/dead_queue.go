@@ -10,10 +10,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// DeadQueueMonitor polls Asynq queue stats at the given
-// interval and updates the app_asynq_dead_queue_size gauge
-// for each queue. Call Run in a goroutine; it blocks until ctx
-// is canceled.
 type DeadQueueMonitor struct {
 	inspector *asynq.Inspector
 	interval  time.Duration
@@ -73,7 +69,7 @@ func (m *DeadQueueMonitor) collect() {
 
 		if info.Archived > 0 {
 			m.logger.Warn(
-				"archived (dead) queue has tasks — manual review required",
+				"archived (dead) queue has tasks - manual review required",
 				"queue",
 				q,
 				"archived_count",

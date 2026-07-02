@@ -11,13 +11,9 @@ import (
 	grpcserver "github.com/isyll/go-api-starter/internal/grpc"
 )
 
-// buildGRPCDeps constructs every repository, domain service, and gRPC
-// service server. This is the single page that documents the
-// dependency graph: repository -> service -> gRPC server.
 func (a *App) buildGRPCDeps() grpcserver.Deps {
 	infra := a.Infra
 
-	// Repositories.
 	userRepo := users.NewRepository(infra.DB)
 	settingsRepo := settings.NewRepository(infra.DB)
 	suspensionRepo := suspension.NewRepository(infra.DB)
@@ -26,7 +22,6 @@ func (a *App) buildGRPCDeps() grpcserver.Deps {
 	tokenRepo := notifications.NewTokenRepository(infra.DB)
 	prefRepo := notifications.NewPreferencesRepository(infra.DB)
 
-	// Services.
 	webURL := os.Getenv("APP_WEB_URL")
 	if webURL == "" {
 		webURL = "http://localhost:3000"
@@ -62,7 +57,6 @@ func (a *App) buildGRPCDeps() grpcserver.Deps {
 	}
 }
 
-// version returns the configured application version.
 func (a *App) version() string {
 	return a.Infra.Config.App.Info.Version
 }

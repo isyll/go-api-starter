@@ -11,17 +11,11 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// AuthAttemptHandler persists AuthAttemptRecorded events as rows
-// in auth.login_attempts on the main app_owner database. Running the
-// write inside the event-dispatcher worker keeps the insert off
-// the API request hot path while giving it outbox durability.
 type AuthAttemptHandler struct {
 	db     *gorm.DB
 	logger *logger.Logger
 }
 
-// NewAuthAttemptHandler wires an AuthAttemptHandler backed by the
-// given database connection and logger.
 func NewAuthAttemptHandler(
 	db *gorm.DB,
 	logx *logger.Logger,
@@ -29,9 +23,6 @@ func NewAuthAttemptHandler(
 	return &AuthAttemptHandler{db: db, logger: logx}
 }
 
-// OnAuthAttemptRecorded persists the event payload as an
-// auth.login_attempts row. On a DB error it logs the failure and
-// returns the error so Asynq can retry with backoff.
 func (h *AuthAttemptHandler) OnAuthAttemptRecorded(
 	ctx context.Context,
 	evt *events.AuthAttemptRecorded,

@@ -9,10 +9,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// startObservability serves Prometheus metrics and HTTP health probes
-// on a separate port (METRICS_PORT, default 9090). gRPC has its own
-// health service; these HTTP probes are convenient for load balancers
-// and Kubernetes.
 func (a *App) startObservability() *http.Server {
 	port := os.Getenv("METRICS_PORT")
 	if port == "" {

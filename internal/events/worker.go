@@ -13,9 +13,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// Worker hosts the events:dispatch queue. Every payload
-// is one envelope; routing happens inside the bus once
-// decoded.
 type Worker struct {
 	server *asynq.Server
 	mux    *asynq.ServeMux
@@ -23,20 +20,12 @@ type Worker struct {
 	logger *logger.Logger
 }
 
-// WorkerConfig captures the tunables for the events:dispatch
-// Asynq server.
 type WorkerConfig struct {
-	// Concurrency is the maximum number of tasks processed in
-	// parallel by this worker process.
 	Concurrency int
-	// Queues maps Asynq queue names to weights (priority).
-	Queues map[string]int
-	// RetryMax caps the per-task retry budget.
-	RetryMax int
+	Queues      map[string]int
+	RetryMax    int
 }
 
-// DefaultWorkerConfig returns the recommended defaults: ten worker
-// goroutines split across high/normal/low queues, with five retries.
 func DefaultWorkerConfig() WorkerConfig {
 	return WorkerConfig{
 		Concurrency: 10,
@@ -49,9 +38,6 @@ func DefaultWorkerConfig() WorkerConfig {
 	}
 }
 
-// NewWorker builds the events:dispatch Asynq worker bound to the
-// supplied Bus. The Bus passed in MUST be configured without an
-// AsyncDispatcher so handlers cannot re-publish from the worker.
 func NewWorker(
 	redisAddr string,
 	redisPassword string,
@@ -89,17 +75,12 @@ func NewWorker(
 	}
 }
 
-// Start registers the Processor on the events:dispatch task type
-// and begins consuming from Redis. Non-blocking; pair with Run for
-// blocking lifecycle management.
 func (w *Worker) Start() error {
 	w.mux.HandleFunc(TaskTypeDispatch, w.proc.ProcessTask)
 	w.logger.Info("event-dispatcher worker starting")
 	return w.server.Start(w.mux)
 }
 
-// Run starts the worker and blocks until SIGINT/SIGTERM is received,
-// then gracefully shuts down.
 func (w *Worker) Run() error {
 	if err := w.Start(); err != nil {
 		return fmt.Errorf(
@@ -116,8 +97,6 @@ func (w *Worker) Run() error {
 	return nil
 }
 
-// Shutdown stops the worker, draining in-flight tasks within the
-// configured ShutdownTimeout.
 func (w *Worker) Shutdown() {
 	w.server.Shutdown()
 }

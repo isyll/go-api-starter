@@ -20,10 +20,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// Processor handles email:send and email:scheduled Asynq tasks. It
-// renders Go HTML templates with locale-specific data, sends via the
-// Resend API, and recovers from panics so a malformed payload cannot
-// kill the worker goroutine.
 type Processor struct {
 	client    *resend.Client
 	cfg       *config.EmailConfig
@@ -33,7 +29,6 @@ type Processor struct {
 	mu        sync.RWMutex
 }
 
-// NewProcessor creates a new email processor
 func NewProcessor(
 	cfg *config.EmailConfig,
 	logx *logger.Logger,
@@ -49,7 +44,6 @@ func NewProcessor(
 		templates: make(map[string]*template.Template),
 	}
 
-	// Preload templates
 	if err := p.loadTemplates(); err != nil {
 		logx.Warn("Failed to preload email templates", "error", err)
 	}
@@ -90,7 +84,6 @@ func (p *Processor) loadTemplates() error {
 	)
 }
 
-// ProcessTask handles incoming email tasks
 func (p *Processor) ProcessTask(
 	ctx context.Context,
 	t *asynq.Task,
@@ -136,11 +129,9 @@ func (p *Processor) ProcessTask(
 }
 
 func (p *Processor) processEmail(email *Email) error {
-	// Get sender based on email type
 	senderType := GetSenderType(email.Type)
 	sender := GetSender(p.cfg, senderType)
 
-	// Render template if specified
 	htmlBody := email.HTMLBody
 	if email.TemplateID != "" && htmlBody == "" {
 		rendered, err := p.renderTemplate(
@@ -158,7 +149,6 @@ func (p *Processor) processEmail(email *Email) error {
 		}
 	}
 
-	// Build request
 	params := &resend.SendEmailRequest{
 		From:    p.formatSender(sender, senderType, email.Language),
 		To:      email.To,
@@ -184,7 +174,6 @@ func (p *Processor) processEmail(email *Email) error {
 		params.Headers = email.Headers
 	}
 
-	// Send email
 	sent, err := p.client.Emails.Send(params)
 	if err != nil {
 		p.logger.Error("Failed to send email",
@@ -236,7 +225,6 @@ func (p *Processor) renderTemplate(
 	lang string,
 	data map[string]any,
 ) (string, error) {
-	// Try language-specific template first
 	templatePath := filepath.Join(templateID, lang+".html")
 
 	p.mu.RLock()
@@ -244,7 +232,6 @@ func (p *Processor) renderTemplate(
 	p.mu.RUnlock()
 
 	if !ok {
-		// Fallback to default language
 		templatePath = filepath.Join(
 			templateID,
 			p.cfg.Email.Templates.DefaultLanguage+".html",
@@ -296,8 +283,6 @@ func (p *Processor) buildAttachments(
 	return result
 }
 
-// formatSender returns formatted string
-// e.g. "App News <news@app_owner.app>"
 func (p *Processor) formatSender(
 	s *config.SenderInfo,
 	senderType SenderType,

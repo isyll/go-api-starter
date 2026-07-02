@@ -12,14 +12,12 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// AuthServer adapts the auth domain service to the gRPC API.
 type AuthServer struct {
 	apiv1.UnimplementedAuthServiceServer
 	svc *auth.Service
 	enc idenc.IDEncoder
 }
 
-// NewAuthServer builds the auth gRPC server.
 func NewAuthServer(svc *auth.Service, enc idenc.IDEncoder) *AuthServer {
 	return &AuthServer{svc: svc, enc: enc}
 }
@@ -111,7 +109,6 @@ func (s *AuthServer) RevokeDevice(ctx context.Context, req *apiv1.RevokeDeviceRe
 	return &emptypb.Empty{}, nil
 }
 
-// deviceInfo builds a DeviceInfo from the request plus peer metadata.
 func deviceInfo(ctx context.Context, d *apiv1.DeviceInfo) auth.DeviceInfo {
 	info := auth.DeviceInfo{
 		IPAddress: clientIP(ctx),

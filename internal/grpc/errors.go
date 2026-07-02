@@ -10,9 +10,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// toStatus converts a domain error into a gRPC status error. Known
-// *HTTPError values map to the matching gRPC code and carry their
-// i18n message key; everything else becomes Internal.
 func toStatus(err error) error {
 	if err == nil {
 		return nil

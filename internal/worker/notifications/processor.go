@@ -20,10 +20,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// Processor decodes notification:send tasks and delivers them via
-// Firebase Cloud Messaging. It checks user preferences (quiet hours,
-// per-category opt-outs) before attempting delivery and logs every
-// attempt to notification_logs for audit and dedup.
 type Processor struct {
 	fcmClient       *messaging.Client
 	fcmTokenRepo    FCMTokenRepository
@@ -88,7 +84,6 @@ func (p *Processor) processNotification(
 	ctx context.Context,
 	event *Event,
 ) error {
-	// Check user preferences
 	if !p.shouldSendNotification(ctx, event) {
 		p.logger.Debug("Notification skipped due to preferences",
 			"event_type", event.Type,
@@ -97,7 +92,6 @@ func (p *Processor) processNotification(
 		return nil
 	}
 
-	// Get active FCM tokens for user
 	tokens, err := p.fcmTokenRepo.FindActiveByUserID(ctx, event.UserID)
 	if err != nil {
 		return fmt.Errorf("failed to get FCM tokens: %w", err)
@@ -111,7 +105,6 @@ func (p *Processor) processNotification(
 		return nil
 	}
 
-	// Get template
 	template, err := p.templateRepo.FindByEventType(ctx, event.Type)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -123,7 +116,6 @@ func (p *Processor) processNotification(
 		return fmt.Errorf("failed to get template: %w", err)
 	}
 
-	// Send to each token
 	var lastErr error
 	for _, token := range tokens {
 		result := p.sendToToken(ctx, event, template, token)
@@ -153,7 +145,7 @@ func (p *Processor) shouldSendNotification(
 				"user_id",
 				event.UserID,
 			)
-			return true // Default: send if no preferences
+			return true
 		}
 		p.logger.Error(
 			"Failed to get preferences",
@@ -165,13 +157,11 @@ func (p *Processor) shouldSendNotification(
 		return true
 	}
 
-	// Check category preference
 	category := EventCategory(event.Type)
 	if !p.isCategoryEnabled(prefs, category) {
 		return false
 	}
 
-	// Check quiet hours
 	if p.cfg.QuietHours.CheckEnabled && prefs.QuietHoursEnabled {
 		if p.isQuietHours(prefs) {
 			return false
@@ -211,14 +201,12 @@ func (p *Processor) isQuietHours(
 		loc = time.UTC
 	}
 
-	// Convert current time to user's timezone
 	now := time.Now().In(loc)
 	currentTime := now.Format("15:04:05")
 
 	start := *prefs.QuietHoursStart
 	end := *prefs.QuietHoursEnd
 
-	// Handle overnight quiet hours (e.g., 22:00 to 08:00)
 	if start > end {
 		return currentTime >= start || currentTime < end
 	}
@@ -241,7 +229,6 @@ func (p *Processor) sendToToken(
 			"event_type", event.Type,
 		)
 
-		// Check if token is invalid and should be deactivated
 		if messaging.IsUnregistered(err) ||
 			messaging.IsInvalidArgument(err) {
 			if deactErr := p.fcmTokenRepo.
@@ -262,7 +249,6 @@ func (p *Processor) sendToToken(
 		}
 	}
 
-	// Update last used
 	if err := p.fcmTokenRepo.UpdateLastUsed(ctx, token.ID); err != nil {
 		p.logger.Warn("Failed to update last_used_at", "error", err)
 	}
@@ -279,7 +265,6 @@ func (p *Processor) buildFCMMessage(
 	template *models.NotificationTemplate,
 	token *models.FCMToken,
 ) *messaging.Message {
-	// Get translation (default to English)
 	var title, body string
 	lang := "en"
 	for _, t := range template.Translations {
@@ -290,10 +275,8 @@ func (p *Processor) buildFCMMessage(
 		}
 	}
 
-	// Build deep link
 	deepLink := buildDeepLink(p.cfg, event.Type, event.Data)
 
-	// Data payload
 	data := map[string]string{
 		"event_type":   event.Type,
 		"click_action": "FLUTTER_NOTIFICATION_CLICK",
@@ -316,7 +299,6 @@ func (p *Processor) buildFCMMessage(
 		Data: data,
 	}
 
-	// Platform-specific config
 	priority := template.Priority
 	if priority == "" {
 		priority = string(event.Priority)

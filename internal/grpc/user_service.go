@@ -15,8 +15,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// UserServer adapts the users, settings, and notifications services to
-// the gRPC API for the authenticated user.
 type UserServer struct {
 	apiv1.UnimplementedUserServiceServer
 	users    *users.Service
@@ -25,7 +23,6 @@ type UserServer struct {
 	enc      idenc.IDEncoder
 }
 
-// NewUserServer builds the user gRPC server.
 func NewUserServer(
 	u *users.Service,
 	s *settings.Service,

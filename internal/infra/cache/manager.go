@@ -1,14 +1,4 @@
-// Package cache wraps Redis to provide three things: a tagged,
-// TTL-bounded JSON cache for service-level lookups (GetOrSet); a
-// canonical Sqids/HTTP/OTP key vocabulary in cachekey.go; and the
-// shared tag dictionary in tags.go used by middleware.HTTPCache and
-// the event handlers in internal/events/handlers/cache_invalidation.
-//
-// Application code MUST go through CacheManager — never write to
-// the underlying redis.Client directly. Service-level cached
-// lookups MUST set CacheOptions.Tags identical to the HTTP route's
-// tags so a single InvalidateByTags call drops both layers in one
-// shot. Tag strings live ONLY in tags.go.
+// Package cache wraps Redis for caching, tags, and token storage.
 package cache
 
 import (
@@ -24,47 +14,27 @@ import (
 	"github.com/isyll/go-api-starter/internal/metrics"
 )
 
-// CacheManager is the Redis-backed cache facade. Construct via
-// NewCacheManager; every method namespaces keys under the supplied
-// prefix so multiple deployments can share a Redis instance.
-//
-// A singleflight.Group backs GetOrSet so concurrent fetches for the
-// same key collapse into one fetchFunc call. Without it, every TTL
-// expiry under load fans out N parallel DB queries; with it, only
-// one wins and the others wait on its result. This applies per
-// process — concurrent requests across API replicas still race, but
-// each replica's herd is bounded by the gate.
 type CacheManager struct {
 	client *redis.Client
 	prefix string
 	sf     singleflight.Group
 }
 
-// CacheOptions controls the TTL and tag set of a single Set call.
 type CacheOptions struct {
-	// TTL is the absolute expiration applied by Redis.
-	TTL time.Duration
-	// Tags is the set of tag names whose Redis SET membership lists
-	// will track this key for bulk invalidation.
+	TTL  time.Duration
 	Tags []string
 }
 
 var (
-	// CacheLong is for rarely-changing data (config, global stats).
 	CacheLong = CacheOptions{TTL: 24 * time.Hour}
 
-	// CacheMedium is for user-scoped data (profile, preferences).
 	CacheMedium = CacheOptions{TTL: 1 * time.Hour}
 
-	// CacheShort is for list-style and search responses.
 	CacheShort = CacheOptions{TTL: 15 * time.Minute}
 
-	// CacheTemp is for real-time / near-live data.
 	CacheTemp = CacheOptions{TTL: 2 * time.Minute}
 )
 
-// NewCacheManager wraps a Redis client with the given prefix used
-// to namespace every key.
 func NewCacheManager(
 	client *redis.Client,
 	prefix string,
@@ -72,9 +42,6 @@ func NewCacheManager(
 	return &CacheManager{client: client, prefix: prefix}
 }
 
-// Set stores value at key with the supplied TTL and tag set. The
-// write is performed in a single Redis pipeline so a partial
-// failure cannot leave a key without its tag membership.
 func (c *CacheManager) Set(
 	ctx context.Context,
 	key string,
@@ -102,9 +69,6 @@ func (c *CacheManager) Set(
 	return err
 }
 
-// Get fetches key into dest. Returns (false, nil) on a cache miss
-// and (true, nil) on a hit. Caller-side unmarshal errors surface as
-// a non-nil error.
 func (c *CacheManager) Get(
 	ctx context.Context,
 	key string,
@@ -127,24 +91,6 @@ func (c *CacheManager) Get(
 	return true, nil
 }
 
-// GetOrSet returns the cached value at key when present, otherwise
-// invokes fetchFunc, stores the result under the supplied options,
-// and copies it into dest. The first return value reports whether
-// the value came from cache (used by auth to decide whether to
-// asynchronously refresh activity).
-//
-// Stampede protection: on a miss, the call routes through
-// a singleflight.Group keyed by `key`. Concurrent callers waiting on
-// the same key share the fetchFunc result instead of each issuing
-// their own DB query. Inside the singleflight closure the cache is
-// re-checked so a winner's Set is observed by the followers.
-//
-// Caveats:
-//   - singleflight is per-process. Cross-replica races still occur,
-//     but each replica's herd is bounded.
-//   - fetchFunc errors are forwarded to every joiner. This matches
-//     stdlib singleflight semantics; non-deterministic errors must
-//     therefore be retried by callers, not silently absorbed here.
 func (c *CacheManager) GetOrSet(
 	ctx context.Context,
 	key string,
@@ -161,10 +107,6 @@ func (c *CacheManager) GetOrSet(
 	}
 
 	v, sfErr, shared := c.sf.Do(key, func() (any, error) {
-		// Re-check under the gate so the second/third/Nth
-		// caller observes the winner's Set without
-		// re-running fetchFunc. The winner's path proceeds
-		// through fetchFunc + Set normally.
 		winnerDest := newSameType(dest)
 		ok, gErr := c.Get(ctx, key, winnerDest)
 		if gErr == nil && ok {
@@ -195,24 +137,10 @@ func (c *CacheManager) GetOrSet(
 	return false, json.Unmarshal(data, dest)
 }
 
-// newSameType returns a zero value of the same concrete
-// type as dest so the re-check inside the singleflight
-// closure unmarshals into a compatible target. For
-// pointer dests it returns a fresh pointer to the
-// underlying element.
 func newSameType(dest any) any {
-	// json.Unmarshal already requires a pointer; calling
-	// code passes &session, &payload, etc. We can reuse
-	// the same target — Unmarshal overwrites it. Returning
-	// `dest` directly is safe because we only consume the
-	// returned interface for the unmarshal step.
 	return dest
 }
 
-// singleflightKind classifies a key for the metric label
-// so dashboards can break down collapses by call site
-// (session lookup, http response cache, etc.). Cheap
-// prefix match.
 func singleflightKind(key string) string {
 	switch {
 	case len(key) >= 8 && key[:8] == "session:":
@@ -224,15 +152,11 @@ func singleflightKind(key string) string {
 	}
 }
 
-// Delete removes the entry at key. No-op when missing.
 func (c *CacheManager) Delete(ctx context.Context, key string) error {
 	fullKey := c.buildKey(key)
 	return c.client.Del(ctx, fullKey).Err()
 }
 
-// InvalidateByTag drops every cache key tracked by tag. Prefer the
-// batched InvalidateByTags variant when clearing multiple tags so
-// the same Redis pipeline can serve them all.
 func (c *CacheManager) InvalidateByTag(
 	ctx context.Context,
 	tag string,
@@ -258,9 +182,6 @@ func (c *CacheManager) InvalidateByTag(
 	return err
 }
 
-// InvalidatePattern deletes every key matching pattern (Redis glob).
-// Use sparingly — SCAN-equivalent operations are O(N) over the
-// keyspace; prefer tag-based invalidation.
 func (c *CacheManager) InvalidatePattern(
 	ctx context.Context,
 	pattern string,
@@ -279,9 +200,6 @@ func (c *CacheManager) InvalidatePattern(
 	return c.client.Del(ctx, keys...).Err()
 }
 
-// InvalidateHTTPRoute drops every cached HTTP response whose key
-// contains path. Legacy; new code should rely on tags via the
-// HTTPCache middleware Tagger.
 func (c *CacheManager) InvalidateHTTPRoute(
 	ctx context.Context,
 	path string,
@@ -290,8 +208,6 @@ func (c *CacheManager) InvalidateHTTPRoute(
 	return c.InvalidatePattern(ctx, pattern)
 }
 
-// Flush deletes every key under this manager's prefix. Test helper
-// only.
 func (c *CacheManager) Flush(ctx context.Context) error {
 	pattern := c.buildKey("*")
 	keys, err := c.client.Keys(ctx, pattern).Result()
@@ -314,8 +230,6 @@ func (c *CacheManager) buildTagKey(tag string) string {
 	return fmt.Sprintf("%s:tag:%s", c.prefix, tag)
 }
 
-// StoreTokenData persists an arbitrary key/value map under the raw
-// (un-prefixed) key. Used by the OAT session store.
 func (c *CacheManager) StoreTokenData(
 	ctx context.Context,
 	key string,
@@ -330,8 +244,6 @@ func (c *CacheManager) StoreTokenData(
 	return c.client.Set(ctx, key, jsonData, ttl).Err()
 }
 
-// GetTokenData fetches the token payload at the raw key. Returns
-// (nil, false, nil) when the key is missing.
 func (c *CacheManager) GetTokenData(
 	ctx context.Context,
 	key string,
@@ -354,7 +266,6 @@ func (c *CacheManager) GetTokenData(
 	return result, true, nil
 }
 
-// DeleteTokenData removes the token payload at the raw key.
 func (c *CacheManager) DeleteTokenData(
 	ctx context.Context,
 	key string,
@@ -362,8 +273,6 @@ func (c *CacheManager) DeleteTokenData(
 	return c.client.Del(ctx, key).Err()
 }
 
-// UpdateTokenDataTTL refreshes the TTL on an existing token entry
-// without rewriting its value.
 func (c *CacheManager) UpdateTokenDataTTL(
 	ctx context.Context,
 	key string,

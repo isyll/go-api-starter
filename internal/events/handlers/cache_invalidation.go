@@ -1,8 +1,4 @@
-// Package handlers wires concrete reactions to bus events: cache
-// invalidation, audit-log persistence, and auth-attempt recording.
-// Each exported method is registered against the *events.Bus in the
-// app wiring. Cache invalidation runs sync; anything doing I/O runs
-// async with an idempotency key so Asynq redelivery is safe.
+// Package handlers holds the reactions wired to bus events.
 package handlers
 
 import (
@@ -14,14 +10,11 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// CacheInvalidator maps a domain change to the cache tags it drops.
 type CacheInvalidator struct {
 	cache  *cache.CacheManager
 	logger *logger.Logger
 }
 
-// NewCacheInvalidator builds a CacheInvalidator over the shared
-// CacheManager.
 func NewCacheInvalidator(
 	c *cache.CacheManager,
 	logx *logger.Logger,
@@ -29,7 +22,6 @@ func NewCacheInvalidator(
 	return &CacheInvalidator{cache: c, logger: logx}
 }
 
-// OnUserAccountDeleted drops everything cached for a deleted account.
 func (h *CacheInvalidator) OnUserAccountDeleted(
 	ctx context.Context,
 	evt *events.UserAccountDeleted,
@@ -37,8 +29,6 @@ func (h *CacheInvalidator) OnUserAccountDeleted(
 	return h.invalidate(ctx, evt.EventType(), cache.UserTag(evt.UserID))
 }
 
-// invalidate drops the given tags and records the outcome as a
-// metric. Failures are logged, not fatal: stale entries expire by TTL.
 func (h *CacheInvalidator) invalidate(
 	ctx context.Context,
 	eventType string,

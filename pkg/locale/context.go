@@ -5,13 +5,10 @@ import "context"
 type contextKey string
 
 const (
-	// LanguageContextKey stores the resolved language tag string.
-	LanguageContextKey contextKey = "language"
-	// LocalizerContextKey stores the per-request *goi18n.Localizer.
+	LanguageContextKey  contextKey = "language"
 	LocalizerContextKey contextKey = "localizer"
 )
 
-// GetLanguageFromContext returns the request language or defaultLocale.
 func GetLanguageFromContext(
 	ctx context.Context,
 	defaultLocale string,

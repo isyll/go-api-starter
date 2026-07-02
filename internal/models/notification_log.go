@@ -6,9 +6,7 @@ import (
 	"time"
 )
 
-// NotificationStatus tracks the delivery and interaction lifecycle
-// of a push notification.
-type NotificationStatus string // @name NotificationStatus
+type NotificationStatus string
 
 const (
 	NotificationStatusSent      NotificationStatus = "sent"
@@ -17,10 +15,6 @@ const (
 	NotificationStatusDismissed NotificationStatus = "dismissed"
 )
 
-// NotificationLog is the GORM model for
-// notifications.notification_logs. One row per FCM send attempt.
-// EventID links the notification back to the originating domain
-// event for cross-system correlation.
 type NotificationLog struct {
 	ID           int64              `gorm:"primaryKey" json:"id"                      msgpack:"id"`
 	UserID       *int64             `                  json:"user_id,omitempty"       msgpack:"user_id,omitempty"`
@@ -39,13 +33,10 @@ type NotificationLog struct {
 	FCMToken *FCMToken `gorm:"foreignKey:FCMTokenID;references:ID" json:"fcm_token,omitempty" msgpack:"fcm_token,omitempty"`
 }
 
-// TableName returns the schema-qualified table name for GORM.
 func (NotificationLog) TableName() string {
 	return "notifications.notification_logs"
 }
 
-// JSONB is a PostgreSQL JSONB column type that marshals/unmarshals
-// to and from a map[string]any.
 type JSONB map[string]any
 
 func (j JSONB) Value() (driver.Value, error) {

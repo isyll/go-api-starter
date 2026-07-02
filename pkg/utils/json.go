@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-// GetJSONFieldName resolves the JSON field path for a dot-separated struct
-// field name on typ, following json struct tags at each level.
 func GetJSONFieldName(typ reflect.Type, structFieldName string) string {
 	if typ.Kind() == reflect.Pointer {
 		typ = typ.Elem()

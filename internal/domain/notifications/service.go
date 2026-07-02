@@ -1,6 +1,4 @@
-// Package notifications owns push-token registration and per-user
-// notification preferences. Outbound delivery is handled by the
-// notifications worker; this domain is the read/control plane.
+// Package notifications manages push tokens and delivery preferences.
 package notifications
 
 import (
@@ -13,7 +11,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// RegisterTokenInput registers or refreshes a device push token.
 type RegisterTokenInput struct {
 	DeviceID   string
 	Token      string
@@ -21,8 +18,6 @@ type RegisterTokenInput struct {
 	AppVersion string
 }
 
-// PreferencesUpdate patches notification preferences; nil fields are
-// left unchanged.
 type PreferencesUpdate struct {
 	Push              *bool
 	Email             *bool
@@ -33,7 +28,6 @@ type PreferencesUpdate struct {
 	Timezone          *string
 }
 
-// Service holds push-token and preferences logic.
 type Service struct {
 	tokens    TokenRepository
 	prefs     PreferencesRepository
@@ -41,7 +35,6 @@ type Service struct {
 	logger    *logger.Logger
 }
 
-// NewService builds the notifications service.
 func NewService(
 	tokens TokenRepository,
 	prefs PreferencesRepository,
@@ -51,7 +44,6 @@ func NewService(
 	return &Service{tokens: tokens, prefs: prefs, fcmClient: fcmClient, logger: logx}
 }
 
-// RegisterToken upserts a push token for the (user, device) pair.
 func (s *Service) RegisterToken(ctx context.Context, userID int64, in RegisterTokenInput) error {
 	return s.tokens.Upsert(ctx, &models.FCMToken{
 		UserID:     userID,
@@ -63,18 +55,14 @@ func (s *Service) RegisterToken(ctx context.Context, userID int64, in RegisterTo
 	})
 }
 
-// ListTokens returns the caller's active push tokens.
 func (s *Service) ListTokens(ctx context.Context, userID int64) ([]*models.FCMToken, error) {
 	return s.tokens.ListByUserID(ctx, userID)
 }
 
-// DeleteToken removes the token for the (user, device) pair.
 func (s *Service) DeleteToken(ctx context.Context, userID int64, deviceID string) error {
 	return s.tokens.DeleteByDeviceID(ctx, userID, deviceID)
 }
 
-// GetPreferences returns the caller's preferences, seeding defaults
-// on first access.
 func (s *Service) GetPreferences(
 	ctx context.Context, userID int64,
 ) (*models.NotificationPreferences, error) {
@@ -94,7 +82,6 @@ func (s *Service) GetPreferences(
 	return defaults, nil
 }
 
-// UpdatePreferences applies a patch to the caller's preferences.
 func (s *Service) UpdatePreferences(
 	ctx context.Context, userID int64, upd PreferencesUpdate,
 ) (*models.NotificationPreferences, error) {

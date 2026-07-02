@@ -10,9 +10,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// InitRedis constructs a Redis client from cfg and verifies the
-// connection with a 5-second PING. Returns an error if the server
-// is unreachable so app.Initialize can fail fast.
 func InitRedis(cfg *config.RedisConfig) (*redis.Client, error) {
 	addr := fmt.Sprintf(
 		"%s:%d",

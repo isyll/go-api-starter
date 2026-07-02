@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	metricsNamespace = "app_owner"
+	metricsNamespace = "app"
 
 	subsystemAdmin     = "admin"
 	subsystemEvents    = "events"
@@ -122,12 +122,6 @@ var (
 		[]string{labelEventType},
 	)
 
-	// When InvalidateByTags returns an error (Redis down,
-	// network blip, etc.) the sync handler logs a Warn and
-	// proceeds — ops needs a counter to alert on instead of
-	// grepping Warn lines. Labels: event_type that triggered
-	// the invalidation + the tag set's cardinality bucket
-	// (single/multi).
 	CacheInvalidationFailedTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: metricsNamespace,
@@ -139,10 +133,6 @@ var (
 		[]string{"event_type", "tags"},
 	)
 
-	// Hit-rate metric for the HTTPCache middleware. Labels:
-	// route template (path with :params placeholders) so
-	// dashboards can answer "is /trips/search caching
-	// effectively?" per endpoint.
 	HTTPCacheHitsTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: metricsNamespace,
@@ -191,9 +181,6 @@ var (
 		[]string{labelRoute},
 	)
 
-	// How often the singleflight gate collapsed concurrent
-	// callers into a single fetch. Labels: "session" / "http"
-	// / "service" (whichever GetOrSet site triggered it).
 	CacheSingleflightCollapsedTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: metricsNamespace,
@@ -269,12 +256,6 @@ var (
 		[]string{"reason"},
 	)
 
-	// OutboxDeadLetterDepth is the current number of rows sitting in
-	// the dead-letter table waiting for operator intervention.
-	// Distinct from OutboxDeadLetterTotal (a cumulative counter of
-	// rows moved) — this gauge reflects the current backlog and is
-	// the right signal for a "dead-letter queue is growing" alert.
-	// Updated by the outbox drainer after each drain pass.
 	OutboxDeadLetterDepth = promauto.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: metricsNamespace,
@@ -285,10 +266,6 @@ var (
 		},
 	)
 
-	// AuditLogWriteFailuresTotal counts failures writing an
-	// admin audit log entry via the event handler. Labeled
-	// by reason ("db_write", "publish") so dashboards can
-	// distinguish bus-level failures from DB-level ones.
 	AuditLogWriteFailuresTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: metricsNamespace,

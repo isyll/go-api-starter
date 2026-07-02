@@ -19,7 +19,6 @@ var (
 	resetTokenTTL  = cache.CacheOptions{TTL: 1 * time.Hour}
 )
 
-// Service implements email/password authentication.
 type Service struct {
 	cfg          *config.Configs
 	logger       *logger.Logger
@@ -33,7 +32,6 @@ type Service struct {
 	bus          *events.Bus
 }
 
-// NewService builds the auth Service. All collaborators are injected.
 func NewService(
 	cfg *config.Configs,
 	logx *logger.Logger,
@@ -64,8 +62,6 @@ type tokenData struct {
 	UserID int64 `json:"user_id"`
 }
 
-// Register creates a new account, sends a verification email, and
-// opens the first session.
 func (s *Service) Register(ctx context.Context, in RegisterInput) (*TokenPair, error) {
 	if err := validatePassword(in.Password); err != nil {
 		return nil, err
@@ -104,7 +100,6 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (*TokenPair, e
 	return s.createSessionAndTokens(ctx, user, in.Device, &defaults)
 }
 
-// Login authenticates by email/password and opens a session.
 func (s *Service) Login(ctx context.Context, in LoginInput) (*TokenPair, error) {
 	email := normalizeEmail(in.Email)
 	user, err := s.users.FindByEmail(ctx, email)
@@ -133,7 +128,6 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (*TokenPair, error) 
 	return tokens, nil
 }
 
-// VerifyEmail confirms an email using a verification token.
 func (s *Service) VerifyEmail(ctx context.Context, token string) error {
 	var data tokenData
 	found, err := s.cacheManager.Get(ctx, cache.VerificationTokenKey(token), &data)
@@ -147,7 +141,6 @@ func (s *Service) VerifyEmail(ctx context.Context, token string) error {
 	return nil
 }
 
-// ResendVerification sends a fresh verification email to the user.
 func (s *Service) ResendVerification(ctx context.Context, userID int64) error {
 	user, err := s.users.FindByID(ctx, userID)
 	if err != nil {
@@ -160,8 +153,6 @@ func (s *Service) ResendVerification(ctx context.Context, userID int64) error {
 	return nil
 }
 
-// RequestPasswordReset emails a reset token. It does not reveal whether
-// the email exists.
 func (s *Service) RequestPasswordReset(ctx context.Context, email string) error {
 	email = normalizeEmail(email)
 	user, err := s.users.FindByEmail(ctx, email)
@@ -180,8 +171,6 @@ func (s *Service) RequestPasswordReset(ctx context.Context, email string) error 
 	return nil
 }
 
-// ResetPassword sets a new password from a reset token and revokes all
-// existing sessions.
 func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) error {
 	if err := validatePassword(newPassword); err != nil {
 		return err
@@ -205,7 +194,6 @@ func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) 
 	return nil
 }
 
-// ChangePassword updates the password after verifying the current one.
 func (s *Service) ChangePassword(ctx context.Context, userID int64, current, next string) error {
 	user, err := s.users.FindByID(ctx, userID)
 	if err != nil {
@@ -224,7 +212,6 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, current, nex
 	return s.users.UpdatePasswordHash(ctx, userID, hash)
 }
 
-// sendVerification issues a verification token and emails it.
 func (s *Service) sendVerification(ctx context.Context, user *models.User) {
 	token := utils.NewUUIDNoDash()
 	if err := s.cacheManager.Set(

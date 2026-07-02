@@ -9,11 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Local interfaces matching the domain/notifications
-// repository contracts. Only the methods used by the
-// async processor are included. Go structural typing
-// ensures compatibility with the domain implementations.
-
 type FCMTokenRepository interface {
 	FindActiveByUserID(
 		ctx context.Context,

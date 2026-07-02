@@ -12,24 +12,15 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// Processor decodes envelopes off events:dispatch and
-// re-enters the bus to invoke registered async handlers.
 type Processor struct {
 	bus    *Bus
 	logger *logger.Logger
 }
 
-// NewProcessor constructs a Processor backed by the supplied Bus.
-// The worker's Bus is configured WITHOUT an AsyncDispatcher so
-// handlers cannot accidentally re-publish from inside the worker.
 func NewProcessor(bus *Bus, logx *logger.Logger) *Processor {
 	return &Processor{bus: bus, logger: logx}
 }
 
-// ProcessTask decodes the envelope, allocates the
-// concrete type via the registry, and dispatches.
-// Unknown event types are skipped without error so an
-// older worker does not crash on newly deployed events.
 func (p *Processor) ProcessTask(
 	ctx context.Context,
 	t *asynq.Task,

@@ -12,39 +12,25 @@ import (
 	"gorm.io/gorm"
 )
 
-// RefreshTokenRepository defines the data-access contract for
-// auth.refresh_tokens rows.
 type RefreshTokenRepository interface {
-	// Create persists a new refresh-token record, panicking on unexpected
-	// DB failure.
 	Create(ctx context.Context, token *models.RefreshToken)
-	// FindByTokenHash looks up a refresh token by its SHA-256 hash, returning
-	// ErrInvalidToken when absent.
 	FindByTokenHash(
 		ctx context.Context,
 		tokenHash string,
 	) (*models.RefreshToken, error)
-	// RevokeByTokenHash marks the token identified by its hash as revoked
-	// with the given reason.
 	RevokeByTokenHash(
 		ctx context.Context,
 		tokenHash, reason string,
 	) error
-	// RevokeBySessionID revokes all refresh tokens belonging to the given
-	// device session.
 	RevokeBySessionID(
 		ctx context.Context,
 		sessionID int64,
 		reason string,
 	) error
-	// RevokeByTokenFamily revokes all tokens that share the given family
-	// identifier, invalidating a replay-attack lineage.
 	RevokeByTokenFamily(
 		ctx context.Context,
 		tokenFamily, reason string,
 	) error
-	// CleanupExpired deletes refresh-token rows past their expiry date and
-	// returns the count of deleted records.
 	CleanupExpired(ctx context.Context) (int64, error)
 }
 
@@ -77,8 +63,6 @@ func (r *refreshTokenRepository) FindByTokenHash(
 		return nil, ErrInvalidToken
 	}
 	var token models.RefreshToken
-	// Narrow via the indexed prefix first, then validate the full hash
-	// in constant time to prevent timing-side-channel token enumeration.
 	err := r.db.WithContext(ctx).
 		Preload("Session.User").
 		Where("token_prefix = ?", tokenHash[:8]).

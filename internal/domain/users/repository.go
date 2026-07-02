@@ -1,6 +1,4 @@
-// Package users owns user profile reads/writes and account lifecycle
-// (soft delete, status, role). It is transport-agnostic; the gRPC
-// layer maps requests onto these methods.
+// Package users owns user profiles and account lifecycle.
 package users
 
 import (
@@ -16,8 +14,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Repository is the user data access contract. It also satisfies the
-// auth domain's UserStore.
 type Repository interface {
 	Create(ctx context.Context, user *models.User) error
 	FindByID(ctx context.Context, id int64) (*models.User, error)
@@ -37,7 +33,6 @@ type repository struct {
 	db *gorm.DB
 }
 
-// NewRepository builds a user repository over the given DB.
 func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }

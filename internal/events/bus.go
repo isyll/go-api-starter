@@ -18,17 +18,10 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// ErrEnqueueFailed is returned by Publish when at least
-// one async subscription failed to enqueue its task.
-// The outbox (if configured) will retry those tasks.
-// This error does NOT indicate that sync handlers failed
-// — check WithCritical for that.
 var ErrEnqueueFailed = errors.New(
 	"one or more async event enqueues failed",
 )
 
-// AsyncDispatcher is the seam for async fan-out;
-// production uses AsynqDispatcher, tests can swap it.
 type AsyncDispatcher interface {
 	Enqueue(
 		ctx context.Context,
@@ -37,55 +30,18 @@ type AsyncDispatcher interface {
 	) error
 }
 
-// Bus is the in-process dispatch table. The same Bus
-// instance is rebuilt in the event-dispatcher worker so
-// async handlers there call the exact same registered
-// functions.
-//
-// Publish is tx-aware: when the caller passes a context
-// carrying a *gorm.DB transaction (via
-// persistence.Manager.WithTx), the bus writes the outbox
-// row INSIDE that transaction and returns immediately.
-// Sync handlers and async enqueue happen later when the
-// drain goroutine re-publishes the row in drainCtx after
-// the tx has committed. This is the single mandatory
-// pattern for any event that follows a domain mutation —
-// it guarantees the outbox row and the mutation share
-// commit fate.
-//
-// When Publish is called WITHOUT a transaction in the
-// context — the sanctioned shape for non-mutation events
-// (e.g. system observability) — the bus writes the outbox
-// row in its own one-statement tx, runs sync handlers, and
-// attempts async enqueue. The drain still catches any
-// enqueue failure.
 type Bus struct {
-	mu     sync.RWMutex
-	subs   map[string][]subscription
-	asynq  AsyncDispatcher
-	outbox *OutboxRepository
-	logger *logger.Logger
-	// drainKick signals the drain goroutine to run one
-	// extra iteration immediately. The retry watchdog uses
-	// this to cut Redis-recovery latency from up-to-30s to
-	// under 2s after the first successful Asynq enqueue
-	// following an outage.
+	mu        sync.RWMutex
+	subs      map[string][]subscription
+	asynq     AsyncDispatcher
+	outbox    *OutboxRepository
+	logger    *logger.Logger
 	drainKick chan struct{}
 
-	// drainBreakerFailures counts consecutive drain passes
-	// where every fetched row failed to publish. When the
-	// count crosses drainBreakerThreshold, drainOnce sleeps
-	// drainBreakerCooldown before retrying. A successful
-	// pass resets the counter. Mutated by drainOnce only;
-	// no lock needed because drainOnce runs sequentially on
-	// a single goroutine.
 	drainBreakerFailures int
 	drainBreakerOpenedAt time.Time
 }
 
-// drainKey is a context key used to signal that Publish
-// is being called from the outbox drain goroutine so it
-// must not write a new outbox row.
 type drainKey struct{}
 
 type subscription struct {
@@ -97,9 +53,6 @@ type subscription struct {
 	critical  bool
 }
 
-// New creates a Bus. Pass nil for asynq to disable
-// async fan-out (used in the worker process to prevent
-// re-publish loops).
 func New(dispatcher AsyncDispatcher, logx *logger.Logger) *Bus {
 	return &Bus{
 		subs:      map[string][]subscription{},
@@ -109,9 +62,6 @@ func New(dispatcher AsyncDispatcher, logx *logger.Logger) *Bus {
 	}
 }
 
-// NewWithOutbox creates a Bus with outbox-backed retry
-// for failed Asynq enqueues. The drain goroutine must be
-// started separately via Bus.DrainOutbox.
 func NewWithOutbox(
 	dispatcher AsyncDispatcher,
 	outbox *OutboxRepository,
@@ -126,9 +76,6 @@ func NewWithOutbox(
 	}
 }
 
-// kickDrain signals the drain goroutine to run one extra
-// iteration right away. Non-blocking: if a kick is already
-// pending the new one coalesces with it.
 func (b *Bus) kickDrain() {
 	if b.drainKick == nil {
 		return
@@ -139,10 +86,6 @@ func (b *Bus) kickDrain() {
 	}
 }
 
-// Subscribe registers a sync handler. Sync handlers
-// run on the publishing goroutine before Publish
-// returns; reserve for cache invalidation and other
-// in-process reactions.
 func Subscribe[T Event](
 	bus *Bus,
 	handler Handler[T],
@@ -166,9 +109,6 @@ func Subscribe[T Event](
 	})
 }
 
-// SubscribeAsync registers an async handler. Each
-// publish becomes one Asynq task per async handler;
-// the event-dispatcher worker invokes the handler later.
 func SubscribeAsync[T Event](
 	bus *Bus,
 	handler Handler[T],
@@ -201,41 +141,6 @@ func SubscribeAsync[T Event](
 	})
 }
 
-// Publish dispatches evt to sync and async subscribers.
-//
-// Behavior depends on whether ctx carries an active DB
-// transaction (set by persistence.Manager.WithTx) AND
-// whether the event has any async subscribers:
-//
-//  1. Inside a tx with async subscribers: the bus writes
-//     the outbox row INSIDE the caller's transaction and
-//     returns nil. Sync handlers and async enqueue are
-//     deferred — they happen later when the drain
-//     goroutine re-publishes the row in drain context,
-//     well after the tx has committed. This is the
-//     mandatory pattern for any event that follows a
-//     domain mutation.
-//
-//  2. Inside a tx with NO async subscribers: the bus
-//     runs sync handlers immediately on the request
-//     goroutine. No outbox row is written. Sync handlers
-//     observe pre-commit state — only safe when the
-//     handler reads no DB row that the surrounding tx is
-//     about to mutate.
-//
-//  3. Outside a tx: the bus writes the outbox row (in a
-//     standalone connection), runs sync handlers, and
-//     attempts async enqueue. On enqueue failure the
-//     row remains pending and the drain picks it up.
-//
-//  4. Called from the drain itself (drainCtx is set):
-//     no new outbox row is written; sync + async run
-//     normally. The drain owns the outbox row's
-//     MarkProcessed/MarkFailed bookkeeping.
-//
-// Returns the first critical sync error, if any. Panics
-// in sync handlers are recovered and logged, never
-// propagated.
 func (b *Bus) Publish(ctx context.Context, evt Event) error {
 	b.mu.RLock()
 	subs := append(
@@ -262,43 +167,20 @@ func (b *Bus) Publish(ctx context.Context, evt Event) error {
 		}
 	}
 
-	// Fast path 1: caller is the drain itself — run sync
-	// and try async; drain owns outbox row bookkeeping.
 	if fromDrain {
 		return b.dispatch(ctx, evt, subs)
 	}
 
-	// Fast path 2: caller is inside a tx. Write the outbox
-	// row in the caller's tx so the row shares commit fate
-	// with the mutation. Sync (cache invalidation) and
-	// async (notifications, lifecycle) dispatch happen
-	// later from drainCtx — AFTER the tx commits.
-	//
-	// This applies to sync-only events too. Running cache
-	// invalidation before commit would create a race: a
-	// concurrent reader could repopulate the cache with
-	// the pre-commit value, leaving stale data after the
-	// tx commits. The 5 s drain interval means the cache
-	// is fresh within seconds of commit.
 	if persistence.HasTx(ctx) && b.outbox != nil {
 		if _, err := b.outbox.Write(ctx, evt); err != nil {
-			// Hard error: surface to caller so the tx
-			// rolls back. Losing the event silently is
-			// what this whole machinery exists to prevent.
 			return fmt.Errorf(
 				"events: outbox write in tx failed: %w", err,
 			)
 		}
-		// Kick the drain so dispatch runs ASAP after
-		// commit instead of waiting for the next tick.
 		b.kickDrain()
 		return nil
 	}
 
-	// Slow path: caller is OUTSIDE a tx. Write the outbox
-	// row in a standalone connection (atomic write of one
-	// row only — no surrounding mutation to share commit
-	// fate with). Then run sync and try async.
 	var (
 		outboxID int64
 		err      error
@@ -317,10 +199,6 @@ func (b *Bus) Publish(ctx context.Context, evt Event) error {
 	dispatchErr := b.dispatch(ctx, evt, subs)
 
 	if outboxID > 0 {
-		// Outbox row bookkeeping: mark processed only if
-		// every async handler enqueued successfully.
-		// dispatch returns ErrEnqueueFailed when any
-		// async enqueue failed.
 		if errors.Is(dispatchErr, ErrEnqueueFailed) {
 			_ = b.outbox.MarkFailed(
 				ctx, outboxID,
@@ -335,11 +213,6 @@ func (b *Bus) Publish(ctx context.Context, evt Event) error {
 	return dispatchErr
 }
 
-// dispatch runs sync handlers in registration order and
-// attempts async enqueue for each async handler. Returns
-// the first critical sync error, or ErrEnqueueFailed if
-// any async enqueue failed. Sync errors from
-// non-critical handlers are logged and otherwise ignored.
 func (b *Bus) dispatch(
 	ctx context.Context,
 	evt Event,
@@ -404,18 +277,6 @@ func (b *Bus) dispatch(
 	return firstCritErr
 }
 
-// DrainOutbox polls the outbox table at the given
-// interval and re-publishes unprocessed events. It also
-// drains immediately whenever Publish kicks the
-// drainKick channel — typically right after a publish
-// inside a transaction commits, or after an async
-// enqueue fails. Call this in a goroutine after Bus is
-// wired; it blocks until ctx is canceled.
-//
-// Concurrent drainers across processes are safe:
-// PendingBatch uses FOR UPDATE SKIP LOCKED, so each row
-// is delivered at most once. Most replicas waste a
-// cheap query per tick when no work is available.
 func (b *Bus) DrainOutbox(
 	ctx context.Context,
 	interval time.Duration,
@@ -432,10 +293,6 @@ func (b *Bus) DrainOutbox(
 		case <-ticker.C:
 			b.drainOnce(ctx)
 		case <-b.drainKick:
-			// Immediate-drain trigger. A small backoff
-			// would let multiple kicks coalesce, but
-			// PendingBatch is cheap and the kick channel
-			// already buffers at most one extra wake-up.
 			b.drainOnce(ctx)
 		}
 	}
@@ -455,10 +312,6 @@ func (b *Bus) drainOnce(ctx context.Context) {
 		}
 	}()
 
-	// Circuit breaker: when the previous N drain passes all failed
-	// (every row's Publish bounced, typically because Asynq/Redis is
-	// unreachable), skip the body until the cooldown elapses. A
-	// successful pass after the cooldown closes the breaker.
 	if b.drainBreakerFailures >= drainBreakerThreshold {
 		if time.Since(b.drainBreakerOpenedAt) < drainBreakerCooldown {
 			return
@@ -481,8 +334,6 @@ func (b *Bus) drainOnce(ctx context.Context) {
 		return
 	}
 
-	// Count publish failures so the breaker can decide whether the
-	// drain pass was a total failure (every row bounced).
 	var publishFailures, publishAttempts int
 
 	drainCtx := context.WithValue(ctx, drainKey{}, true)
@@ -587,12 +438,8 @@ func (b *Bus) drainOnce(ctx context.Context) {
 		}
 	}
 
-	// Update the circuit-breaker state. A total-failure pass
-	// (every attempted publish bounced) increments the consecutive-
-	// failure counter; any successful publish closes the breaker.
 	switch {
 	case publishAttempts == 0:
-		// Nothing to publish — counter unchanged.
 	case publishFailures == publishAttempts:
 		b.drainBreakerFailures++
 		if b.drainBreakerFailures == drainBreakerThreshold {
@@ -615,9 +462,6 @@ func (b *Bus) drainOnce(ctx context.Context) {
 	}
 }
 
-// InvokeAsync runs only the async subscriptions for an
-// event - sync ones already ran on the publisher's
-// goroutine. Called by Processor on the worker side.
 func (b *Bus) InvokeAsync(
 	ctx context.Context,
 	evt Event,
@@ -651,9 +495,6 @@ func (b *Bus) InvokeAsync(
 	return firstErr
 }
 
-// HasSubscribers reports whether any handler is registered for
-// eventType. Useful for short-circuiting expensive payload
-// construction when no one is listening.
 func (b *Bus) HasSubscribers(eventType string) bool {
 	b.mu.RLock()
 	defer b.mu.RUnlock()

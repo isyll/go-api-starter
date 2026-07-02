@@ -17,8 +17,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// AdminServer adapts admin-only operations to the gRPC API. Access is
-// gated by the auth interceptor (admin role required).
 type AdminServer struct {
 	apiv1.UnimplementedAdminServiceServer
 	users      *users.Service
@@ -27,7 +25,6 @@ type AdminServer struct {
 	enc        idenc.IDEncoder
 }
 
-// NewAdminServer builds the admin gRPC server.
 func NewAdminServer(
 	u *users.Service,
 	s *suspension.Service,
@@ -115,7 +112,6 @@ func (s *AdminServer) SetUserRole(ctx context.Context, req *apiv1.SetUserRoleReq
 	return &emptypb.Empty{}, nil
 }
 
-// audit publishes an admin audit event (best effort).
 func (s *AdminServer) audit(ctx context.Context, action, resourceID string) {
 	_ = s.bus.Publish(ctx, &events.AuditLogWritten{
 		AdminID:    currentUserID(ctx),

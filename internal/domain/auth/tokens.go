@@ -14,9 +14,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/utils"
 )
 
-// RefreshTokens rotates a refresh token: the presented token is
-// revoked and a fresh access+refresh pair is issued in the same
-// family. Presenting a revoked token revokes the whole family.
 func (s *Service) RefreshTokens(
 	ctx context.Context,
 	refreshToken string,
@@ -76,8 +73,6 @@ func (s *Service) RefreshTokens(
 	}, nil
 }
 
-// generateTokenPair mints a new access+refresh pair for a session and
-// persists the refresh token in a new family.
 func (s *Service) generateTokenPair(
 	ctx context.Context,
 	user *models.User,
@@ -103,8 +98,6 @@ func (s *Service) generateTokenPair(
 	}, nil
 }
 
-// issueTokenPair generates an access token and a refresh token for an
-// existing session, returning the raw refresh token and its hash.
 func (s *Service) issueTokenPair(
 	ctx context.Context,
 	session *models.DeviceSession,
@@ -120,7 +113,6 @@ func (s *Service) issueTokenPair(
 	return accessToken, rawRefresh, tokenHash, nil
 }
 
-// recordAttempt publishes an auth-attempt audit event (best effort).
 func (s *Service) recordAttempt(
 	ctx context.Context,
 	email string,
@@ -139,7 +131,6 @@ func (s *Service) recordAttempt(
 	}
 }
 
-// hashToken returns the hex SHA-256 of a raw token.
 func hashToken(token string) string {
 	sum := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(sum[:])

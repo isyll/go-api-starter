@@ -6,19 +6,10 @@ import (
 	"strconv"
 )
 
-// Tag conventions: snake_case, lowercase, colon-separated. Each
-// constructor names one kind of dependency shared by a cache writer
-// and an invalidator.
-
-// UserTag groups everything scoped to a single user (profile,
-// settings). Drop it when the user changes.
 func UserTag(userID int64) string {
 	return "user:" + strconv.FormatInt(userID, 10)
 }
 
-// InvalidateByTags drops every cache key tracked by the given tags
-// in a single Redis pipeline. Empty input is a no-op. It returns the
-// first Redis error but still attempts every operation.
 func (c *CacheManager) InvalidateByTags(
 	ctx context.Context,
 	tags ...string,

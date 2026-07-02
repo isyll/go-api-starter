@@ -1,16 +1,4 @@
-// Package db opens GORM connections to PostgreSQL with the
-// correct logical role, search path, statement timeout, RLS
-// session callback, and query-count instrumentation.
-//
-// Three roles are supported:
-//
-//   - RoleApp ............ API runtime, RLS-bound (sets
-//     app.current_user_id from the request Subject).
-//   - RoleAdmin .......... workers and admin paths, RLS-exempt.
-//   - RoleMigration ...... DDL role, used only by cmd/migrate.
-//
-// Application code MUST go through InitDatabase; never construct
-// a *gorm.DB directly so the GORM callbacks are always installed.
+// Package db opens GORM connections to PostgreSQL per role.
 package db
 
 import (
@@ -32,36 +20,19 @@ import (
 	gormLogger "gorm.io/gorm/logger"
 )
 
-// ExtensionChecker installs and verifies the PostgreSQL extensions
-// required by the application (PostGIS, uuid-ossp, pgcrypto) and
-// the optional ones (pg_stat_statements).
 type ExtensionChecker struct {
 	db     *sql.DB
 	logger *logger.Logger
 }
 
-// Role names the logical Postgres role a binary should connect as.
-// The DSN, RLS posture, and observability label all derive from this.
 type Role string
 
 const (
-	// RoleApp is the API runtime role (app_api). Subject to RLS;
-	// the GORM callback sets app.current_user_id every transaction.
-	RoleApp Role = "app"
-	// RoleAdmin is for workers and admin paths (app_worker). RLS
-	// policies grant unrestricted read/write for this role.
-	RoleAdmin Role = "admin"
-	// RoleMigration is the table-owner / DDL role (app_owner). Only
-	// cmd/migrate should pick this; it bypasses RLS by definition
-	// (table owner with FORCE RLS still applies, so explicit
-	// admin-style policies must include the migration user when
-	// running fixture cleanup).
+	RoleApp       Role = "app"
+	RoleAdmin     Role = "admin"
 	RoleMigration Role = "migration"
 )
 
-// InitDatabase opens the DB connection for the given role. The
-// returned *gorm.DB has per-request query counting and the RLS
-// session callback (app/admin only) installed.
 func InitDatabase(
 	cfg *config.DatabaseConfig,
 	role Role,
@@ -106,9 +77,6 @@ func InitDatabase(
 	return db, nil
 }
 
-// credentialsFor returns the credentials for the given role.
-// Returns an error when the role's credentials are unconfigured
-// so the process never accidentally connects as the DDL role.
 func credentialsFor(
 	cfg *config.DatabaseConfig, role Role,
 ) (config.DBCredentials, error) {
@@ -134,10 +102,6 @@ func credentialsFor(
 	}
 }
 
-// poolFor returns the per-role pool config when one is set, falling
-// back to the global ConnectionPool. This lets operators tune the
-// admin/worker pool (higher max-open for bulk operations) and the
-// migration pool (single-connection) independently of the API pool.
 func poolFor(
 	cfg *config.DatabaseConfig,
 	role Role,
@@ -274,7 +238,6 @@ func (ec *ExtensionChecker) ensureExtension(
 		return nil
 	}
 
-	// Force PostGIS and spatial extensions to install in public schema
 	schemaClause := ""
 	if name == "postgis" || name == "postgis_topology" {
 		schemaClause = " SCHEMA public"
@@ -325,7 +288,7 @@ func createGormConnection(
 
 	gormConfig := &gorm.Config{
 		Logger: gormLogger.New(
-			logx, // Or another writer that integrates natively
+			logx,
 			gormLogger.Config{
 				SlowThreshold:             slowQueryThreshold,
 				LogLevel:                  gormLogLevel,
@@ -338,8 +301,6 @@ func createGormConnection(
 		DisableForeignKeyConstraintWhenMigrating: true,
 	}
 
-	// The DSN connection info is already handled by the *sql.DB created in connectToPostgres.
-	// We just pass the open connection to GORM to ensure we use the same connection pool.
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: sqlDB,
 	}), gormConfig)
@@ -420,8 +381,6 @@ func configurePool(
 	)
 }
 
-// GetDatabaseStats returns runtime pool and pg_stat_statements
-// metrics for monitoring endpoints.
 func GetDatabaseStats(db *gorm.DB) (map[string]any, error) {
 	sqlDB, err := db.DB()
 	if err != nil {
@@ -453,9 +412,6 @@ func GetDatabaseStats(db *gorm.DB) (map[string]any, error) {
 	return result, err
 }
 
-// registerQueryCallbacks installs a GORM before-hook on every
-// operation type that increments the per-request query counter
-// stored in the statement's context.
 func registerQueryCallbacks(db *gorm.DB) {
 	inc := func(d *gorm.DB) {
 		if d.Statement == nil || d.Statement.Context == nil {
@@ -472,18 +428,18 @@ func registerQueryCallbacks(db *gorm.DB) {
 		}
 	}
 	must(cb.Query().Before("gorm:query").Register(
-		"app_owner:count_query", inc,
+		"db:count_query", inc,
 	))
 	must(cb.Create().Before("gorm:create").Register(
-		"app_owner:count_create", inc,
+		"db:count_create", inc,
 	))
 	must(cb.Update().Before("gorm:update").Register(
-		"app_owner:count_update", inc,
+		"db:count_update", inc,
 	))
 	must(cb.Delete().Before("gorm:delete").Register(
-		"app_owner:count_delete", inc,
+		"db:count_delete", inc,
 	))
 	must(cb.Raw().Before("gorm:raw").Register(
-		"app_owner:count_raw", inc,
+		"db:count_raw", inc,
 	))
 }

@@ -8,9 +8,6 @@ import (
 	"github.com/isyll/go-api-starter/internal/models"
 )
 
-// createSessionAndTokens opens a new device session and issues a token
-// pair. If the user is at the device limit, the oldest session is
-// evicted first.
 func (s *Service) createSessionAndTokens(
 	ctx context.Context,
 	user *models.User,
@@ -35,8 +32,6 @@ func (s *Service) createSessionAndTokens(
 	return tokens, nil
 }
 
-// Logout revokes the session, its access token, and its refresh
-// tokens. Errors are logged, not returned.
 func (s *Service) Logout(ctx context.Context, sessionID int64, accessToken string) {
 	if _, err := s.sessions.Revoke(ctx, "logout", sessionID); err != nil {
 		s.logger.Warn("logout: session already revoked", "session_id", sessionID)
@@ -52,8 +47,6 @@ func (s *Service) Logout(ctx context.Context, sessionID int64, accessToken strin
 	_ = s.cacheManager.Delete(ctx, cache.SessionDataKey(sessionID))
 }
 
-// ListDevices returns the active sessions for a user. The session
-// matching currentSessionID is flagged Current.
 func (s *Service) ListDevices(
 	ctx context.Context,
 	userID int64,
@@ -78,8 +71,6 @@ func (s *Service) ListDevices(
 	return infos
 }
 
-// RemoveDevice revokes a specific device session. It refuses to remove
-// the caller's current session (use Logout for that).
 func (s *Service) RemoveDevice(
 	ctx context.Context,
 	userID int64,
@@ -96,8 +87,6 @@ func (s *Service) RemoveDevice(
 	return s.revokeSessionAndTokens(ctx, session, "user_revoked_device")
 }
 
-// RevokeAllSessions revokes every active session for a user. Used by
-// account deletion and password reset.
 func (s *Service) RevokeAllSessions(ctx context.Context, userID int64, reason string) error {
 	sessions := s.sessions.FindActiveDevicesByUser(
 		ctx, userID, s.cfg.Security.Auth.MaxInactivityTimeout,
@@ -110,7 +99,6 @@ func (s *Service) RevokeAllSessions(ctx context.Context, userID int64, reason st
 	return nil
 }
 
-// GetDeviceSession returns the active session for a user+device, or nil.
 func (s *Service) GetDeviceSession(
 	ctx context.Context,
 	userID int64,
@@ -119,8 +107,6 @@ func (s *Service) GetDeviceSession(
 	return s.sessions.FindByUserAndDeviceID(ctx, userID, deviceID)
 }
 
-// evictOldestIfOverLimit revokes the least recently used session when
-// the user is already at MaxDevicesPerUser.
 func (s *Service) evictOldestIfOverLimit(ctx context.Context, userID int64) {
 	max := s.cfg.Security.Auth.MaxDevicesPerUser
 	if max <= 0 {
@@ -139,8 +125,6 @@ func (s *Service) evictOldestIfOverLimit(ctx context.Context, userID int64) {
 	}
 }
 
-// revokeSessionAndTokens revokes a session, its refresh tokens, and its
-// cache entry.
 func (s *Service) revokeSessionAndTokens(
 	ctx context.Context,
 	session *models.DeviceSession,

@@ -7,8 +7,6 @@ import (
 	"github.com/isyll/go-api-starter/internal/metrics"
 )
 
-// UpdateMetrics queries events.outbox and refreshes the Prometheus
-// gauges. Safe to call from a background goroutine at any interval.
 func (r *OutboxRepository) UpdateMetrics(
 	ctx context.Context,
 ) error {
@@ -48,8 +46,6 @@ func (r *OutboxRepository) UpdateMetrics(
 	metrics.OutboxExhaustedRows.Set(float64(result.Exhausted))
 	metrics.OutboxDrainLagSeconds.Set(result.LagSecs)
 
-	// Track current dead-letter depth so operators can alert when
-	// it grows (rows are stuck; manual requeue or investigation needed).
 	var dlDepth int64
 	if err := r.db.WithContext(ctx).
 		Raw(`SELECT COUNT(*) FROM events.outbox_dead_letters`).

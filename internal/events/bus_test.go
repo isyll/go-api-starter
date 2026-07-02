@@ -19,7 +19,7 @@ func (*testEvent) EventType() string { return "test.unit" }
 
 // TestPublishCriticalSurfacesError verifies that a sync
 // handler registered with WithCritical() returns its
-// error through Publish — the only seam any future
+// error through Publish - the only seam any future
 // "must succeed or abort" handler depends on. Without
 // this test the seam silently rots: today's handlers all
 // log-and-swallow.

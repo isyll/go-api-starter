@@ -12,7 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Repository is the data access for account suspensions.
 type Repository interface {
 	GetActiveByUserID(ctx context.Context, userID int64) (*models.AccountSuspension, error)
 	Create(ctx context.Context, s *models.AccountSuspension) error
@@ -23,7 +22,6 @@ type repository struct {
 	db *gorm.DB
 }
 
-// NewRepository builds a suspension repository over the given DB.
 func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
@@ -53,8 +51,6 @@ func (r *repository) Create(ctx context.Context, s *models.AccountSuspension) er
 	return nil
 }
 
-// DeactivateByUserID ends every active suspension for a user by
-// setting suspended_until to now and clearing the permanent flag.
 func (r *repository) DeactivateByUserID(ctx context.Context, userID int64) error {
 	return r.db.WithContext(ctx).Model(&models.AccountSuspension{}).
 		Where("user_id = ?", userID).

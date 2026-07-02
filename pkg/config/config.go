@@ -2,8 +2,6 @@ package config
 
 import "fmt"
 
-// Configs aggregates every subsystem configuration loaded at startup
-// by LoadAllConfigs.
 type Configs struct {
 	App           *AppConfig
 	Database      *DatabaseConfig
@@ -14,9 +12,6 @@ type Configs struct {
 	Events        *EventsConfig
 }
 
-// LoadAllConfigs reads every YAML file under configs/, substitutes
-// ${ENV_VAR:-default} placeholders, and returns a populated *Configs.
-// events.yaml is optional and falls back to EventsDefaults.
 func LoadAllConfigs() (*Configs, error) {
 	LoadEnvFile()
 
@@ -52,8 +47,6 @@ func LoadAllConfigs() (*Configs, error) {
 		return nil, fmt.Errorf("failed to load email config: %w", err)
 	}
 
-	// events.yaml is optional; fall back to defaults and treat
-	// zero-valued fields as "use the default".
 	eventsCfg, eventsErr := LoadConfig[EventsConfig]("configs/events.yaml")
 	if eventsErr != nil {
 		eventsCfg = EventsDefaults()

@@ -14,8 +14,6 @@ import (
 	"github.com/isyll/go-api-starter/pkg/logger"
 )
 
-// Worker wraps an Asynq server with a mux pre-wired for the email
-// queues (high, normal, low).
 type Worker struct {
 	server    *asynq.Server
 	mux       *asynq.ServeMux
@@ -24,8 +22,6 @@ type Worker struct {
 	logger    *logger.Logger
 }
 
-// NewWorker constructs a Worker around the given Processor and starts
-// the Asynq server listening on the email queues from config.
 func NewWorker(
 	redisAddr string,
 	redisPassword string,
@@ -69,7 +65,6 @@ func NewWorker(
 	}
 }
 
-// Start begins processing email tasks
 func (w *Worker) Start() error {
 	w.mux.HandleFunc(TaskSendEmail, w.processor.ProcessTask)
 	w.mux.HandleFunc(TaskScheduledEmail, w.processor.ProcessTask)
@@ -82,7 +77,6 @@ func (w *Worker) Start() error {
 	return w.server.Start(w.mux)
 }
 
-// Run starts the worker and blocks until shutdown signal
 func (w *Worker) Run() error {
 	if err := w.Start(); err != nil {
 		return fmt.Errorf("failed to start email worker: %w", err)
@@ -97,12 +91,10 @@ func (w *Worker) Run() error {
 	return nil
 }
 
-// Shutdown gracefully stops the worker
 func (w *Worker) Shutdown() {
 	w.server.Shutdown()
 }
 
-// asynqLogger adapts our logger to asynq's logger interface
 type asynqLogger struct {
 	logger *logger.Logger
 }

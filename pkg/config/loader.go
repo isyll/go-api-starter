@@ -9,8 +9,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// LoadConfig reads the YAML file at path, expands ${ENV_VAR} references via
-// envsubst, and unmarshals the result into a new T.
 func LoadConfig[T any](path string) (*T, error) {
 	data, err := envsubst.ReadFile(path)
 	if err != nil {
@@ -26,8 +24,6 @@ func LoadConfig[T any](path string) (*T, error) {
 	return cfg, nil
 }
 
-// LoadEnvFile loads the .env file named by the ENV_FILE environment variable
-// (defaults to ".env"), logging a warning when the file is absent.
 func LoadEnvFile() {
 	envFile := os.Getenv("ENV_FILE")
 	if envFile == "" {

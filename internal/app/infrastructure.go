@@ -18,9 +18,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Infrastructure is the closed set of shared dependencies wired once
-// during App.Initialize. All fields are non-nil after Initialize
-// except FCM, which is nil when Firebase credentials are absent.
 type Infrastructure struct {
 	StartTime time.Time
 

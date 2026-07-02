@@ -20,8 +20,6 @@ import (
 
 const fbStorageURLPrefix = "https://firebasestorage.googleapis.com/v0/b/%s/o/"
 
-// Client wraps the Firebase Admin SDK, providing auth, storage, and
-// messaging operations for the App API.
 type Client struct {
 	app           *firebaseAdmin.App
 	auth          *auth.Client
@@ -31,8 +29,6 @@ type Client struct {
 	storageBucket string
 }
 
-// InitFirebase loads the Firebase config for the given environment
-// and constructs a ready-to-use Client.
 func InitFirebase(
 	env string,
 	cfgs *config.Configs,
@@ -49,8 +45,6 @@ func InitFirebase(
 	return NewClient(fbConfig, logx)
 }
 
-// NewClient initializes a Firebase Admin SDK app and returns a
-// connected Client.
 func NewClient(
 	cfg *config.FirebaseConfig,
 	logx *logger.Logger,
@@ -101,8 +95,6 @@ func NewClient(
 	}, nil
 }
 
-// CreateCustomToken mints a Firebase custom auth token for the given
-// user ID.
 func (c *Client) CreateCustomToken(
 	ctx context.Context,
 	userID string,
@@ -123,8 +115,6 @@ func (c *Client) CreateCustomToken(
 	return token, nil
 }
 
-// VerifyToken verifies a Firebase ID token and returns its decoded
-// claims.
 func (c *Client) VerifyToken(
 	ctx context.Context,
 	idToken string,
@@ -137,38 +127,28 @@ func (c *Client) VerifyToken(
 	return token, nil
 }
 
-// ValidateStorageURL returns true if the URL belongs to the
-// configured Firebase Storage bucket.
 func (c *Client) ValidateStorageURL(url string) bool {
 	expectedPrefix := fmt.Sprintf(fbStorageURLPrefix, c.storageBucket)
 	return strings.HasPrefix(url, expectedPrefix)
 }
 
-// IsAllowedExtension returns true if the file extension is in the
-// configured allowlist.
 func (c *Client) IsAllowedExtension(filename string) bool {
 	ext := strings.ToLower(filepath.Ext(filename))
 	return slices.Contains(c.config.AllowedExtensions, ext)
 }
 
-// GetMaxFileSizeBytes returns the maximum allowed upload size in bytes.
 func (c *Client) GetMaxFileSizeBytes() int64 {
 	return int64(c.config.MaxFileSizeMB * 1024 * 1024)
 }
 
-// GetMaxFileSizeMB returns the maximum allowed upload size in megabytes.
 func (c *Client) GetMaxFileSizeMB() int {
 	return c.config.MaxFileSizeMB
 }
 
-// GetAllowedExtensions returns the list of permitted file extensions
-// for uploads.
 func (c *Client) GetAllowedExtensions() []string {
 	return c.config.AllowedExtensions
 }
 
-// GetAvatarPath constructs the Storage object path for a user's
-// avatar file.
 func (c *Client) GetAvatarPath(accountID, filename string) string {
 	return fmt.Sprintf(
 		"%s/%s/%s",
@@ -178,8 +158,6 @@ func (c *Client) GetAvatarPath(accountID, filename string) string {
 	)
 }
 
-// DeleteFile removes an object from Firebase Storage at the given
-// path.
 func (c *Client) DeleteFile(ctx context.Context, path string) error {
 	bucket, err := c.storage.DefaultBucket()
 	if err != nil {
@@ -195,8 +173,6 @@ func (c *Client) DeleteFile(ctx context.Context, path string) error {
 	return nil
 }
 
-// FileExists reports whether an object exists at the given path in
-// Firebase Storage.
 func (c *Client) FileExists(
 	ctx context.Context,
 	path string,
@@ -222,8 +198,6 @@ func (c *Client) FileExists(
 	return true, nil
 }
 
-// ExtractPathFromURL parses a Firebase Storage download URL and
-// returns the object path.
 func (c *Client) ExtractPathFromURL(url string) (string, error) {
 	prefix := fmt.Sprintf(fbStorageURLPrefix, c.storageBucket)
 	if !strings.HasPrefix(url, prefix) {
@@ -239,8 +213,6 @@ func (c *Client) ExtractPathFromURL(url string) (string, error) {
 	return path, nil
 }
 
-// CreateCustomTokenWithClaims mints a Firebase custom auth token with
-// additional claims embedded in the token payload.
 func (c *Client) CreateCustomTokenWithClaims(
 	ctx context.Context,
 	userID string,
@@ -261,8 +233,6 @@ func (c *Client) CreateCustomTokenWithClaims(
 	return token, nil
 }
 
-// GenerateUploadToken creates a short-lived Firebase custom token
-// scoped to avatar uploads for the given user ID.
 func (c *Client) GenerateUploadToken(
 	ctx context.Context,
 	userID string,
@@ -286,26 +256,20 @@ func (c *Client) GenerateUploadToken(
 	}, nil
 }
 
-// UploadToken carries the Firebase custom token issued for a user
-// avatar upload along with its expiry time.
 type UploadToken struct {
 	Token     string    `json:"token"`
 	ExpiresAt time.Time `json:"expires_at"`
 	UserID    string    `json:"user_id"`
 }
 
-// GetStorageBucket returns the configured Firebase Storage bucket name.
 func (c *Client) GetStorageBucket() string {
 	return c.storageBucket
 }
 
-// GetProjectID returns the Firebase project ID.
 func (c *Client) GetProjectID() string {
 	return c.config.ProjectID
 }
 
-// GetMessagingClient returns an initialized Firebase Cloud Messaging
-// client.
 func (c *Client) GetMessagingClient(
 	ctx context.Context,
 ) (*messaging.Client, error) {

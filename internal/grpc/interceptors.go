@@ -20,7 +20,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// publicMethods do not require authentication.
 var publicMethods = map[string]bool{
 	"/api.v1.HealthService/Check":              true,
 	"/api.v1.HealthService/Ready":              true,
@@ -34,7 +33,6 @@ var publicMethods = map[string]bool{
 
 const adminServicePrefix = "/api.v1.AdminService/"
 
-// interceptors bundles the auth collaborators shared by the chain.
 type interceptors struct {
 	tokens   apptoken.AccessTokenManager
 	sessions auth.DeviceSessionRepository
@@ -42,8 +40,6 @@ type interceptors struct {
 	logger   *logger.Logger
 }
 
-// authUnary validates the bearer token, loads the session, enforces
-// admin-only methods, and injects the principal into the context.
 func (i *interceptors) authUnary(
 	ctx context.Context,
 	req any,
@@ -112,7 +108,6 @@ func bearerToken(ctx context.Context) (string, error) {
 	return parts[1], nil
 }
 
-// recoveryUnary turns a panic into an Internal status error.
 func (i *interceptors) recoveryUnary(
 	ctx context.Context,
 	req any,
@@ -128,7 +123,6 @@ func (i *interceptors) recoveryUnary(
 	return handler(ctx, req)
 }
 
-// requestIDUnary attaches a request ID to the context for correlation.
 func (i *interceptors) requestIDUnary(
 	ctx context.Context,
 	req any,
@@ -142,7 +136,6 @@ func (i *interceptors) requestIDUnary(
 	return handler(reqctx.WithRequestID(ctx, id), req)
 }
 
-// loggingUnary logs method, duration, and resulting code.
 func (i *interceptors) loggingUnary(
 	ctx context.Context,
 	req any,

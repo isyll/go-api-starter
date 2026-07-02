@@ -11,59 +11,39 @@ import (
 	"gorm.io/gorm"
 )
 
-// TokenRepository persists notifications.fcm_tokens. Rows are
-// keyed by (user_id, device_id) and the unique constraint is
-// honored by Upsert.
 type TokenRepository interface {
-	// Upsert inserts or updates the FCM token row for the
-	// (user, device) pair.
 	Upsert(ctx context.Context, token *models.FCMToken) error
-	// ListByUserID returns every active token for userID.
 	ListByUserID(
 		ctx context.Context, userID int64,
 	) ([]*models.FCMToken, error)
-	// FindByUserIDAndDeviceID returns the token row for the
-	// exact (user, device) pair or ErrTokenNotFound.
 	FindByUserIDAndDeviceID(
 		ctx context.Context,
 		userID int64,
 		deviceID string,
 	) (*models.FCMToken, error)
-	// DeleteByDeviceID removes the (user, device) token row.
 	DeleteByDeviceID(
 		ctx context.Context, userID int64, deviceID string,
 	) error
 }
 
-// PreferencesRepository persists
-// notifications.user_notification_preferences. One row per
-// user; the migration seeds defaults on user creation.
 type PreferencesRepository interface {
-	// FindByUserID returns the preferences row for userID, or
-	// ErrPrefNotFound if no row exists.
 	FindByUserID(
 		ctx context.Context, userID int64,
 	) (*models.NotificationPreferences, error)
-	// Upsert inserts or replaces the preferences row.
 	Upsert(
 		ctx context.Context,
 		prefs *models.NotificationPreferences,
 	) error
-	// Create inserts the initial preferences row for a new
-	// user.
 	Create(
 		ctx context.Context,
 		prefs *models.NotificationPreferences,
 	) error
 }
 
-// tokenRepository implements TokenRepository against
-// notifications.fcm_tokens.
 type tokenRepository struct {
 	db *gorm.DB
 }
 
-// NewTokenRepository constructs the FCM-token repository.
 func NewTokenRepository(db *gorm.DB) TokenRepository {
 	return &tokenRepository{db: db}
 }

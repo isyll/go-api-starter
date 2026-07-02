@@ -6,11 +6,9 @@ import (
 	"fmt"
 )
 
-// GenerateSecureToken returns a cryptographically secure random
-// token encoded in URL-safe base64 with no padding.
 func GenerateSecureToken(length int) (string, error) {
 	if length <= 0 {
-		length = 48 // default to 48 bytes (64 chars when base64 encoded)
+		length = 48
 	}
 
 	bytes := make([]byte, length)
@@ -21,7 +19,6 @@ func GenerateSecureToken(length int) (string, error) {
 		)
 	}
 
-	// Use URL-safe base64 encoding without padding
 	token := base64.URLEncoding.WithPadding(base64.NoPadding).
 		EncodeToString(bytes)
 	return token, nil

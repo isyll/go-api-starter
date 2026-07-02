@@ -8,9 +8,6 @@ import (
 	"github.com/isyll/go-api-starter/internal/events/handlers"
 )
 
-// WireEventSubscriptions registers every reaction to a bus event.
-// Cache invalidation runs synchronously; audit and auth-attempt
-// persistence run async through the outbox + Asynq.
 func WireEventSubscriptions(bus *events.Bus, deps *EventHandlerDeps) {
 	cacheInv := handlers.NewCacheInvalidator(deps.CacheManager, deps.Logger)
 	events.Subscribe(bus, cacheInv.OnUserAccountDeleted)
