@@ -298,7 +298,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- prevent_history_delete is a BEFORE DELETE trigger body shared by the
--- volume-partitioned status-history tables (trip and booking). Physical
+-- append-only status-history tables. Physical
 -- deletion of history rows is rejected so the audit trail can never be
 -- tampered with. Per-table history tables that need a different error
 -- message (e.g. auth.user_status_history) define their own variant.

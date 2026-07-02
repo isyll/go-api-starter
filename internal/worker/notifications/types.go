@@ -39,20 +39,8 @@ type SendResult struct {
 
 // EventCategory maps event types to their preference category
 func EventCategory(eventType string) string {
-	switch {
-	case strings.HasPrefix(eventType, "booking."):
-		return "booking_updates"
-	case strings.HasPrefix(eventType, "trip.reminder"):
-		return "trip_reminders"
-	case strings.HasPrefix(eventType, "trip."):
-		return "trip_updates"
-	case strings.HasPrefix(eventType, "message."):
-		return "messages"
-	case strings.HasPrefix(eventType, "rating."):
-		return "ratings"
-	case strings.HasPrefix(eventType, "marketing."):
+	if strings.HasPrefix(eventType, "marketing.") {
 		return "marketing"
-	default:
-		return ""
 	}
+	return ""
 }

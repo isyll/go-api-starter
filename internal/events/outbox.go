@@ -37,7 +37,7 @@ var ErrOutboxDuplicate = errors.New(
 type OutboxEvent struct {
 	// ID is the int64 primary key of the outbox row.
 	ID int64 `gorm:"primaryKey"`
-	// EventType is the bus routing key (e.g. "trip.cancelled"); maps
+	// EventType is the bus routing key (e.g. "user.account_deleted"); maps
 	// back to a Factory via registry.FactoryFor.
 	EventType string `gorm:"not null"`
 	// Payload is the JSON-encoded Event value.

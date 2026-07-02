@@ -6,11 +6,11 @@ import "time"
 // account, after the account teardown (status flip, email purge, and
 // the cascade cancellation of the user's active trips and bookings)
 // has committed. It exists to drive cross-cutting reactions that are
-// NOT already covered by the trip/booking cancellation events — chiefly
+// NOT already covered by the related side effects
 // cache invalidation of the now-gone user's own cached surface.
 //
 // The cancellation of the user's trips and bookings is performed
-// synchronously in the deletion request (reusing the trip/booking
+// synchronously in the deletion request (reusing the domain
 // cancellation flows, which publish their own TripCancelled /
 // BookingStatusChanged events for notifications). This event therefore
 // does NOT itself fan out cancellations — doing so from an async

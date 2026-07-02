@@ -127,7 +127,7 @@ COMMENT ON TABLE notifications.notification_logs IS 'Per-attempt log of every pu
 
 COMMENT ON COLUMN notifications.notification_logs.user_id IS 'Recipient user. SET NULL on user deletion to preserve historical delivery counts. NULL means a system-wide / broadcast notification.';
 
-COMMENT ON COLUMN notifications.notification_logs.event_type IS 'Type of event that triggered the notification (e.g. booking.accepted). Mirrors notification_templates.event_type.';
+COMMENT ON COLUMN notifications.notification_logs.event_type IS 'Type of event that triggered the notification (e.g. user.welcome). Mirrors notification_templates.event_type.';
 
 COMMENT ON COLUMN notifications.notification_logs.event_id IS 'Unique identifier for the originating domain event, used to deduplicate retries.';
 

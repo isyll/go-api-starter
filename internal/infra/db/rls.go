@@ -21,7 +21,7 @@ type rlsBypassKey struct{}
 //   - app.current_user_id : the BIGINT user id used in the
 //     "<owner_col> = current_setting(...)" predicates of every
 //     RLS policy.
-//   - app.current_role    : the textual role (driver / passenger /
+//   - app.current_role    : the textual role (user / admin /
 //     both / admin / anonymous) - reserved for future role-aware
 //     policies; today it is informational and read by tests.
 //

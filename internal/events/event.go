@@ -31,8 +31,8 @@
 //
 // Contract summary:
 //
-//   - Events are past-tense facts (trip.pricing.changed), never
-//     commands (trip.update_pricing).
+//   - Events are past-tense facts (user.registered), never
+//     commands (user.register).
 //   - Event types use pointer receivers so the async processor can
 //     JSON-unmarshal into the factory's return value.
 //   - Every new event type registers a factory in types.go's init().

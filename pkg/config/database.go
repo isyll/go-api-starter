@@ -45,7 +45,7 @@ type DatabaseConfig struct {
 
 	// AdminPool overrides ConnectionPool for the workers/admin role
 	// (app_worker). Workers run longer queries (event drain,
-	// auto-booking) and may spike concurrency differently from the
+	// bulk jobs) may spike concurrency differently from the
 	// API path. Falls back to ConnectionPool when nil.
 	AdminPool *ConnectionPoolConfig `yaml:"admin_pool"`
 

@@ -99,7 +99,7 @@ COMMENT ON TABLE events.outbox IS
 'enqueue and marked processed on success. Unprocessed rows are retried up to 10 times.';
 
 COMMENT ON COLUMN events.outbox.event_type IS
-'Fully-qualified event type (e.g. trip.pricing.changed). Immutable after insert.';
+'Fully-qualified event type (e.g. user.registered). Immutable after insert.';
 
 COMMENT ON COLUMN events.outbox.payload IS
 'JSON-encoded event struct matching the registered type. Immutable after insert.';
