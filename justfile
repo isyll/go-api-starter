@@ -19,6 +19,10 @@ dev:
 proto:
     @buf lint && buf generate
 
+# Generate sqlc code from migrations + queries.
+sqlc:
+    @sqlc generate
+
 # Format Go code.
 fmt:
     @gofmt -w cmd internal pkg
