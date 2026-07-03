@@ -13,7 +13,7 @@ and background workers.
 
 ## Layout
 
-```
+```text
 cmd/            entrypoints: server, migrate, worker/*
 proto/          protobuf definitions (source of the API)
 internal/
