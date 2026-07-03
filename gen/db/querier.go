@@ -9,7 +9,61 @@ import (
 )
 
 type Querier interface {
+	CountActiveDevicesByUser(ctx context.Context, arg CountActiveDevicesByUserParams) (int64, error)
+	CountOutboxDeadLetters(ctx context.Context) (int64, error)
+	CountUsers(ctx context.Context) (int64, error)
+	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
+	CreateDeviceSession(ctx context.Context, arg CreateDeviceSessionParams) (AuthDeviceSession, error)
+	CreateLoginAttempt(ctx context.Context, arg CreateLoginAttemptParams) error
+	CreateNotificationLog(ctx context.Context, arg CreateNotificationLogParams) (NotificationsNotificationLog, error)
+	CreateNotificationPreferences(ctx context.Context, arg CreateNotificationPreferencesParams) (NotificationsNotificationPreference, error)
+	CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (AuthRefreshToken, error)
+	CreateSuspension(ctx context.Context, arg CreateSuspensionParams) (AuthAccountSuspension, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (AuthUser, error)
+	CreateUserSettings(ctx context.Context, arg CreateUserSettingsParams) error
+	DeactivateActiveSuspensions(ctx context.Context, userID int64) error
+	DeactivateFCMToken(ctx context.Context, id int64) error
+	DeleteExpiredRefreshTokens(ctx context.Context) (int64, error)
+	DeleteFCMTokenByDevice(ctx context.Context, arg DeleteFCMTokenByDeviceParams) error
+	ExistsUserByEmail(ctx context.Context, email string) (bool, error)
+	GetActiveDeviceSessionByUserAndDevice(ctx context.Context, arg GetActiveDeviceSessionByUserAndDeviceParams) (AuthDeviceSession, error)
+	GetActiveSuspensionByUserID(ctx context.Context, userID int64) (AuthAccountSuspension, error)
+	GetDeviceSessionByID(ctx context.Context, id int64) (AuthDeviceSession, error)
+	GetFCMTokenByUserAndDevice(ctx context.Context, arg GetFCMTokenByUserAndDeviceParams) (AuthFcmToken, error)
+	GetNotificationPreferences(ctx context.Context, userID int64) (NotificationsNotificationPreference, error)
+	GetNotificationTemplateByEventType(ctx context.Context, eventType string) (NotificationsNotificationTemplate, error)
+	GetUserByEmail(ctx context.Context, email string) (AuthUser, error)
 	GetUserByID(ctx context.Context, id int64) (AuthUser, error)
+	GetUserSettings(ctx context.Context, userID int64) (AuthUserSetting, error)
+	InsertOutbox(ctx context.Context, arg InsertOutboxParams) (int64, error)
+	InsertOutboxDeadLetter(ctx context.Context, arg InsertOutboxDeadLetterParams) error
+	ListActiveDevicesByUser(ctx context.Context, arg ListActiveDevicesByUserParams) ([]AuthDeviceSession, error)
+	ListActiveFCMTokensByUserID(ctx context.Context, userID int64) ([]AuthFcmToken, error)
+	ListFCMTokensByUserID(ctx context.Context, userID int64) ([]AuthFcmToken, error)
+	ListRefreshTokensByPrefix(ctx context.Context, tokenPrefix string) ([]AuthRefreshToken, error)
+	ListTemplateTranslations(ctx context.Context, templateID int32) ([]NotificationsNotificationTemplateTranslation, error)
+	ListUsers(ctx context.Context, arg ListUsersParams) ([]AuthUser, error)
+	MarkOutboxFailed(ctx context.Context, arg MarkOutboxFailedParams) error
+	MarkOutboxProcessed(ctx context.Context, id int64) error
+	MarkUserEmailVerified(ctx context.Context, id int64) error
+	OutboxStats(ctx context.Context, retryCount int32) (OutboxStatsRow, error)
+	PendingOutboxBatch(ctx context.Context, arg PendingOutboxBatchParams) ([]EventsOutbox, error)
+	RevokeAllDeviceSessionsByUser(ctx context.Context, arg RevokeAllDeviceSessionsByUserParams) error
+	RevokeDeviceSession(ctx context.Context, arg RevokeDeviceSessionParams) (AuthDeviceSession, error)
+	RevokeRefreshTokenByHash(ctx context.Context, arg RevokeRefreshTokenByHashParams) error
+	RevokeRefreshTokensByFamily(ctx context.Context, arg RevokeRefreshTokensByFamilyParams) error
+	RevokeRefreshTokensBySession(ctx context.Context, arg RevokeRefreshTokensBySessionParams) error
+	SoftDeleteUser(ctx context.Context, id int64) error
+	TouchFCMTokenLastUsed(ctx context.Context, id int64) error
+	UpdateDeviceSessionActivity(ctx context.Context, id int64) error
+	UpdateUserLastLogin(ctx context.Context, id int64) error
+	UpdateUserPasswordHash(ctx context.Context, arg UpdateUserPasswordHashParams) error
+	UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (AuthUser, error)
+	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error
+	UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) error
+	UpdateUserStatus(ctx context.Context, arg UpdateUserStatusParams) error
+	UpsertFCMToken(ctx context.Context, arg UpsertFCMTokenParams) (AuthFcmToken, error)
+	UpsertNotificationPreferences(ctx context.Context, arg UpsertNotificationPreferencesParams) (NotificationsNotificationPreference, error)
 }
 
 var _ Querier = (*Queries)(nil)

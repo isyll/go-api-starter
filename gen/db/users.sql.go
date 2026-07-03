@@ -9,6 +9,96 @@ import (
 	"context"
 )
 
+const countUsers = `-- name: CountUsers :one
+SELECT count(*) FROM auth.users WHERE deleted_at IS NULL
+`
+
+func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countUsers)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const createUser = `-- name: CreateUser :one
+INSERT INTO auth.users (email, password_hash, first_name, last_name)
+VALUES ($1, $2, $3, $4)
+RETURNING id, email, password_hash, first_name, last_name, avatar, bio, status, role, email_verified_at, last_login_at, created_at, updated_at, deleted_at
+`
+
+type CreateUserParams struct {
+	Email        string
+	PasswordHash string
+	FirstName    string
+	LastName     string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (AuthUser, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Email,
+		arg.PasswordHash,
+		arg.FirstName,
+		arg.LastName,
+	)
+	var i AuthUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Avatar,
+		&i.Bio,
+		&i.Status,
+		&i.Role,
+		&i.EmailVerifiedAt,
+		&i.LastLoginAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const existsUserByEmail = `-- name: ExistsUserByEmail :one
+SELECT EXISTS (
+  SELECT 1 FROM auth.users WHERE email = $1 AND deleted_at IS NULL
+)
+`
+
+func (q *Queries) ExistsUserByEmail(ctx context.Context, email string) (bool, error) {
+	row := q.db.QueryRow(ctx, existsUserByEmail, email)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, email, password_hash, first_name, last_name, avatar, bio, status, role, email_verified_at, last_login_at, created_at, updated_at, deleted_at FROM auth.users WHERE email = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (AuthUser, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i AuthUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Avatar,
+		&i.Bio,
+		&i.Status,
+		&i.Role,
+		&i.EmailVerifiedAt,
+		&i.LastLoginAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getUserByID = `-- name: GetUserByID :one
 SELECT id, email, password_hash, first_name, last_name, avatar, bio, status, role, email_verified_at, last_login_at, created_at, updated_at, deleted_at FROM auth.users WHERE id = $1 AND deleted_at IS NULL
 `
@@ -33,4 +123,166 @@ func (q *Queries) GetUserByID(ctx context.Context, id int64) (AuthUser, error) {
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT id, email, password_hash, first_name, last_name, avatar, bio, status, role, email_verified_at, last_login_at, created_at, updated_at, deleted_at FROM auth.users
+WHERE deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListUsersParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]AuthUser, error) {
+	rows, err := q.db.Query(ctx, listUsers, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AuthUser{}
+	for rows.Next() {
+		var i AuthUser
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.PasswordHash,
+			&i.FirstName,
+			&i.LastName,
+			&i.Avatar,
+			&i.Bio,
+			&i.Status,
+			&i.Role,
+			&i.EmailVerifiedAt,
+			&i.LastLoginAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const markUserEmailVerified = `-- name: MarkUserEmailVerified :exec
+UPDATE auth.users SET email_verified_at = now() WHERE id = $1
+`
+
+func (q *Queries) MarkUserEmailVerified(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, markUserEmailVerified, id)
+	return err
+}
+
+const softDeleteUser = `-- name: SoftDeleteUser :exec
+UPDATE auth.users SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteUser(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, softDeleteUser, id)
+	return err
+}
+
+const updateUserLastLogin = `-- name: UpdateUserLastLogin :exec
+UPDATE auth.users SET last_login_at = now() WHERE id = $1
+`
+
+func (q *Queries) UpdateUserLastLogin(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, updateUserLastLogin, id)
+	return err
+}
+
+const updateUserPasswordHash = `-- name: UpdateUserPasswordHash :exec
+UPDATE auth.users SET password_hash = $2 WHERE id = $1
+`
+
+type UpdateUserPasswordHashParams struct {
+	ID           int64
+	PasswordHash string
+}
+
+func (q *Queries) UpdateUserPasswordHash(ctx context.Context, arg UpdateUserPasswordHashParams) error {
+	_, err := q.db.Exec(ctx, updateUserPasswordHash, arg.ID, arg.PasswordHash)
+	return err
+}
+
+const updateUserProfile = `-- name: UpdateUserProfile :one
+UPDATE auth.users SET
+  first_name = COALESCE($1, first_name),
+  last_name  = COALESCE($2, last_name),
+  bio        = COALESCE($3, bio),
+  avatar     = COALESCE($4, avatar)
+WHERE id = $5 AND deleted_at IS NULL
+RETURNING id, email, password_hash, first_name, last_name, avatar, bio, status, role, email_verified_at, last_login_at, created_at, updated_at, deleted_at
+`
+
+type UpdateUserProfileParams struct {
+	FirstName *string
+	LastName  *string
+	Bio       *string
+	Avatar    *string
+	ID        int64
+}
+
+func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (AuthUser, error) {
+	row := q.db.QueryRow(ctx, updateUserProfile,
+		arg.FirstName,
+		arg.LastName,
+		arg.Bio,
+		arg.Avatar,
+		arg.ID,
+	)
+	var i AuthUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Avatar,
+		&i.Bio,
+		&i.Status,
+		&i.Role,
+		&i.EmailVerifiedAt,
+		&i.LastLoginAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updateUserRole = `-- name: UpdateUserRole :exec
+UPDATE auth.users SET role = $2 WHERE id = $1
+`
+
+type UpdateUserRoleParams struct {
+	ID   int64
+	Role AuthUserRole
+}
+
+func (q *Queries) UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error {
+	_, err := q.db.Exec(ctx, updateUserRole, arg.ID, arg.Role)
+	return err
+}
+
+const updateUserStatus = `-- name: UpdateUserStatus :exec
+UPDATE auth.users SET status = $2 WHERE id = $1
+`
+
+type UpdateUserStatusParams struct {
+	ID     int64
+	Status AuthUserStatus
+}
+
+func (q *Queries) UpdateUserStatus(ctx context.Context, arg UpdateUserStatusParams) error {
+	_, err := q.db.Exec(ctx, updateUserStatus, arg.ID, arg.Status)
+	return err
 }
