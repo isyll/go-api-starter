@@ -11,5 +11,6 @@ indent_size = 2
 [*.go]
 indent_style = tab
 
-[Justfile]
-indent_style = tab
+[justfile]
+indent_style = space
+indent_size = 4
