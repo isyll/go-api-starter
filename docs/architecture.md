@@ -1,6 +1,6 @@
 # Architecture
 
-```
+```text
 client -> gRPC server -> interceptors -> service impl -> domain service -> repository -> Postgres
 ```
 
