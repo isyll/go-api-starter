@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        (unknown)
-// source: api/v1/common.proto
+// source: common/v1/common.proto
 
-package apiv1
+package commonv1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -42,7 +42,7 @@ type User struct {
 
 func (x *User) Reset() {
 	*x = User{}
-	mi := &file_api_v1_common_proto_msgTypes[0]
+	mi := &file_common_v1_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -54,7 +54,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_common_proto_msgTypes[0]
+	mi := &file_common_v1_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -67,7 +67,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_api_v1_common_proto_rawDescGZIP(), []int{0}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *User) GetId() string {
@@ -162,7 +162,7 @@ type PublicUser struct {
 
 func (x *PublicUser) Reset() {
 	*x = PublicUser{}
-	mi := &file_api_v1_common_proto_msgTypes[1]
+	mi := &file_common_v1_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -174,7 +174,7 @@ func (x *PublicUser) String() string {
 func (*PublicUser) ProtoMessage() {}
 
 func (x *PublicUser) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_common_proto_msgTypes[1]
+	mi := &file_common_v1_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -187,7 +187,7 @@ func (x *PublicUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublicUser.ProtoReflect.Descriptor instead.
 func (*PublicUser) Descriptor() ([]byte, []int) {
-	return file_api_v1_common_proto_rawDescGZIP(), []int{1}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PublicUser) GetId() string {
@@ -247,7 +247,7 @@ type Settings struct {
 
 func (x *Settings) Reset() {
 	*x = Settings{}
-	mi := &file_api_v1_common_proto_msgTypes[2]
+	mi := &file_common_v1_common_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -259,7 +259,7 @@ func (x *Settings) String() string {
 func (*Settings) ProtoMessage() {}
 
 func (x *Settings) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_common_proto_msgTypes[2]
+	mi := &file_common_v1_common_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -272,7 +272,7 @@ func (x *Settings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Settings.ProtoReflect.Descriptor instead.
 func (*Settings) Descriptor() ([]byte, []int) {
-	return file_api_v1_common_proto_rawDescGZIP(), []int{2}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Settings) GetLocale() string {
@@ -330,7 +330,7 @@ type TokenPair struct {
 
 func (x *TokenPair) Reset() {
 	*x = TokenPair{}
-	mi := &file_api_v1_common_proto_msgTypes[3]
+	mi := &file_common_v1_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -342,7 +342,7 @@ func (x *TokenPair) String() string {
 func (*TokenPair) ProtoMessage() {}
 
 func (x *TokenPair) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_common_proto_msgTypes[3]
+	mi := &file_common_v1_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -355,7 +355,7 @@ func (x *TokenPair) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenPair.ProtoReflect.Descriptor instead.
 func (*TokenPair) Descriptor() ([]byte, []int) {
-	return file_api_v1_common_proto_rawDescGZIP(), []int{3}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *TokenPair) GetAccessToken() string {
@@ -400,7 +400,7 @@ type DeviceInfo struct {
 
 func (x *DeviceInfo) Reset() {
 	*x = DeviceInfo{}
-	mi := &file_api_v1_common_proto_msgTypes[4]
+	mi := &file_common_v1_common_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -412,7 +412,7 @@ func (x *DeviceInfo) String() string {
 func (*DeviceInfo) ProtoMessage() {}
 
 func (x *DeviceInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_common_proto_msgTypes[4]
+	mi := &file_common_v1_common_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -425,7 +425,7 @@ func (x *DeviceInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeviceInfo.ProtoReflect.Descriptor instead.
 func (*DeviceInfo) Descriptor() ([]byte, []int) {
-	return file_api_v1_common_proto_rawDescGZIP(), []int{4}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeviceInfo) GetDeviceId() string {
@@ -479,7 +479,7 @@ type Device struct {
 
 func (x *Device) Reset() {
 	*x = Device{}
-	mi := &file_api_v1_common_proto_msgTypes[5]
+	mi := &file_common_v1_common_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -491,7 +491,7 @@ func (x *Device) String() string {
 func (*Device) ProtoMessage() {}
 
 func (x *Device) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_common_proto_msgTypes[5]
+	mi := &file_common_v1_common_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -504,7 +504,7 @@ func (x *Device) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Device.ProtoReflect.Descriptor instead.
 func (*Device) Descriptor() ([]byte, []int) {
-	return file_api_v1_common_proto_rawDescGZIP(), []int{5}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Device) GetDeviceId() string {
@@ -567,7 +567,7 @@ type Page struct {
 
 func (x *Page) Reset() {
 	*x = Page{}
-	mi := &file_api_v1_common_proto_msgTypes[6]
+	mi := &file_common_v1_common_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -579,7 +579,7 @@ func (x *Page) String() string {
 func (*Page) ProtoMessage() {}
 
 func (x *Page) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_common_proto_msgTypes[6]
+	mi := &file_common_v1_common_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -592,7 +592,7 @@ func (x *Page) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Page.ProtoReflect.Descriptor instead.
 func (*Page) Descriptor() ([]byte, []int) {
-	return file_api_v1_common_proto_rawDescGZIP(), []int{6}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Page) GetPage() int32 {
@@ -609,11 +609,11 @@ func (x *Page) GetPageSize() int32 {
 	return 0
 }
 
-var File_api_v1_common_proto protoreflect.FileDescriptor
+var File_common_v1_common_proto protoreflect.FileDescriptor
 
-const file_api_v1_common_proto_rawDesc = "" +
+const file_common_v1_common_proto_rawDesc = "" +
 	"\n" +
-	"\x13api/v1/common.proto\x12\x06api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdb\x02\n" +
+	"\x16common/v1/common.proto\x12\tcommon.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdb\x02\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1d\n" +
@@ -645,13 +645,13 @@ const file_api_v1_common_proto_rawDesc = "" +
 	"\x05theme\x18\x03 \x01(\tR\x05theme\x12/\n" +
 	"\x13email_notifications\x18\x04 \x01(\bR\x12emailNotifications\x12-\n" +
 	"\x12push_notifications\x18\x05 \x01(\bR\x11pushNotifications\x12)\n" +
-	"\x10marketing_emails\x18\x06 \x01(\bR\x0fmarketingEmails\"\x94\x01\n" +
+	"\x10marketing_emails\x18\x06 \x01(\bR\x0fmarketingEmails\"\x97\x01\n" +
 	"\tTokenPair\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12\x1d\n" +
 	"\n" +
-	"expires_in\x18\x03 \x01(\x03R\texpiresIn\x12 \n" +
-	"\x04user\x18\x04 \x01(\v2\f.api.v1.UserR\x04user\"\x93\x01\n" +
+	"expires_in\x18\x03 \x01(\x03R\texpiresIn\x12#\n" +
+	"\x04user\x18\x04 \x01(\v2\x0f.common.v1.UserR\x04user\"\x93\x01\n" +
 	"\n" +
 	"DeviceInfo\x12\x1b\n" +
 	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId\x12\x12\n" +
@@ -670,39 +670,39 @@ const file_api_v1_common_proto_rawDesc = "" +
 	"\acurrent\x18\a \x01(\bR\acurrent\"7\n" +
 	"\x04Page\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\x02 \x01(\x05R\bpageSizeB\x85\x01\n" +
-	"\n" +
-	"com.api.v1B\vCommonProtoP\x01Z1github.com/isyll/go-grpc-starter/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
+	"\tpage_size\x18\x02 \x01(\x05R\bpageSizeB\x9a\x01\n" +
+	"\rcom.common.v1B\vCommonProtoP\x01Z7github.com/isyll/go-grpc-starter/gen/common/v1;commonv1\xa2\x02\x03CXX\xaa\x02\tCommon.V1\xca\x02\tCommon\\V1\xe2\x02\x15Common\\V1\\GPBMetadata\xea\x02\n" +
+	"Common::V1b\x06proto3"
 
 var (
-	file_api_v1_common_proto_rawDescOnce sync.Once
-	file_api_v1_common_proto_rawDescData []byte
+	file_common_v1_common_proto_rawDescOnce sync.Once
+	file_common_v1_common_proto_rawDescData []byte
 )
 
-func file_api_v1_common_proto_rawDescGZIP() []byte {
-	file_api_v1_common_proto_rawDescOnce.Do(func() {
-		file_api_v1_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_v1_common_proto_rawDesc), len(file_api_v1_common_proto_rawDesc)))
+func file_common_v1_common_proto_rawDescGZIP() []byte {
+	file_common_v1_common_proto_rawDescOnce.Do(func() {
+		file_common_v1_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_common_v1_common_proto_rawDesc), len(file_common_v1_common_proto_rawDesc)))
 	})
-	return file_api_v1_common_proto_rawDescData
+	return file_common_v1_common_proto_rawDescData
 }
 
-var file_api_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_api_v1_common_proto_goTypes = []any{
-	(*User)(nil),                  // 0: api.v1.User
-	(*PublicUser)(nil),            // 1: api.v1.PublicUser
-	(*Settings)(nil),              // 2: api.v1.Settings
-	(*TokenPair)(nil),             // 3: api.v1.TokenPair
-	(*DeviceInfo)(nil),            // 4: api.v1.DeviceInfo
-	(*Device)(nil),                // 5: api.v1.Device
-	(*Page)(nil),                  // 6: api.v1.Page
+var file_common_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_common_v1_common_proto_goTypes = []any{
+	(*User)(nil),                  // 0: common.v1.User
+	(*PublicUser)(nil),            // 1: common.v1.PublicUser
+	(*Settings)(nil),              // 2: common.v1.Settings
+	(*TokenPair)(nil),             // 3: common.v1.TokenPair
+	(*DeviceInfo)(nil),            // 4: common.v1.DeviceInfo
+	(*Device)(nil),                // 5: common.v1.Device
+	(*Page)(nil),                  // 6: common.v1.Page
 	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
 }
-var file_api_v1_common_proto_depIdxs = []int32{
-	7, // 0: api.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	7, // 1: api.v1.User.updated_at:type_name -> google.protobuf.Timestamp
-	7, // 2: api.v1.PublicUser.member_since:type_name -> google.protobuf.Timestamp
-	0, // 3: api.v1.TokenPair.user:type_name -> api.v1.User
-	7, // 4: api.v1.Device.last_used_at:type_name -> google.protobuf.Timestamp
+var file_common_v1_common_proto_depIdxs = []int32{
+	7, // 0: common.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	7, // 1: common.v1.User.updated_at:type_name -> google.protobuf.Timestamp
+	7, // 2: common.v1.PublicUser.member_since:type_name -> google.protobuf.Timestamp
+	0, // 3: common.v1.TokenPair.user:type_name -> common.v1.User
+	7, // 4: common.v1.Device.last_used_at:type_name -> google.protobuf.Timestamp
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
@@ -710,26 +710,26 @@ var file_api_v1_common_proto_depIdxs = []int32{
 	0, // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_api_v1_common_proto_init() }
-func file_api_v1_common_proto_init() {
-	if File_api_v1_common_proto != nil {
+func init() { file_common_v1_common_proto_init() }
+func file_common_v1_common_proto_init() {
+	if File_common_v1_common_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_common_proto_rawDesc), len(file_api_v1_common_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_common_proto_rawDesc), len(file_common_v1_common_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_api_v1_common_proto_goTypes,
-		DependencyIndexes: file_api_v1_common_proto_depIdxs,
-		MessageInfos:      file_api_v1_common_proto_msgTypes,
+		GoTypes:           file_common_v1_common_proto_goTypes,
+		DependencyIndexes: file_common_v1_common_proto_depIdxs,
+		MessageInfos:      file_common_v1_common_proto_msgTypes,
 	}.Build()
-	File_api_v1_common_proto = out.File
-	file_api_v1_common_proto_goTypes = nil
-	file_api_v1_common_proto_depIdxs = nil
+	File_common_v1_common_proto = out.File
+	file_common_v1_common_proto_goTypes = nil
+	file_common_v1_common_proto_depIdxs = nil
 }

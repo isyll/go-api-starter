@@ -1,7 +1,8 @@
 package grpcsvc
 
 import (
-	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
+	commonv1 "github.com/isyll/go-grpc-starter/gen/common/v1"
+	userv1 "github.com/isyll/go-grpc-starter/gen/user/v1"
 	"github.com/isyll/go-grpc-starter/internal/auth"
 	"github.com/isyll/go-grpc-starter/internal/notifications"
 	"github.com/isyll/go-grpc-starter/internal/settings"
@@ -11,8 +12,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func toProtoUser(u *users.User, enc idenc.IDEncoder) *apiv1.User {
-	return &apiv1.User{
+func toProtoUser(u *users.User, enc idenc.IDEncoder) *commonv1.User {
+	return &commonv1.User{
 		Id:            enc.Encode(u.ID),
 		Email:         u.Email,
 		FirstName:     u.FirstName,
@@ -27,8 +28,8 @@ func toProtoUser(u *users.User, enc idenc.IDEncoder) *apiv1.User {
 	}
 }
 
-func toProtoPublicUser(u *users.User, enc idenc.IDEncoder) *apiv1.PublicUser {
-	return &apiv1.PublicUser{
+func toProtoPublicUser(u *users.User, enc idenc.IDEncoder) *commonv1.PublicUser {
+	return &commonv1.PublicUser{
 		Id:          enc.Encode(u.ID),
 		FirstName:   u.FirstName,
 		LastName:    u.LastName,
@@ -38,8 +39,8 @@ func toProtoPublicUser(u *users.User, enc idenc.IDEncoder) *apiv1.PublicUser {
 	}
 }
 
-func toProtoTokenPair(tp *auth.TokenPair, enc idenc.IDEncoder) *apiv1.TokenPair {
-	return &apiv1.TokenPair{
+func toProtoTokenPair(tp *auth.TokenPair, enc idenc.IDEncoder) *commonv1.TokenPair {
+	return &commonv1.TokenPair{
 		AccessToken:  tp.AccessToken,
 		RefreshToken: tp.RefreshToken,
 		ExpiresIn:    tp.ExpiresIn,
@@ -47,8 +48,8 @@ func toProtoTokenPair(tp *auth.TokenPair, enc idenc.IDEncoder) *apiv1.TokenPair 
 	}
 }
 
-func toProtoSettings(s *settings.Settings) *apiv1.Settings {
-	return &apiv1.Settings{
+func toProtoSettings(s *settings.Settings) *commonv1.Settings {
+	return &commonv1.Settings{
 		Locale:             s.Locale,
 		Timezone:           s.Timezone,
 		Theme:              string(s.Theme),
@@ -58,7 +59,7 @@ func toProtoSettings(s *settings.Settings) *apiv1.Settings {
 	}
 }
 
-func fromProtoSettings(s *apiv1.Settings) settings.Settings {
+func fromProtoSettings(s *commonv1.Settings) settings.Settings {
 	return settings.Settings{
 		Locale:             s.GetLocale(),
 		Timezone:           s.GetTimezone(),
@@ -69,10 +70,10 @@ func fromProtoSettings(s *apiv1.Settings) settings.Settings {
 	}
 }
 
-func toProtoDevices(devices []auth.DeviceSessionInfo) []*apiv1.Device {
-	out := make([]*apiv1.Device, len(devices))
+func toProtoDevices(devices []auth.DeviceSessionInfo) []*commonv1.Device {
+	out := make([]*commonv1.Device, len(devices))
 	for i, d := range devices {
-		out[i] = &apiv1.Device{
+		out[i] = &commonv1.Device{
 			DeviceId:     d.DeviceID,
 			Name:         d.DeviceName,
 			Platform:     d.Platform,
@@ -85,8 +86,8 @@ func toProtoDevices(devices []auth.DeviceSessionInfo) []*apiv1.Device {
 	return out
 }
 
-func toProtoNotifPrefs(p *notifications.NotificationPreferences) *apiv1.NotificationPreferences {
-	out := &apiv1.NotificationPreferences{
+func toProtoNotifPrefs(p *notifications.NotificationPreferences) *userv1.NotificationPreferences {
+	out := &userv1.NotificationPreferences{
 		Push:              p.Push,
 		Email:             p.Email,
 		Marketing:         p.Marketing,

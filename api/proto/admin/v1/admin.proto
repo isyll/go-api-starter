@@ -1,26 +1,26 @@
 syntax = "proto3";
 
-package api.v1;
+package admin.v1;
 
 import "google/protobuf/empty.proto";
-import "api/v1/common.proto";
+import "common/v1/common.proto";
 
 // AdminService is guarded by the admin role. It manages users and
 // moderation.
 service AdminService {
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
-  rpc GetUser(AdminGetUserRequest) returns (User);
+  rpc GetUser(AdminGetUserRequest) returns (common.v1.User);
   rpc SuspendUser(SuspendUserRequest) returns (google.protobuf.Empty);
   rpc UnsuspendUser(UnsuspendUserRequest) returns (google.protobuf.Empty);
   rpc SetUserRole(SetUserRoleRequest) returns (google.protobuf.Empty);
 }
 
 message ListUsersRequest {
-  Page page = 1;
+  common.v1.Page page = 1;
 }
 
 message ListUsersResponse {
-  repeated User users = 1;
+  repeated common.v1.User users = 1;
   int64 total = 2;
 }
 

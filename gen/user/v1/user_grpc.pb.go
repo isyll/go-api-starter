@@ -2,12 +2,13 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: api/v1/users.proto
+// source: user/v1/user.proto
 
-package apiv1
+package userv1
 
 import (
 	context "context"
+	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,16 +21,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_GetMe_FullMethodName                         = "/api.v1.UserService/GetMe"
-	UserService_UpdateMe_FullMethodName                      = "/api.v1.UserService/UpdateMe"
-	UserService_DeleteMe_FullMethodName                      = "/api.v1.UserService/DeleteMe"
-	UserService_GetUser_FullMethodName                       = "/api.v1.UserService/GetUser"
-	UserService_UploadAvatar_FullMethodName                  = "/api.v1.UserService/UploadAvatar"
-	UserService_GetSettings_FullMethodName                   = "/api.v1.UserService/GetSettings"
-	UserService_UpdateSettings_FullMethodName                = "/api.v1.UserService/UpdateSettings"
-	UserService_RegisterPushToken_FullMethodName             = "/api.v1.UserService/RegisterPushToken"
-	UserService_GetNotificationPreferences_FullMethodName    = "/api.v1.UserService/GetNotificationPreferences"
-	UserService_UpdateNotificationPreferences_FullMethodName = "/api.v1.UserService/UpdateNotificationPreferences"
+	UserService_GetMe_FullMethodName                         = "/user.v1.UserService/GetMe"
+	UserService_UpdateMe_FullMethodName                      = "/user.v1.UserService/UpdateMe"
+	UserService_DeleteMe_FullMethodName                      = "/user.v1.UserService/DeleteMe"
+	UserService_GetUser_FullMethodName                       = "/user.v1.UserService/GetUser"
+	UserService_UploadAvatar_FullMethodName                  = "/user.v1.UserService/UploadAvatar"
+	UserService_GetSettings_FullMethodName                   = "/user.v1.UserService/GetSettings"
+	UserService_UpdateSettings_FullMethodName                = "/user.v1.UserService/UpdateSettings"
+	UserService_RegisterPushToken_FullMethodName             = "/user.v1.UserService/RegisterPushToken"
+	UserService_GetNotificationPreferences_FullMethodName    = "/user.v1.UserService/GetNotificationPreferences"
+	UserService_UpdateNotificationPreferences_FullMethodName = "/user.v1.UserService/UpdateNotificationPreferences"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -39,16 +40,16 @@ const (
 // UserService handles the authenticated user's own profile, settings,
 // push tokens, and notification preferences.
 type UserServiceClient interface {
-	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*User, error)
-	UpdateMe(ctx context.Context, in *UpdateMeRequest, opts ...grpc.CallOption) (*User, error)
+	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.User, error)
+	UpdateMe(ctx context.Context, in *UpdateMeRequest, opts ...grpc.CallOption) (*v1.User, error)
 	DeleteMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*PublicUser, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*v1.PublicUser, error)
 	// UploadAvatar streams an avatar image to server-side object storage. The
 	// first message must carry content_type; subsequent messages carry file
 	// chunks. Size and content type are validated server-side.
 	UploadAvatar(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadAvatarRequest, UploadAvatarResponse], error)
-	GetSettings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Settings, error)
-	UpdateSettings(ctx context.Context, in *Settings, opts ...grpc.CallOption) (*Settings, error)
+	GetSettings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.Settings, error)
+	UpdateSettings(ctx context.Context, in *v1.Settings, opts ...grpc.CallOption) (*v1.Settings, error)
 	RegisterPushToken(ctx context.Context, in *RegisterPushTokenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetNotificationPreferences(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NotificationPreferences, error)
 	UpdateNotificationPreferences(ctx context.Context, in *NotificationPreferences, opts ...grpc.CallOption) (*NotificationPreferences, error)
@@ -62,9 +63,9 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*User, error) {
+func (c *userServiceClient) GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.User, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(User)
+	out := new(v1.User)
 	err := c.cc.Invoke(ctx, UserService_GetMe_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -72,9 +73,9 @@ func (c *userServiceClient) GetMe(ctx context.Context, in *emptypb.Empty, opts .
 	return out, nil
 }
 
-func (c *userServiceClient) UpdateMe(ctx context.Context, in *UpdateMeRequest, opts ...grpc.CallOption) (*User, error) {
+func (c *userServiceClient) UpdateMe(ctx context.Context, in *UpdateMeRequest, opts ...grpc.CallOption) (*v1.User, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(User)
+	out := new(v1.User)
 	err := c.cc.Invoke(ctx, UserService_UpdateMe_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -92,9 +93,9 @@ func (c *userServiceClient) DeleteMe(ctx context.Context, in *emptypb.Empty, opt
 	return out, nil
 }
 
-func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*PublicUser, error) {
+func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*v1.PublicUser, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PublicUser)
+	out := new(v1.PublicUser)
 	err := c.cc.Invoke(ctx, UserService_GetUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -115,9 +116,9 @@ func (c *userServiceClient) UploadAvatar(ctx context.Context, opts ...grpc.CallO
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type UserService_UploadAvatarClient = grpc.ClientStreamingClient[UploadAvatarRequest, UploadAvatarResponse]
 
-func (c *userServiceClient) GetSettings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Settings, error) {
+func (c *userServiceClient) GetSettings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.Settings, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Settings)
+	out := new(v1.Settings)
 	err := c.cc.Invoke(ctx, UserService_GetSettings_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -125,9 +126,9 @@ func (c *userServiceClient) GetSettings(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
-func (c *userServiceClient) UpdateSettings(ctx context.Context, in *Settings, opts ...grpc.CallOption) (*Settings, error) {
+func (c *userServiceClient) UpdateSettings(ctx context.Context, in *v1.Settings, opts ...grpc.CallOption) (*v1.Settings, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Settings)
+	out := new(v1.Settings)
 	err := c.cc.Invoke(ctx, UserService_UpdateSettings_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -172,16 +173,16 @@ func (c *userServiceClient) UpdateNotificationPreferences(ctx context.Context, i
 // UserService handles the authenticated user's own profile, settings,
 // push tokens, and notification preferences.
 type UserServiceServer interface {
-	GetMe(context.Context, *emptypb.Empty) (*User, error)
-	UpdateMe(context.Context, *UpdateMeRequest) (*User, error)
+	GetMe(context.Context, *emptypb.Empty) (*v1.User, error)
+	UpdateMe(context.Context, *UpdateMeRequest) (*v1.User, error)
 	DeleteMe(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
-	GetUser(context.Context, *GetUserRequest) (*PublicUser, error)
+	GetUser(context.Context, *GetUserRequest) (*v1.PublicUser, error)
 	// UploadAvatar streams an avatar image to server-side object storage. The
 	// first message must carry content_type; subsequent messages carry file
 	// chunks. Size and content type are validated server-side.
 	UploadAvatar(grpc.ClientStreamingServer[UploadAvatarRequest, UploadAvatarResponse]) error
-	GetSettings(context.Context, *emptypb.Empty) (*Settings, error)
-	UpdateSettings(context.Context, *Settings) (*Settings, error)
+	GetSettings(context.Context, *emptypb.Empty) (*v1.Settings, error)
+	UpdateSettings(context.Context, *v1.Settings) (*v1.Settings, error)
 	RegisterPushToken(context.Context, *RegisterPushTokenRequest) (*emptypb.Empty, error)
 	GetNotificationPreferences(context.Context, *emptypb.Empty) (*NotificationPreferences, error)
 	UpdateNotificationPreferences(context.Context, *NotificationPreferences) (*NotificationPreferences, error)
@@ -195,25 +196,25 @@ type UserServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserServiceServer struct{}
 
-func (UnimplementedUserServiceServer) GetMe(context.Context, *emptypb.Empty) (*User, error) {
+func (UnimplementedUserServiceServer) GetMe(context.Context, *emptypb.Empty) (*v1.User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
 }
-func (UnimplementedUserServiceServer) UpdateMe(context.Context, *UpdateMeRequest) (*User, error) {
+func (UnimplementedUserServiceServer) UpdateMe(context.Context, *UpdateMeRequest) (*v1.User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMe not implemented")
 }
 func (UnimplementedUserServiceServer) DeleteMe(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMe not implemented")
 }
-func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*PublicUser, error) {
+func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*v1.PublicUser, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 func (UnimplementedUserServiceServer) UploadAvatar(grpc.ClientStreamingServer[UploadAvatarRequest, UploadAvatarResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method UploadAvatar not implemented")
 }
-func (UnimplementedUserServiceServer) GetSettings(context.Context, *emptypb.Empty) (*Settings, error) {
+func (UnimplementedUserServiceServer) GetSettings(context.Context, *emptypb.Empty) (*v1.Settings, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSettings not implemented")
 }
-func (UnimplementedUserServiceServer) UpdateSettings(context.Context, *Settings) (*Settings, error) {
+func (UnimplementedUserServiceServer) UpdateSettings(context.Context, *v1.Settings) (*v1.Settings, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateSettings not implemented")
 }
 func (UnimplementedUserServiceServer) RegisterPushToken(context.Context, *RegisterPushTokenRequest) (*emptypb.Empty, error) {
@@ -344,7 +345,7 @@ func _UserService_GetSettings_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _UserService_UpdateSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Settings)
+	in := new(v1.Settings)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -356,7 +357,7 @@ func _UserService_UpdateSettings_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: UserService_UpdateSettings_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).UpdateSettings(ctx, req.(*Settings))
+		return srv.(UserServiceServer).UpdateSettings(ctx, req.(*v1.Settings))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -419,7 +420,7 @@ func _UserService_UpdateNotificationPreferences_Handler(srv interface{}, ctx con
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.v1.UserService",
+	ServiceName: "user.v1.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -466,5 +467,5 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "api/v1/users.proto",
+	Metadata: "user/v1/user.proto",
 }

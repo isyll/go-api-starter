@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        (unknown)
-// source: api/v1/health.proto
+// source: health/v1/health.proto
 
-package apiv1
+package healthv1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -34,7 +34,7 @@ type HealthResponse struct {
 
 func (x *HealthResponse) Reset() {
 	*x = HealthResponse{}
-	mi := &file_api_v1_health_proto_msgTypes[0]
+	mi := &file_health_v1_health_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +46,7 @@ func (x *HealthResponse) String() string {
 func (*HealthResponse) ProtoMessage() {}
 
 func (x *HealthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_health_proto_msgTypes[0]
+	mi := &file_health_v1_health_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +59,7 @@ func (x *HealthResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthResponse.ProtoReflect.Descriptor instead.
 func (*HealthResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_health_proto_rawDescGZIP(), []int{0}
+	return file_health_v1_health_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *HealthResponse) GetStatus() string {
@@ -83,48 +83,48 @@ func (x *HealthResponse) GetChecks() map[string]string {
 	return nil
 }
 
-var File_api_v1_health_proto protoreflect.FileDescriptor
+var File_health_v1_health_proto protoreflect.FileDescriptor
 
-const file_api_v1_health_proto_rawDesc = "" +
+const file_health_v1_health_proto_rawDesc = "" +
 	"\n" +
-	"\x13api/v1/health.proto\x12\x06api.v1\x1a\x1bgoogle/protobuf/empty.proto\"\xb9\x01\n" +
+	"\x16health/v1/health.proto\x12\thealth.v1\x1a\x1bgoogle/protobuf/empty.proto\"\xbc\x01\n" +
 	"\x0eHealthResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\tR\aversion\x12:\n" +
-	"\x06checks\x18\x03 \x03(\v2\".api.v1.HealthResponse.ChecksEntryR\x06checks\x1a9\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion\x12=\n" +
+	"\x06checks\x18\x03 \x03(\v2%.health.v1.HealthResponse.ChecksEntryR\x06checks\x1a9\n" +
 	"\vChecksEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\x81\x01\n" +
-	"\rHealthService\x127\n" +
-	"\x05Check\x12\x16.google.protobuf.Empty\x1a\x16.api.v1.HealthResponse\x127\n" +
-	"\x05Ready\x12\x16.google.protobuf.Empty\x1a\x16.api.v1.HealthResponseB\x85\x01\n" +
-	"\n" +
-	"com.api.v1B\vHealthProtoP\x01Z1github.com/isyll/go-grpc-starter/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\x87\x01\n" +
+	"\rHealthService\x12:\n" +
+	"\x05Check\x12\x16.google.protobuf.Empty\x1a\x19.health.v1.HealthResponse\x12:\n" +
+	"\x05Ready\x12\x16.google.protobuf.Empty\x1a\x19.health.v1.HealthResponseB\x9a\x01\n" +
+	"\rcom.health.v1B\vHealthProtoP\x01Z7github.com/isyll/go-grpc-starter/gen/health/v1;healthv1\xa2\x02\x03HXX\xaa\x02\tHealth.V1\xca\x02\tHealth\\V1\xe2\x02\x15Health\\V1\\GPBMetadata\xea\x02\n" +
+	"Health::V1b\x06proto3"
 
 var (
-	file_api_v1_health_proto_rawDescOnce sync.Once
-	file_api_v1_health_proto_rawDescData []byte
+	file_health_v1_health_proto_rawDescOnce sync.Once
+	file_health_v1_health_proto_rawDescData []byte
 )
 
-func file_api_v1_health_proto_rawDescGZIP() []byte {
-	file_api_v1_health_proto_rawDescOnce.Do(func() {
-		file_api_v1_health_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_v1_health_proto_rawDesc), len(file_api_v1_health_proto_rawDesc)))
+func file_health_v1_health_proto_rawDescGZIP() []byte {
+	file_health_v1_health_proto_rawDescOnce.Do(func() {
+		file_health_v1_health_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_health_v1_health_proto_rawDesc), len(file_health_v1_health_proto_rawDesc)))
 	})
-	return file_api_v1_health_proto_rawDescData
+	return file_health_v1_health_proto_rawDescData
 }
 
-var file_api_v1_health_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_api_v1_health_proto_goTypes = []any{
-	(*HealthResponse)(nil), // 0: api.v1.HealthResponse
-	nil,                    // 1: api.v1.HealthResponse.ChecksEntry
+var file_health_v1_health_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_health_v1_health_proto_goTypes = []any{
+	(*HealthResponse)(nil), // 0: health.v1.HealthResponse
+	nil,                    // 1: health.v1.HealthResponse.ChecksEntry
 	(*emptypb.Empty)(nil),  // 2: google.protobuf.Empty
 }
-var file_api_v1_health_proto_depIdxs = []int32{
-	1, // 0: api.v1.HealthResponse.checks:type_name -> api.v1.HealthResponse.ChecksEntry
-	2, // 1: api.v1.HealthService.Check:input_type -> google.protobuf.Empty
-	2, // 2: api.v1.HealthService.Ready:input_type -> google.protobuf.Empty
-	0, // 3: api.v1.HealthService.Check:output_type -> api.v1.HealthResponse
-	0, // 4: api.v1.HealthService.Ready:output_type -> api.v1.HealthResponse
+var file_health_v1_health_proto_depIdxs = []int32{
+	1, // 0: health.v1.HealthResponse.checks:type_name -> health.v1.HealthResponse.ChecksEntry
+	2, // 1: health.v1.HealthService.Check:input_type -> google.protobuf.Empty
+	2, // 2: health.v1.HealthService.Ready:input_type -> google.protobuf.Empty
+	0, // 3: health.v1.HealthService.Check:output_type -> health.v1.HealthResponse
+	0, // 4: health.v1.HealthService.Ready:output_type -> health.v1.HealthResponse
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -132,26 +132,26 @@ var file_api_v1_health_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_api_v1_health_proto_init() }
-func file_api_v1_health_proto_init() {
-	if File_api_v1_health_proto != nil {
+func init() { file_health_v1_health_proto_init() }
+func file_health_v1_health_proto_init() {
+	if File_health_v1_health_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_health_proto_rawDesc), len(file_api_v1_health_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_health_v1_health_proto_rawDesc), len(file_health_v1_health_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_v1_health_proto_goTypes,
-		DependencyIndexes: file_api_v1_health_proto_depIdxs,
-		MessageInfos:      file_api_v1_health_proto_msgTypes,
+		GoTypes:           file_health_v1_health_proto_goTypes,
+		DependencyIndexes: file_health_v1_health_proto_depIdxs,
+		MessageInfos:      file_health_v1_health_proto_msgTypes,
 	}.Build()
-	File_api_v1_health_proto = out.File
-	file_api_v1_health_proto_goTypes = nil
-	file_api_v1_health_proto_depIdxs = nil
+	File_health_v1_health_proto = out.File
+	file_health_v1_health_proto_goTypes = nil
+	file_health_v1_health_proto_depIdxs = nil
 }

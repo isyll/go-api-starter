@@ -3,7 +3,10 @@ package grpcsvc
 import (
 	"net"
 
-	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
+	adminv1 "github.com/isyll/go-grpc-starter/gen/admin/v1"
+	authv1 "github.com/isyll/go-grpc-starter/gen/auth/v1"
+	healthv1 "github.com/isyll/go-grpc-starter/gen/health/v1"
+	userv1 "github.com/isyll/go-grpc-starter/gen/user/v1"
 	"github.com/isyll/go-grpc-starter/internal/auth"
 	"github.com/isyll/go-grpc-starter/internal/interceptor"
 	"github.com/isyll/go-grpc-starter/pkg/config"
@@ -45,10 +48,10 @@ func New(d Deps) *Server {
 
 	srv := grpc.NewServer(grpc.ChainUnaryInterceptor(ic.Unary()...))
 
-	apiv1.RegisterAuthServiceServer(srv, d.Auth)
-	apiv1.RegisterUserServiceServer(srv, d.User)
-	apiv1.RegisterAdminServiceServer(srv, d.Admin)
-	apiv1.RegisterHealthServiceServer(srv, d.Health)
+	authv1.RegisterAuthServiceServer(srv, d.Auth)
+	userv1.RegisterUserServiceServer(srv, d.User)
+	adminv1.RegisterAdminServiceServer(srv, d.Admin)
+	healthv1.RegisterHealthServiceServer(srv, d.Health)
 
 	hs := health.NewServer()
 	hs.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)

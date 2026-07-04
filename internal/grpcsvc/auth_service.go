@@ -3,7 +3,8 @@ package grpcsvc
 import (
 	"context"
 
-	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
+	authv1 "github.com/isyll/go-grpc-starter/gen/auth/v1"
+	commonv1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	"github.com/isyll/go-grpc-starter/internal/auth"
 	"github.com/isyll/go-grpc-starter/internal/interceptor"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
@@ -15,7 +16,7 @@ import (
 )
 
 type AuthServer struct {
-	apiv1.UnimplementedAuthServiceServer
+	authv1.UnimplementedAuthServiceServer
 	svc *auth.Service
 	enc idenc.IDEncoder
 }
@@ -24,7 +25,7 @@ func NewAuthServer(svc *auth.Service, enc idenc.IDEncoder) *AuthServer {
 	return &AuthServer{svc: svc, enc: enc}
 }
 
-func (s *AuthServer) Register(ctx context.Context, req *apiv1.RegisterRequest) (*apiv1.TokenPair, error) {
+func (s *AuthServer) Register(ctx context.Context, req *authv1.RegisterRequest) (*commonv1.TokenPair, error) {
 	tokens, err := s.svc.Register(ctx, auth.RegisterInput{
 		Email:     req.GetEmail(),
 		Password:  req.GetPassword(),
@@ -38,7 +39,7 @@ func (s *AuthServer) Register(ctx context.Context, req *apiv1.RegisterRequest) (
 	return toProtoTokenPair(tokens, s.enc), nil
 }
 
-func (s *AuthServer) Login(ctx context.Context, req *apiv1.LoginRequest) (*apiv1.TokenPair, error) {
+func (s *AuthServer) Login(ctx context.Context, req *authv1.LoginRequest) (*commonv1.TokenPair, error) {
 	tokens, err := s.svc.Login(ctx, auth.LoginInput{
 		Email:    req.GetEmail(),
 		Password: req.GetPassword(),
@@ -50,7 +51,7 @@ func (s *AuthServer) Login(ctx context.Context, req *apiv1.LoginRequest) (*apiv1
 	return toProtoTokenPair(tokens, s.enc), nil
 }
 
-func (s *AuthServer) RefreshToken(ctx context.Context, req *apiv1.RefreshTokenRequest) (*apiv1.TokenPair, error) {
+func (s *AuthServer) RefreshToken(ctx context.Context, req *authv1.RefreshTokenRequest) (*commonv1.TokenPair, error) {
 	tokens, err := s.svc.RefreshTokens(ctx, req.GetRefreshToken())
 	if err != nil {
 		return nil, err
@@ -64,7 +65,7 @@ func (s *AuthServer) Logout(ctx context.Context, _ *emptypb.Empty) (*emptypb.Emp
 	return &emptypb.Empty{}, nil
 }
 
-func (s *AuthServer) VerifyEmail(ctx context.Context, req *apiv1.VerifyEmailRequest) (*emptypb.Empty, error) {
+func (s *AuthServer) VerifyEmail(ctx context.Context, req *authv1.VerifyEmailRequest) (*emptypb.Empty, error) {
 	if err := s.svc.VerifyEmail(ctx, req.GetToken()); err != nil {
 		return nil, err
 	}
@@ -78,40 +79,40 @@ func (s *AuthServer) ResendVerification(ctx context.Context, _ *emptypb.Empty) (
 	return &emptypb.Empty{}, nil
 }
 
-func (s *AuthServer) RequestPasswordReset(ctx context.Context, req *apiv1.RequestPasswordResetRequest) (*emptypb.Empty, error) {
+func (s *AuthServer) RequestPasswordReset(ctx context.Context, req *authv1.RequestPasswordResetRequest) (*emptypb.Empty, error) {
 	if err := s.svc.RequestPasswordReset(ctx, req.GetEmail()); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (s *AuthServer) ResetPassword(ctx context.Context, req *apiv1.ResetPasswordRequest) (*emptypb.Empty, error) {
+func (s *AuthServer) ResetPassword(ctx context.Context, req *authv1.ResetPasswordRequest) (*emptypb.Empty, error) {
 	if err := s.svc.ResetPassword(ctx, req.GetToken(), req.GetNewPassword()); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (s *AuthServer) ChangePassword(ctx context.Context, req *apiv1.ChangePasswordRequest) (*emptypb.Empty, error) {
+func (s *AuthServer) ChangePassword(ctx context.Context, req *authv1.ChangePasswordRequest) (*emptypb.Empty, error) {
 	if err := s.svc.ChangePassword(ctx, reqctx.SubjectFrom(ctx).UserID, req.GetCurrentPassword(), req.GetNewPassword()); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (s *AuthServer) ListDevices(ctx context.Context, _ *emptypb.Empty) (*apiv1.ListDevicesResponse, error) {
+func (s *AuthServer) ListDevices(ctx context.Context, _ *emptypb.Empty) (*authv1.ListDevicesResponse, error) {
 	devices := s.svc.ListDevices(ctx, reqctx.SubjectFrom(ctx).UserID, reqctx.SubjectFrom(ctx).SessionID)
-	return &apiv1.ListDevicesResponse{Devices: toProtoDevices(devices)}, nil
+	return &authv1.ListDevicesResponse{Devices: toProtoDevices(devices)}, nil
 }
 
-func (s *AuthServer) RevokeDevice(ctx context.Context, req *apiv1.RevokeDeviceRequest) (*emptypb.Empty, error) {
+func (s *AuthServer) RevokeDevice(ctx context.Context, req *authv1.RevokeDeviceRequest) (*emptypb.Empty, error) {
 	if err := s.svc.RemoveDevice(ctx, reqctx.SubjectFrom(ctx).UserID, req.GetDeviceId(), reqctx.SubjectFrom(ctx).SessionID); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func deviceInfo(ctx context.Context, d *apiv1.DeviceInfo) auth.DeviceInfo {
+func deviceInfo(ctx context.Context, d *commonv1.DeviceInfo) auth.DeviceInfo {
 	info := auth.DeviceInfo{
 		IPAddress: clientIP(ctx),
 		UserAgent: userAgent(ctx),

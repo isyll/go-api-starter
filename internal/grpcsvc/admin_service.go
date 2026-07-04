@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
+	adminv1 "github.com/isyll/go-grpc-starter/gen/admin/v1"
+	commonv1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/internal/suspension"
@@ -17,7 +18,7 @@ import (
 )
 
 type AdminServer struct {
-	apiv1.UnimplementedAdminServiceServer
+	adminv1.UnimplementedAdminServiceServer
 	users      *users.Service
 	suspension *suspension.Service
 	bus        *event.Bus
@@ -33,20 +34,20 @@ func NewAdminServer(
 	return &AdminServer{users: u, suspension: s, bus: bus, enc: enc}
 }
 
-func (s *AdminServer) ListUsers(ctx context.Context, req *apiv1.ListUsersRequest) (*apiv1.ListUsersResponse, error) {
+func (s *AdminServer) ListUsers(ctx context.Context, req *adminv1.ListUsersRequest) (*adminv1.ListUsersResponse, error) {
 	page, size := pageParams(req.GetPage())
 	list, total, err := s.users.List(ctx, (page-1)*size, size)
 	if err != nil {
 		return nil, err
 	}
-	out := make([]*apiv1.User, len(list))
+	out := make([]*commonv1.User, len(list))
 	for i := range list {
 		out[i] = toProtoUser(&list[i], s.enc)
 	}
-	return &apiv1.ListUsersResponse{Users: out, Total: total}, nil
+	return &adminv1.ListUsersResponse{Users: out, Total: total}, nil
 }
 
-func (s *AdminServer) GetUser(ctx context.Context, req *apiv1.AdminGetUserRequest) (*apiv1.User, error) {
+func (s *AdminServer) GetUser(ctx context.Context, req *adminv1.AdminGetUserRequest) (*commonv1.User, error) {
 	id, err := s.enc.Decode(req.GetId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "user.invalid_id")
@@ -58,7 +59,7 @@ func (s *AdminServer) GetUser(ctx context.Context, req *apiv1.AdminGetUserReques
 	return toProtoUser(u, s.enc), nil
 }
 
-func (s *AdminServer) SuspendUser(ctx context.Context, req *apiv1.SuspendUserRequest) (*emptypb.Empty, error) {
+func (s *AdminServer) SuspendUser(ctx context.Context, req *adminv1.SuspendUserRequest) (*emptypb.Empty, error) {
 	id, err := s.enc.Decode(req.GetId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "user.invalid_id")
@@ -84,7 +85,7 @@ func (s *AdminServer) SuspendUser(ctx context.Context, req *apiv1.SuspendUserReq
 	return &emptypb.Empty{}, nil
 }
 
-func (s *AdminServer) UnsuspendUser(ctx context.Context, req *apiv1.UnsuspendUserRequest) (*emptypb.Empty, error) {
+func (s *AdminServer) UnsuspendUser(ctx context.Context, req *adminv1.UnsuspendUserRequest) (*emptypb.Empty, error) {
 	id, err := s.enc.Decode(req.GetId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "user.invalid_id")
@@ -99,7 +100,7 @@ func (s *AdminServer) UnsuspendUser(ctx context.Context, req *apiv1.UnsuspendUse
 	return &emptypb.Empty{}, nil
 }
 
-func (s *AdminServer) SetUserRole(ctx context.Context, req *apiv1.SetUserRoleRequest) (*emptypb.Empty, error) {
+func (s *AdminServer) SetUserRole(ctx context.Context, req *adminv1.SetUserRoleRequest) (*emptypb.Empty, error) {
 	id, err := s.enc.Decode(req.GetId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "user.invalid_id")
@@ -123,7 +124,7 @@ func (s *AdminServer) audit(ctx context.Context, action, resourceID string) {
 	})
 }
 
-func pageParams(p *apiv1.Page) (page, size int) {
+func pageParams(p *commonv1.Page) (page, size int) {
 	page, size = 1, 20
 	if p != nil {
 		if p.GetPage() > 0 {

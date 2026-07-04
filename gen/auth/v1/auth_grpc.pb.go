@@ -2,12 +2,13 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: api/v1/auth.proto
+// source: auth/v1/auth.proto
 
-package apiv1
+package authv1
 
 import (
 	context "context"
+	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,17 +21,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Register_FullMethodName             = "/api.v1.AuthService/Register"
-	AuthService_Login_FullMethodName                = "/api.v1.AuthService/Login"
-	AuthService_RefreshToken_FullMethodName         = "/api.v1.AuthService/RefreshToken"
-	AuthService_Logout_FullMethodName               = "/api.v1.AuthService/Logout"
-	AuthService_VerifyEmail_FullMethodName          = "/api.v1.AuthService/VerifyEmail"
-	AuthService_ResendVerification_FullMethodName   = "/api.v1.AuthService/ResendVerification"
-	AuthService_RequestPasswordReset_FullMethodName = "/api.v1.AuthService/RequestPasswordReset"
-	AuthService_ResetPassword_FullMethodName        = "/api.v1.AuthService/ResetPassword"
-	AuthService_ChangePassword_FullMethodName       = "/api.v1.AuthService/ChangePassword"
-	AuthService_ListDevices_FullMethodName          = "/api.v1.AuthService/ListDevices"
-	AuthService_RevokeDevice_FullMethodName         = "/api.v1.AuthService/RevokeDevice"
+	AuthService_Register_FullMethodName             = "/auth.v1.AuthService/Register"
+	AuthService_Login_FullMethodName                = "/auth.v1.AuthService/Login"
+	AuthService_RefreshToken_FullMethodName         = "/auth.v1.AuthService/RefreshToken"
+	AuthService_Logout_FullMethodName               = "/auth.v1.AuthService/Logout"
+	AuthService_VerifyEmail_FullMethodName          = "/auth.v1.AuthService/VerifyEmail"
+	AuthService_ResendVerification_FullMethodName   = "/auth.v1.AuthService/ResendVerification"
+	AuthService_RequestPasswordReset_FullMethodName = "/auth.v1.AuthService/RequestPasswordReset"
+	AuthService_ResetPassword_FullMethodName        = "/auth.v1.AuthService/ResetPassword"
+	AuthService_ChangePassword_FullMethodName       = "/auth.v1.AuthService/ChangePassword"
+	AuthService_ListDevices_FullMethodName          = "/auth.v1.AuthService/ListDevices"
+	AuthService_RevokeDevice_FullMethodName         = "/auth.v1.AuthService/RevokeDevice"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -39,9 +40,9 @@ const (
 //
 // AuthService handles registration, login, tokens, and devices.
 type AuthServiceClient interface {
-	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*TokenPair, error)
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*TokenPair, error)
-	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*TokenPair, error)
+	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*v1.TokenPair, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*v1.TokenPair, error)
+	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*v1.TokenPair, error)
 	Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	VerifyEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ResendVerification(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -60,9 +61,9 @@ func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
 }
 
-func (c *authServiceClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*TokenPair, error) {
+func (c *authServiceClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*v1.TokenPair, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TokenPair)
+	out := new(v1.TokenPair)
 	err := c.cc.Invoke(ctx, AuthService_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -70,9 +71,9 @@ func (c *authServiceClient) Register(ctx context.Context, in *RegisterRequest, o
 	return out, nil
 }
 
-func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*TokenPair, error) {
+func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*v1.TokenPair, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TokenPair)
+	out := new(v1.TokenPair)
 	err := c.cc.Invoke(ctx, AuthService_Login_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -80,9 +81,9 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*TokenPair, error) {
+func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*v1.TokenPair, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TokenPair)
+	out := new(v1.TokenPair)
 	err := c.cc.Invoke(ctx, AuthService_RefreshToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -176,9 +177,9 @@ func (c *authServiceClient) RevokeDevice(ctx context.Context, in *RevokeDeviceRe
 //
 // AuthService handles registration, login, tokens, and devices.
 type AuthServiceServer interface {
-	Register(context.Context, *RegisterRequest) (*TokenPair, error)
-	Login(context.Context, *LoginRequest) (*TokenPair, error)
-	RefreshToken(context.Context, *RefreshTokenRequest) (*TokenPair, error)
+	Register(context.Context, *RegisterRequest) (*v1.TokenPair, error)
+	Login(context.Context, *LoginRequest) (*v1.TokenPair, error)
+	RefreshToken(context.Context, *RefreshTokenRequest) (*v1.TokenPair, error)
 	Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	VerifyEmail(context.Context, *VerifyEmailRequest) (*emptypb.Empty, error)
 	ResendVerification(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
@@ -197,13 +198,13 @@ type AuthServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthServiceServer struct{}
 
-func (UnimplementedAuthServiceServer) Register(context.Context, *RegisterRequest) (*TokenPair, error) {
+func (UnimplementedAuthServiceServer) Register(context.Context, *RegisterRequest) (*v1.TokenPair, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*TokenPair, error) {
+func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*v1.TokenPair, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*TokenPair, error) {
+func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*v1.TokenPair, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
 }
 func (UnimplementedAuthServiceServer) Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
@@ -453,7 +454,7 @@ func _AuthService_RevokeDevice_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AuthService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.v1.AuthService",
+	ServiceName: "auth.v1.AuthService",
 	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -502,5 +503,5 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/v1/auth.proto",
+	Metadata: "auth/v1/auth.proto",
 }

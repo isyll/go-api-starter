@@ -71,17 +71,17 @@ func (i *Set) Unary() []grpc.UnaryServerInterceptor {
 }
 
 var publicMethods = map[string]bool{
-	"/api.v1.HealthService/Check":              true,
-	"/api.v1.HealthService/Ready":              true,
-	"/api.v1.AuthService/Register":             true,
-	"/api.v1.AuthService/Login":                true,
-	"/api.v1.AuthService/RefreshToken":         true,
-	"/api.v1.AuthService/VerifyEmail":          true,
-	"/api.v1.AuthService/RequestPasswordReset": true,
-	"/api.v1.AuthService/ResetPassword":        true,
+	"/health.v1.HealthService/Check":            true,
+	"/health.v1.HealthService/Ready":            true,
+	"/auth.v1.AuthService/Register":             true,
+	"/auth.v1.AuthService/Login":                true,
+	"/auth.v1.AuthService/RefreshToken":         true,
+	"/auth.v1.AuthService/VerifyEmail":          true,
+	"/auth.v1.AuthService/RequestPasswordReset": true,
+	"/auth.v1.AuthService/ResetPassword":        true,
 }
 
-const adminServicePrefix = "/api.v1.AdminService/"
+const adminServicePrefix = "/admin.v1.AdminService/"
 
 // errorUnary is the single error-mapping interceptor: it turns domain errors
 // returned by any handler into a localized gRPC status with rich details.

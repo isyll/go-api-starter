@@ -1,25 +1,25 @@
 syntax = "proto3";
 
-package api.v1;
+package user.v1;
 
 import "google/protobuf/empty.proto";
-import "api/v1/common.proto";
+import "common/v1/common.proto";
 
 // UserService handles the authenticated user's own profile, settings,
 // push tokens, and notification preferences.
 service UserService {
-  rpc GetMe(google.protobuf.Empty) returns (User);
-  rpc UpdateMe(UpdateMeRequest) returns (User);
+  rpc GetMe(google.protobuf.Empty) returns (common.v1.User);
+  rpc UpdateMe(UpdateMeRequest) returns (common.v1.User);
   rpc DeleteMe(google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc GetUser(GetUserRequest) returns (PublicUser);
+  rpc GetUser(GetUserRequest) returns (common.v1.PublicUser);
 
   // UploadAvatar streams an avatar image to server-side object storage. The
   // first message must carry content_type; subsequent messages carry file
   // chunks. Size and content type are validated server-side.
   rpc UploadAvatar(stream UploadAvatarRequest) returns (UploadAvatarResponse);
 
-  rpc GetSettings(google.protobuf.Empty) returns (Settings);
-  rpc UpdateSettings(Settings) returns (Settings);
+  rpc GetSettings(google.protobuf.Empty) returns (common.v1.Settings);
+  rpc UpdateSettings(common.v1.Settings) returns (common.v1.Settings);
 
   rpc RegisterPushToken(RegisterPushTokenRequest) returns (google.protobuf.Empty);
   rpc GetNotificationPreferences(google.protobuf.Empty) returns (NotificationPreferences);

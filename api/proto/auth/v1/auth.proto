@@ -1,15 +1,15 @@
 syntax = "proto3";
 
-package api.v1;
+package auth.v1;
 
 import "google/protobuf/empty.proto";
-import "api/v1/common.proto";
+import "common/v1/common.proto";
 
 // AuthService handles registration, login, tokens, and devices.
 service AuthService {
-  rpc Register(RegisterRequest) returns (TokenPair);
-  rpc Login(LoginRequest) returns (TokenPair);
-  rpc RefreshToken(RefreshTokenRequest) returns (TokenPair);
+  rpc Register(RegisterRequest) returns (common.v1.TokenPair);
+  rpc Login(LoginRequest) returns (common.v1.TokenPair);
+  rpc RefreshToken(RefreshTokenRequest) returns (common.v1.TokenPair);
   rpc Logout(google.protobuf.Empty) returns (google.protobuf.Empty);
   rpc VerifyEmail(VerifyEmailRequest) returns (google.protobuf.Empty);
   rpc ResendVerification(google.protobuf.Empty) returns (google.protobuf.Empty);
@@ -25,13 +25,13 @@ message RegisterRequest {
   string password = 2;
   string first_name = 3;
   string last_name = 4;
-  DeviceInfo device = 5;
+  common.v1.DeviceInfo device = 5;
 }
 
 message LoginRequest {
   string email = 1;
   string password = 2;
-  DeviceInfo device = 3;
+  common.v1.DeviceInfo device = 3;
 }
 
 message RefreshTokenRequest {
@@ -57,7 +57,7 @@ message ChangePasswordRequest {
 }
 
 message ListDevicesResponse {
-  repeated Device devices = 1;
+  repeated common.v1.Device devices = 1;
 }
 
 message RevokeDeviceRequest {

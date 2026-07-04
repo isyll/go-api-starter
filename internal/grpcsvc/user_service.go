@@ -6,7 +6,8 @@ import (
 	"errors"
 	"io"
 
-	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
+	commonv1 "github.com/isyll/go-grpc-starter/gen/common/v1"
+	userv1 "github.com/isyll/go-grpc-starter/gen/user/v1"
 	"github.com/isyll/go-grpc-starter/internal/errs"
 	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 	"github.com/isyll/go-grpc-starter/internal/notifications"
@@ -19,7 +20,7 @@ import (
 )
 
 type UserServer struct {
-	apiv1.UnimplementedUserServiceServer
+	userv1.UnimplementedUserServiceServer
 	users    *users.Service
 	settings *settings.Service
 	notifs   *notifications.Service
@@ -35,7 +36,7 @@ func NewUserServer(
 	return &UserServer{users: u, settings: s, notifs: n, enc: enc}
 }
 
-func (s *UserServer) GetMe(ctx context.Context, _ *emptypb.Empty) (*apiv1.User, error) {
+func (s *UserServer) GetMe(ctx context.Context, _ *emptypb.Empty) (*commonv1.User, error) {
 	u, err := s.users.Get(ctx, reqctx.SubjectFrom(ctx).UserID)
 	if err != nil {
 		return nil, err
@@ -43,7 +44,7 @@ func (s *UserServer) GetMe(ctx context.Context, _ *emptypb.Empty) (*apiv1.User, 
 	return toProtoUser(u, s.enc), nil
 }
 
-func (s *UserServer) UpdateMe(ctx context.Context, req *apiv1.UpdateMeRequest) (*apiv1.User, error) {
+func (s *UserServer) UpdateMe(ctx context.Context, req *userv1.UpdateMeRequest) (*commonv1.User, error) {
 	u, err := s.users.UpdateProfile(ctx, reqctx.SubjectFrom(ctx).UserID, users.ProfileUpdate{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
@@ -63,7 +64,7 @@ func (s *UserServer) DeleteMe(ctx context.Context, _ *emptypb.Empty) (*emptypb.E
 	return &emptypb.Empty{}, nil
 }
 
-func (s *UserServer) GetUser(ctx context.Context, req *apiv1.GetUserRequest) (*apiv1.PublicUser, error) {
+func (s *UserServer) GetUser(ctx context.Context, req *userv1.GetUserRequest) (*commonv1.PublicUser, error) {
 	id, err := s.enc.Decode(req.GetId())
 	if err != nil {
 		return nil, errs.BadRequest(codes.InvalidUserID, "user.invalid_id")
@@ -75,7 +76,7 @@ func (s *UserServer) GetUser(ctx context.Context, req *apiv1.GetUserRequest) (*a
 	return toProtoPublicUser(u, s.enc), nil
 }
 
-func (s *UserServer) UploadAvatar(stream apiv1.UserService_UploadAvatarServer) error {
+func (s *UserServer) UploadAvatar(stream userv1.UserService_UploadAvatarServer) error {
 	ctx := stream.Context()
 	userID := reqctx.SubjectFrom(ctx).UserID
 
@@ -93,10 +94,10 @@ func (s *UserServer) UploadAvatar(stream apiv1.UserService_UploadAvatarServer) e
 			return err
 		}
 		switch data := req.GetData().(type) {
-		case *apiv1.UploadAvatarRequest_ContentType:
+		case *userv1.UploadAvatarRequest_ContentType:
 			contentType = data.ContentType
 			gotMeta = true
-		case *apiv1.UploadAvatarRequest_Chunk:
+		case *userv1.UploadAvatarRequest_Chunk:
 			if buf.Len()+len(data.Chunk) > users.MaxAvatarBytes {
 				return errs.BadRequest(codes.AvatarTooLarge, "user.avatar_too_large")
 			}
@@ -111,10 +112,10 @@ func (s *UserServer) UploadAvatar(stream apiv1.UserService_UploadAvatarServer) e
 	if err != nil {
 		return err
 	}
-	return stream.SendAndClose(&apiv1.UploadAvatarResponse{AvatarUrl: url})
+	return stream.SendAndClose(&userv1.UploadAvatarResponse{AvatarUrl: url})
 }
 
-func (s *UserServer) GetSettings(ctx context.Context, _ *emptypb.Empty) (*apiv1.Settings, error) {
+func (s *UserServer) GetSettings(ctx context.Context, _ *emptypb.Empty) (*commonv1.Settings, error) {
 	set, err := s.settings.Get(ctx, reqctx.SubjectFrom(ctx).UserID)
 	if err != nil {
 		return nil, err
@@ -122,14 +123,14 @@ func (s *UserServer) GetSettings(ctx context.Context, _ *emptypb.Empty) (*apiv1.
 	return toProtoSettings(set), nil
 }
 
-func (s *UserServer) UpdateSettings(ctx context.Context, req *apiv1.Settings) (*apiv1.Settings, error) {
+func (s *UserServer) UpdateSettings(ctx context.Context, req *commonv1.Settings) (*commonv1.Settings, error) {
 	if err := s.settings.Update(ctx, reqctx.SubjectFrom(ctx).UserID, fromProtoSettings(req)); err != nil {
 		return nil, err
 	}
 	return req, nil
 }
 
-func (s *UserServer) RegisterPushToken(ctx context.Context, req *apiv1.RegisterPushTokenRequest) (*emptypb.Empty, error) {
+func (s *UserServer) RegisterPushToken(ctx context.Context, req *userv1.RegisterPushTokenRequest) (*emptypb.Empty, error) {
 	err := s.notifs.RegisterToken(ctx, reqctx.SubjectFrom(ctx).UserID, notifications.RegisterTokenInput{
 		DeviceID:   req.GetDeviceId(),
 		Token:      req.GetToken(),
@@ -142,7 +143,7 @@ func (s *UserServer) RegisterPushToken(ctx context.Context, req *apiv1.RegisterP
 	return &emptypb.Empty{}, nil
 }
 
-func (s *UserServer) GetNotificationPreferences(ctx context.Context, _ *emptypb.Empty) (*apiv1.NotificationPreferences, error) {
+func (s *UserServer) GetNotificationPreferences(ctx context.Context, _ *emptypb.Empty) (*userv1.NotificationPreferences, error) {
 	prefs, err := s.notifs.GetPreferences(ctx, reqctx.SubjectFrom(ctx).UserID)
 	if err != nil {
 		return nil, err
@@ -150,7 +151,7 @@ func (s *UserServer) GetNotificationPreferences(ctx context.Context, _ *emptypb.
 	return toProtoNotifPrefs(prefs), nil
 }
 
-func (s *UserServer) UpdateNotificationPreferences(ctx context.Context, req *apiv1.NotificationPreferences) (*apiv1.NotificationPreferences, error) {
+func (s *UserServer) UpdateNotificationPreferences(ctx context.Context, req *userv1.NotificationPreferences) (*userv1.NotificationPreferences, error) {
 	push, email, marketing, qenabled := req.GetPush(), req.GetEmail(), req.GetMarketing(), req.GetQuietHoursEnabled()
 	start, end, tz := req.GetQuietHoursStart(), req.GetQuietHoursEnd(), req.GetTimezone()
 	prefs, err := s.notifs.UpdatePreferences(ctx, reqctx.SubjectFrom(ctx).UserID, notifications.PreferencesUpdate{

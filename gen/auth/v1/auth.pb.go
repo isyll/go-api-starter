@@ -2,11 +2,12 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        (unknown)
-// source: api/v1/auth.proto
+// source: auth/v1/auth.proto
 
-package apiv1
+package authv1
 
 import (
+	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -28,14 +29,14 @@ type RegisterRequest struct {
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	FirstName     string                 `protobuf:"bytes,3,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
 	LastName      string                 `protobuf:"bytes,4,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	Device        *DeviceInfo            `protobuf:"bytes,5,opt,name=device,proto3" json:"device,omitempty"`
+	Device        *v1.DeviceInfo         `protobuf:"bytes,5,opt,name=device,proto3" json:"device,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RegisterRequest) Reset() {
 	*x = RegisterRequest{}
-	mi := &file_api_v1_auth_proto_msgTypes[0]
+	mi := &file_auth_v1_auth_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +48,7 @@ func (x *RegisterRequest) String() string {
 func (*RegisterRequest) ProtoMessage() {}
 
 func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_auth_proto_msgTypes[0]
+	mi := &file_auth_v1_auth_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +61,7 @@ func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
 func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_auth_proto_rawDescGZIP(), []int{0}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *RegisterRequest) GetEmail() string {
@@ -91,7 +92,7 @@ func (x *RegisterRequest) GetLastName() string {
 	return ""
 }
 
-func (x *RegisterRequest) GetDevice() *DeviceInfo {
+func (x *RegisterRequest) GetDevice() *v1.DeviceInfo {
 	if x != nil {
 		return x.Device
 	}
@@ -102,14 +103,14 @@ type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	Device        *DeviceInfo            `protobuf:"bytes,3,opt,name=device,proto3" json:"device,omitempty"`
+	Device        *v1.DeviceInfo         `protobuf:"bytes,3,opt,name=device,proto3" json:"device,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_api_v1_auth_proto_msgTypes[1]
+	mi := &file_auth_v1_auth_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -121,7 +122,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_auth_proto_msgTypes[1]
+	mi := &file_auth_v1_auth_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -134,7 +135,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_auth_proto_rawDescGZIP(), []int{1}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *LoginRequest) GetEmail() string {
@@ -151,7 +152,7 @@ func (x *LoginRequest) GetPassword() string {
 	return ""
 }
 
-func (x *LoginRequest) GetDevice() *DeviceInfo {
+func (x *LoginRequest) GetDevice() *v1.DeviceInfo {
 	if x != nil {
 		return x.Device
 	}
@@ -167,7 +168,7 @@ type RefreshTokenRequest struct {
 
 func (x *RefreshTokenRequest) Reset() {
 	*x = RefreshTokenRequest{}
-	mi := &file_api_v1_auth_proto_msgTypes[2]
+	mi := &file_auth_v1_auth_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -179,7 +180,7 @@ func (x *RefreshTokenRequest) String() string {
 func (*RefreshTokenRequest) ProtoMessage() {}
 
 func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_auth_proto_msgTypes[2]
+	mi := &file_auth_v1_auth_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -192,7 +193,7 @@ func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
 func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_auth_proto_rawDescGZIP(), []int{2}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *RefreshTokenRequest) GetRefreshToken() string {
@@ -211,7 +212,7 @@ type VerifyEmailRequest struct {
 
 func (x *VerifyEmailRequest) Reset() {
 	*x = VerifyEmailRequest{}
-	mi := &file_api_v1_auth_proto_msgTypes[3]
+	mi := &file_auth_v1_auth_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -223,7 +224,7 @@ func (x *VerifyEmailRequest) String() string {
 func (*VerifyEmailRequest) ProtoMessage() {}
 
 func (x *VerifyEmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_auth_proto_msgTypes[3]
+	mi := &file_auth_v1_auth_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -236,7 +237,7 @@ func (x *VerifyEmailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyEmailRequest.ProtoReflect.Descriptor instead.
 func (*VerifyEmailRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_auth_proto_rawDescGZIP(), []int{3}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *VerifyEmailRequest) GetToken() string {
@@ -255,7 +256,7 @@ type RequestPasswordResetRequest struct {
 
 func (x *RequestPasswordResetRequest) Reset() {
 	*x = RequestPasswordResetRequest{}
-	mi := &file_api_v1_auth_proto_msgTypes[4]
+	mi := &file_auth_v1_auth_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -267,7 +268,7 @@ func (x *RequestPasswordResetRequest) String() string {
 func (*RequestPasswordResetRequest) ProtoMessage() {}
 
 func (x *RequestPasswordResetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_auth_proto_msgTypes[4]
+	mi := &file_auth_v1_auth_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -280,7 +281,7 @@ func (x *RequestPasswordResetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestPasswordResetRequest.ProtoReflect.Descriptor instead.
 func (*RequestPasswordResetRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_auth_proto_rawDescGZIP(), []int{4}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RequestPasswordResetRequest) GetEmail() string {
@@ -300,7 +301,7 @@ type ResetPasswordRequest struct {
 
 func (x *ResetPasswordRequest) Reset() {
 	*x = ResetPasswordRequest{}
-	mi := &file_api_v1_auth_proto_msgTypes[5]
+	mi := &file_auth_v1_auth_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -312,7 +313,7 @@ func (x *ResetPasswordRequest) String() string {
 func (*ResetPasswordRequest) ProtoMessage() {}
 
 func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_auth_proto_msgTypes[5]
+	mi := &file_auth_v1_auth_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -325,7 +326,7 @@ func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordRequest.ProtoReflect.Descriptor instead.
 func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_auth_proto_rawDescGZIP(), []int{5}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ResetPasswordRequest) GetToken() string {
@@ -352,7 +353,7 @@ type ChangePasswordRequest struct {
 
 func (x *ChangePasswordRequest) Reset() {
 	*x = ChangePasswordRequest{}
-	mi := &file_api_v1_auth_proto_msgTypes[6]
+	mi := &file_auth_v1_auth_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -364,7 +365,7 @@ func (x *ChangePasswordRequest) String() string {
 func (*ChangePasswordRequest) ProtoMessage() {}
 
 func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_auth_proto_msgTypes[6]
+	mi := &file_auth_v1_auth_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -377,7 +378,7 @@ func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePasswordRequest.ProtoReflect.Descriptor instead.
 func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_auth_proto_rawDescGZIP(), []int{6}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ChangePasswordRequest) GetCurrentPassword() string {
@@ -396,14 +397,14 @@ func (x *ChangePasswordRequest) GetNewPassword() string {
 
 type ListDevicesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Devices       []*Device              `protobuf:"bytes,1,rep,name=devices,proto3" json:"devices,omitempty"`
+	Devices       []*v1.Device           `protobuf:"bytes,1,rep,name=devices,proto3" json:"devices,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListDevicesResponse) Reset() {
 	*x = ListDevicesResponse{}
-	mi := &file_api_v1_auth_proto_msgTypes[7]
+	mi := &file_auth_v1_auth_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -415,7 +416,7 @@ func (x *ListDevicesResponse) String() string {
 func (*ListDevicesResponse) ProtoMessage() {}
 
 func (x *ListDevicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_auth_proto_msgTypes[7]
+	mi := &file_auth_v1_auth_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -428,10 +429,10 @@ func (x *ListDevicesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDevicesResponse.ProtoReflect.Descriptor instead.
 func (*ListDevicesResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_auth_proto_rawDescGZIP(), []int{7}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *ListDevicesResponse) GetDevices() []*Device {
+func (x *ListDevicesResponse) GetDevices() []*v1.Device {
 	if x != nil {
 		return x.Devices
 	}
@@ -447,7 +448,7 @@ type RevokeDeviceRequest struct {
 
 func (x *RevokeDeviceRequest) Reset() {
 	*x = RevokeDeviceRequest{}
-	mi := &file_api_v1_auth_proto_msgTypes[8]
+	mi := &file_auth_v1_auth_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -459,7 +460,7 @@ func (x *RevokeDeviceRequest) String() string {
 func (*RevokeDeviceRequest) ProtoMessage() {}
 
 func (x *RevokeDeviceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_auth_proto_msgTypes[8]
+	mi := &file_auth_v1_auth_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -472,7 +473,7 @@ func (x *RevokeDeviceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeDeviceRequest.ProtoReflect.Descriptor instead.
 func (*RevokeDeviceRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_auth_proto_rawDescGZIP(), []int{8}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RevokeDeviceRequest) GetDeviceId() string {
@@ -482,22 +483,22 @@ func (x *RevokeDeviceRequest) GetDeviceId() string {
 	return ""
 }
 
-var File_api_v1_auth_proto protoreflect.FileDescriptor
+var File_auth_v1_auth_proto protoreflect.FileDescriptor
 
-const file_api_v1_auth_proto_rawDesc = "" +
+const file_auth_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x11api/v1/auth.proto\x12\x06api.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x13api/v1/common.proto\"\xab\x01\n" +
+	"\x12auth/v1/auth.proto\x12\aauth.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"\xae\x01\n" +
 	"\x0fRegisterRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1d\n" +
 	"\n" +
 	"first_name\x18\x03 \x01(\tR\tfirstName\x12\x1b\n" +
-	"\tlast_name\x18\x04 \x01(\tR\blastName\x12*\n" +
-	"\x06device\x18\x05 \x01(\v2\x12.api.v1.DeviceInfoR\x06device\"l\n" +
+	"\tlast_name\x18\x04 \x01(\tR\blastName\x12-\n" +
+	"\x06device\x18\x05 \x01(\v2\x15.common.v1.DeviceInfoR\x06device\"o\n" +
 	"\fLoginRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12*\n" +
-	"\x06device\x18\x03 \x01(\v2\x12.api.v1.DeviceInfoR\x06device\":\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x12-\n" +
+	"\x06device\x18\x03 \x01(\v2\x15.common.v1.DeviceInfoR\x06device\":\n" +
 	"\x13RefreshTokenRequest\x12#\n" +
 	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"*\n" +
 	"\x12VerifyEmailRequest\x12\x14\n" +
@@ -509,80 +510,79 @@ const file_api_v1_auth_proto_rawDesc = "" +
 	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"e\n" +
 	"\x15ChangePasswordRequest\x12)\n" +
 	"\x10current_password\x18\x01 \x01(\tR\x0fcurrentPassword\x12!\n" +
-	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"?\n" +
-	"\x13ListDevicesResponse\x12(\n" +
-	"\adevices\x18\x01 \x03(\v2\x0e.api.v1.DeviceR\adevices\"2\n" +
+	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"B\n" +
+	"\x13ListDevicesResponse\x12+\n" +
+	"\adevices\x18\x01 \x03(\v2\x11.common.v1.DeviceR\adevices\"2\n" +
 	"\x13RevokeDeviceRequest\x12\x1b\n" +
-	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId2\xe8\x05\n" +
-	"\vAuthService\x126\n" +
-	"\bRegister\x12\x17.api.v1.RegisterRequest\x1a\x11.api.v1.TokenPair\x120\n" +
-	"\x05Login\x12\x14.api.v1.LoginRequest\x1a\x11.api.v1.TokenPair\x12>\n" +
-	"\fRefreshToken\x12\x1b.api.v1.RefreshTokenRequest\x1a\x11.api.v1.TokenPair\x128\n" +
-	"\x06Logout\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x12A\n" +
-	"\vVerifyEmail\x12\x1a.api.v1.VerifyEmailRequest\x1a\x16.google.protobuf.Empty\x12D\n" +
-	"\x12ResendVerification\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x12S\n" +
-	"\x14RequestPasswordReset\x12#.api.v1.RequestPasswordResetRequest\x1a\x16.google.protobuf.Empty\x12E\n" +
-	"\rResetPassword\x12\x1c.api.v1.ResetPasswordRequest\x1a\x16.google.protobuf.Empty\x12G\n" +
-	"\x0eChangePassword\x12\x1d.api.v1.ChangePasswordRequest\x1a\x16.google.protobuf.Empty\x12B\n" +
-	"\vListDevices\x12\x16.google.protobuf.Empty\x1a\x1b.api.v1.ListDevicesResponse\x12C\n" +
-	"\fRevokeDevice\x12\x1b.api.v1.RevokeDeviceRequest\x1a\x16.google.protobuf.EmptyB\x83\x01\n" +
-	"\n" +
-	"com.api.v1B\tAuthProtoP\x01Z1github.com/isyll/go-grpc-starter/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
+	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId2\xfa\x05\n" +
+	"\vAuthService\x12:\n" +
+	"\bRegister\x12\x18.auth.v1.RegisterRequest\x1a\x14.common.v1.TokenPair\x124\n" +
+	"\x05Login\x12\x15.auth.v1.LoginRequest\x1a\x14.common.v1.TokenPair\x12B\n" +
+	"\fRefreshToken\x12\x1c.auth.v1.RefreshTokenRequest\x1a\x14.common.v1.TokenPair\x128\n" +
+	"\x06Logout\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x12B\n" +
+	"\vVerifyEmail\x12\x1b.auth.v1.VerifyEmailRequest\x1a\x16.google.protobuf.Empty\x12D\n" +
+	"\x12ResendVerification\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x12T\n" +
+	"\x14RequestPasswordReset\x12$.auth.v1.RequestPasswordResetRequest\x1a\x16.google.protobuf.Empty\x12F\n" +
+	"\rResetPassword\x12\x1d.auth.v1.ResetPasswordRequest\x1a\x16.google.protobuf.Empty\x12H\n" +
+	"\x0eChangePassword\x12\x1e.auth.v1.ChangePasswordRequest\x1a\x16.google.protobuf.Empty\x12C\n" +
+	"\vListDevices\x12\x16.google.protobuf.Empty\x1a\x1c.auth.v1.ListDevicesResponse\x12D\n" +
+	"\fRevokeDevice\x12\x1c.auth.v1.RevokeDeviceRequest\x1a\x16.google.protobuf.EmptyB\x8a\x01\n" +
+	"\vcom.auth.v1B\tAuthProtoP\x01Z3github.com/isyll/go-grpc-starter/gen/auth/v1;authv1\xa2\x02\x03AXX\xaa\x02\aAuth.V1\xca\x02\aAuth\\V1\xe2\x02\x13Auth\\V1\\GPBMetadata\xea\x02\bAuth::V1b\x06proto3"
 
 var (
-	file_api_v1_auth_proto_rawDescOnce sync.Once
-	file_api_v1_auth_proto_rawDescData []byte
+	file_auth_v1_auth_proto_rawDescOnce sync.Once
+	file_auth_v1_auth_proto_rawDescData []byte
 )
 
-func file_api_v1_auth_proto_rawDescGZIP() []byte {
-	file_api_v1_auth_proto_rawDescOnce.Do(func() {
-		file_api_v1_auth_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_v1_auth_proto_rawDesc), len(file_api_v1_auth_proto_rawDesc)))
+func file_auth_v1_auth_proto_rawDescGZIP() []byte {
+	file_auth_v1_auth_proto_rawDescOnce.Do(func() {
+		file_auth_v1_auth_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_auth_v1_auth_proto_rawDesc), len(file_auth_v1_auth_proto_rawDesc)))
 	})
-	return file_api_v1_auth_proto_rawDescData
+	return file_auth_v1_auth_proto_rawDescData
 }
 
-var file_api_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
-var file_api_v1_auth_proto_goTypes = []any{
-	(*RegisterRequest)(nil),             // 0: api.v1.RegisterRequest
-	(*LoginRequest)(nil),                // 1: api.v1.LoginRequest
-	(*RefreshTokenRequest)(nil),         // 2: api.v1.RefreshTokenRequest
-	(*VerifyEmailRequest)(nil),          // 3: api.v1.VerifyEmailRequest
-	(*RequestPasswordResetRequest)(nil), // 4: api.v1.RequestPasswordResetRequest
-	(*ResetPasswordRequest)(nil),        // 5: api.v1.ResetPasswordRequest
-	(*ChangePasswordRequest)(nil),       // 6: api.v1.ChangePasswordRequest
-	(*ListDevicesResponse)(nil),         // 7: api.v1.ListDevicesResponse
-	(*RevokeDeviceRequest)(nil),         // 8: api.v1.RevokeDeviceRequest
-	(*DeviceInfo)(nil),                  // 9: api.v1.DeviceInfo
-	(*Device)(nil),                      // 10: api.v1.Device
+var file_auth_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_auth_v1_auth_proto_goTypes = []any{
+	(*RegisterRequest)(nil),             // 0: auth.v1.RegisterRequest
+	(*LoginRequest)(nil),                // 1: auth.v1.LoginRequest
+	(*RefreshTokenRequest)(nil),         // 2: auth.v1.RefreshTokenRequest
+	(*VerifyEmailRequest)(nil),          // 3: auth.v1.VerifyEmailRequest
+	(*RequestPasswordResetRequest)(nil), // 4: auth.v1.RequestPasswordResetRequest
+	(*ResetPasswordRequest)(nil),        // 5: auth.v1.ResetPasswordRequest
+	(*ChangePasswordRequest)(nil),       // 6: auth.v1.ChangePasswordRequest
+	(*ListDevicesResponse)(nil),         // 7: auth.v1.ListDevicesResponse
+	(*RevokeDeviceRequest)(nil),         // 8: auth.v1.RevokeDeviceRequest
+	(*v1.DeviceInfo)(nil),               // 9: common.v1.DeviceInfo
+	(*v1.Device)(nil),                   // 10: common.v1.Device
 	(*emptypb.Empty)(nil),               // 11: google.protobuf.Empty
-	(*TokenPair)(nil),                   // 12: api.v1.TokenPair
+	(*v1.TokenPair)(nil),                // 12: common.v1.TokenPair
 }
-var file_api_v1_auth_proto_depIdxs = []int32{
-	9,  // 0: api.v1.RegisterRequest.device:type_name -> api.v1.DeviceInfo
-	9,  // 1: api.v1.LoginRequest.device:type_name -> api.v1.DeviceInfo
-	10, // 2: api.v1.ListDevicesResponse.devices:type_name -> api.v1.Device
-	0,  // 3: api.v1.AuthService.Register:input_type -> api.v1.RegisterRequest
-	1,  // 4: api.v1.AuthService.Login:input_type -> api.v1.LoginRequest
-	2,  // 5: api.v1.AuthService.RefreshToken:input_type -> api.v1.RefreshTokenRequest
-	11, // 6: api.v1.AuthService.Logout:input_type -> google.protobuf.Empty
-	3,  // 7: api.v1.AuthService.VerifyEmail:input_type -> api.v1.VerifyEmailRequest
-	11, // 8: api.v1.AuthService.ResendVerification:input_type -> google.protobuf.Empty
-	4,  // 9: api.v1.AuthService.RequestPasswordReset:input_type -> api.v1.RequestPasswordResetRequest
-	5,  // 10: api.v1.AuthService.ResetPassword:input_type -> api.v1.ResetPasswordRequest
-	6,  // 11: api.v1.AuthService.ChangePassword:input_type -> api.v1.ChangePasswordRequest
-	11, // 12: api.v1.AuthService.ListDevices:input_type -> google.protobuf.Empty
-	8,  // 13: api.v1.AuthService.RevokeDevice:input_type -> api.v1.RevokeDeviceRequest
-	12, // 14: api.v1.AuthService.Register:output_type -> api.v1.TokenPair
-	12, // 15: api.v1.AuthService.Login:output_type -> api.v1.TokenPair
-	12, // 16: api.v1.AuthService.RefreshToken:output_type -> api.v1.TokenPair
-	11, // 17: api.v1.AuthService.Logout:output_type -> google.protobuf.Empty
-	11, // 18: api.v1.AuthService.VerifyEmail:output_type -> google.protobuf.Empty
-	11, // 19: api.v1.AuthService.ResendVerification:output_type -> google.protobuf.Empty
-	11, // 20: api.v1.AuthService.RequestPasswordReset:output_type -> google.protobuf.Empty
-	11, // 21: api.v1.AuthService.ResetPassword:output_type -> google.protobuf.Empty
-	11, // 22: api.v1.AuthService.ChangePassword:output_type -> google.protobuf.Empty
-	7,  // 23: api.v1.AuthService.ListDevices:output_type -> api.v1.ListDevicesResponse
-	11, // 24: api.v1.AuthService.RevokeDevice:output_type -> google.protobuf.Empty
+var file_auth_v1_auth_proto_depIdxs = []int32{
+	9,  // 0: auth.v1.RegisterRequest.device:type_name -> common.v1.DeviceInfo
+	9,  // 1: auth.v1.LoginRequest.device:type_name -> common.v1.DeviceInfo
+	10, // 2: auth.v1.ListDevicesResponse.devices:type_name -> common.v1.Device
+	0,  // 3: auth.v1.AuthService.Register:input_type -> auth.v1.RegisterRequest
+	1,  // 4: auth.v1.AuthService.Login:input_type -> auth.v1.LoginRequest
+	2,  // 5: auth.v1.AuthService.RefreshToken:input_type -> auth.v1.RefreshTokenRequest
+	11, // 6: auth.v1.AuthService.Logout:input_type -> google.protobuf.Empty
+	3,  // 7: auth.v1.AuthService.VerifyEmail:input_type -> auth.v1.VerifyEmailRequest
+	11, // 8: auth.v1.AuthService.ResendVerification:input_type -> google.protobuf.Empty
+	4,  // 9: auth.v1.AuthService.RequestPasswordReset:input_type -> auth.v1.RequestPasswordResetRequest
+	5,  // 10: auth.v1.AuthService.ResetPassword:input_type -> auth.v1.ResetPasswordRequest
+	6,  // 11: auth.v1.AuthService.ChangePassword:input_type -> auth.v1.ChangePasswordRequest
+	11, // 12: auth.v1.AuthService.ListDevices:input_type -> google.protobuf.Empty
+	8,  // 13: auth.v1.AuthService.RevokeDevice:input_type -> auth.v1.RevokeDeviceRequest
+	12, // 14: auth.v1.AuthService.Register:output_type -> common.v1.TokenPair
+	12, // 15: auth.v1.AuthService.Login:output_type -> common.v1.TokenPair
+	12, // 16: auth.v1.AuthService.RefreshToken:output_type -> common.v1.TokenPair
+	11, // 17: auth.v1.AuthService.Logout:output_type -> google.protobuf.Empty
+	11, // 18: auth.v1.AuthService.VerifyEmail:output_type -> google.protobuf.Empty
+	11, // 19: auth.v1.AuthService.ResendVerification:output_type -> google.protobuf.Empty
+	11, // 20: auth.v1.AuthService.RequestPasswordReset:output_type -> google.protobuf.Empty
+	11, // 21: auth.v1.AuthService.ResetPassword:output_type -> google.protobuf.Empty
+	11, // 22: auth.v1.AuthService.ChangePassword:output_type -> google.protobuf.Empty
+	7,  // 23: auth.v1.AuthService.ListDevices:output_type -> auth.v1.ListDevicesResponse
+	11, // 24: auth.v1.AuthService.RevokeDevice:output_type -> google.protobuf.Empty
 	14, // [14:25] is the sub-list for method output_type
 	3,  // [3:14] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
@@ -590,27 +590,26 @@ var file_api_v1_auth_proto_depIdxs = []int32{
 	0,  // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_api_v1_auth_proto_init() }
-func file_api_v1_auth_proto_init() {
-	if File_api_v1_auth_proto != nil {
+func init() { file_auth_v1_auth_proto_init() }
+func file_auth_v1_auth_proto_init() {
+	if File_auth_v1_auth_proto != nil {
 		return
 	}
-	file_api_v1_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_auth_proto_rawDesc), len(file_api_v1_auth_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_v1_auth_proto_rawDesc), len(file_auth_v1_auth_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_v1_auth_proto_goTypes,
-		DependencyIndexes: file_api_v1_auth_proto_depIdxs,
-		MessageInfos:      file_api_v1_auth_proto_msgTypes,
+		GoTypes:           file_auth_v1_auth_proto_goTypes,
+		DependencyIndexes: file_auth_v1_auth_proto_depIdxs,
+		MessageInfos:      file_auth_v1_auth_proto_msgTypes,
 	}.Build()
-	File_api_v1_auth_proto = out.File
-	file_api_v1_auth_proto_goTypes = nil
-	file_api_v1_auth_proto_depIdxs = nil
+	File_auth_v1_auth_proto = out.File
+	file_auth_v1_auth_proto_goTypes = nil
+	file_auth_v1_auth_proto_depIdxs = nil
 }

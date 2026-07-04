@@ -2,11 +2,12 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        (unknown)
-// source: api/v1/admin.proto
+// source: admin/v1/admin.proto
 
-package apiv1
+package adminv1
 
 import (
+	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -24,14 +25,14 @@ const (
 
 type ListUsersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          *Page                  `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
+	Page          *v1.Page               `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListUsersRequest) Reset() {
 	*x = ListUsersRequest{}
-	mi := &file_api_v1_admin_proto_msgTypes[0]
+	mi := &file_admin_v1_admin_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +44,7 @@ func (x *ListUsersRequest) String() string {
 func (*ListUsersRequest) ProtoMessage() {}
 
 func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_admin_proto_msgTypes[0]
+	mi := &file_admin_v1_admin_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,10 +57,10 @@ func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersRequest.ProtoReflect.Descriptor instead.
 func (*ListUsersRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_admin_proto_rawDescGZIP(), []int{0}
+	return file_admin_v1_admin_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListUsersRequest) GetPage() *Page {
+func (x *ListUsersRequest) GetPage() *v1.Page {
 	if x != nil {
 		return x.Page
 	}
@@ -68,7 +69,7 @@ func (x *ListUsersRequest) GetPage() *Page {
 
 type ListUsersResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Users         []*User                `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
+	Users         []*v1.User             `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
 	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -76,7 +77,7 @@ type ListUsersResponse struct {
 
 func (x *ListUsersResponse) Reset() {
 	*x = ListUsersResponse{}
-	mi := &file_api_v1_admin_proto_msgTypes[1]
+	mi := &file_admin_v1_admin_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -88,7 +89,7 @@ func (x *ListUsersResponse) String() string {
 func (*ListUsersResponse) ProtoMessage() {}
 
 func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_admin_proto_msgTypes[1]
+	mi := &file_admin_v1_admin_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -101,10 +102,10 @@ func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersResponse.ProtoReflect.Descriptor instead.
 func (*ListUsersResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_admin_proto_rawDescGZIP(), []int{1}
+	return file_admin_v1_admin_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListUsersResponse) GetUsers() []*User {
+func (x *ListUsersResponse) GetUsers() []*v1.User {
 	if x != nil {
 		return x.Users
 	}
@@ -127,7 +128,7 @@ type AdminGetUserRequest struct {
 
 func (x *AdminGetUserRequest) Reset() {
 	*x = AdminGetUserRequest{}
-	mi := &file_api_v1_admin_proto_msgTypes[2]
+	mi := &file_admin_v1_admin_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -139,7 +140,7 @@ func (x *AdminGetUserRequest) String() string {
 func (*AdminGetUserRequest) ProtoMessage() {}
 
 func (x *AdminGetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_admin_proto_msgTypes[2]
+	mi := &file_admin_v1_admin_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -152,7 +153,7 @@ func (x *AdminGetUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminGetUserRequest.ProtoReflect.Descriptor instead.
 func (*AdminGetUserRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_admin_proto_rawDescGZIP(), []int{2}
+	return file_admin_v1_admin_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AdminGetUserRequest) GetId() string {
@@ -176,7 +177,7 @@ type SuspendUserRequest struct {
 
 func (x *SuspendUserRequest) Reset() {
 	*x = SuspendUserRequest{}
-	mi := &file_api_v1_admin_proto_msgTypes[3]
+	mi := &file_admin_v1_admin_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -188,7 +189,7 @@ func (x *SuspendUserRequest) String() string {
 func (*SuspendUserRequest) ProtoMessage() {}
 
 func (x *SuspendUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_admin_proto_msgTypes[3]
+	mi := &file_admin_v1_admin_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -201,7 +202,7 @@ func (x *SuspendUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuspendUserRequest.ProtoReflect.Descriptor instead.
 func (*SuspendUserRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_admin_proto_rawDescGZIP(), []int{3}
+	return file_admin_v1_admin_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SuspendUserRequest) GetId() string {
@@ -248,7 +249,7 @@ type UnsuspendUserRequest struct {
 
 func (x *UnsuspendUserRequest) Reset() {
 	*x = UnsuspendUserRequest{}
-	mi := &file_api_v1_admin_proto_msgTypes[4]
+	mi := &file_admin_v1_admin_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -260,7 +261,7 @@ func (x *UnsuspendUserRequest) String() string {
 func (*UnsuspendUserRequest) ProtoMessage() {}
 
 func (x *UnsuspendUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_admin_proto_msgTypes[4]
+	mi := &file_admin_v1_admin_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -273,7 +274,7 @@ func (x *UnsuspendUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnsuspendUserRequest.ProtoReflect.Descriptor instead.
 func (*UnsuspendUserRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_admin_proto_rawDescGZIP(), []int{4}
+	return file_admin_v1_admin_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UnsuspendUserRequest) GetId() string {
@@ -293,7 +294,7 @@ type SetUserRoleRequest struct {
 
 func (x *SetUserRoleRequest) Reset() {
 	*x = SetUserRoleRequest{}
-	mi := &file_api_v1_admin_proto_msgTypes[5]
+	mi := &file_admin_v1_admin_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -305,7 +306,7 @@ func (x *SetUserRoleRequest) String() string {
 func (*SetUserRoleRequest) ProtoMessage() {}
 
 func (x *SetUserRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_admin_proto_msgTypes[5]
+	mi := &file_admin_v1_admin_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -318,7 +319,7 @@ func (x *SetUserRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetUserRoleRequest.ProtoReflect.Descriptor instead.
 func (*SetUserRoleRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_admin_proto_rawDescGZIP(), []int{5}
+	return file_admin_v1_admin_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *SetUserRoleRequest) GetId() string {
@@ -335,15 +336,15 @@ func (x *SetUserRoleRequest) GetRole() string {
 	return ""
 }
 
-var File_api_v1_admin_proto protoreflect.FileDescriptor
+var File_admin_v1_admin_proto protoreflect.FileDescriptor
 
-const file_api_v1_admin_proto_rawDesc = "" +
+const file_admin_v1_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x12api/v1/admin.proto\x12\x06api.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x13api/v1/common.proto\"4\n" +
-	"\x10ListUsersRequest\x12 \n" +
-	"\x04page\x18\x01 \x01(\v2\f.api.v1.PageR\x04page\"M\n" +
-	"\x11ListUsersResponse\x12\"\n" +
-	"\x05users\x18\x01 \x03(\v2\f.api.v1.UserR\x05users\x12\x14\n" +
+	"\x14admin/v1/admin.proto\x12\badmin.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"7\n" +
+	"\x10ListUsersRequest\x12#\n" +
+	"\x04page\x18\x01 \x01(\v2\x0f.common.v1.PageR\x04page\"P\n" +
+	"\x11ListUsersResponse\x12%\n" +
+	"\x05users\x18\x01 \x03(\v2\x0f.common.v1.UserR\x05users\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"%\n" +
 	"\x13AdminGetUserRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x88\x01\n" +
@@ -357,54 +358,53 @@ const file_api_v1_admin_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"8\n" +
 	"\x12SetUserRoleRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04role\x18\x02 \x01(\tR\x04role2\xd3\x02\n" +
-	"\fAdminService\x12@\n" +
-	"\tListUsers\x12\x18.api.v1.ListUsersRequest\x1a\x19.api.v1.ListUsersResponse\x124\n" +
-	"\aGetUser\x12\x1b.api.v1.AdminGetUserRequest\x1a\f.api.v1.User\x12A\n" +
-	"\vSuspendUser\x12\x1a.api.v1.SuspendUserRequest\x1a\x16.google.protobuf.Empty\x12E\n" +
-	"\rUnsuspendUser\x12\x1c.api.v1.UnsuspendUserRequest\x1a\x16.google.protobuf.Empty\x12A\n" +
-	"\vSetUserRole\x12\x1a.api.v1.SetUserRoleRequest\x1a\x16.google.protobuf.EmptyB\x84\x01\n" +
-	"\n" +
-	"com.api.v1B\n" +
-	"AdminProtoP\x01Z1github.com/isyll/go-grpc-starter/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
+	"\x04role\x18\x02 \x01(\tR\x04role2\xe2\x02\n" +
+	"\fAdminService\x12D\n" +
+	"\tListUsers\x12\x1a.admin.v1.ListUsersRequest\x1a\x1b.admin.v1.ListUsersResponse\x129\n" +
+	"\aGetUser\x12\x1d.admin.v1.AdminGetUserRequest\x1a\x0f.common.v1.User\x12C\n" +
+	"\vSuspendUser\x12\x1c.admin.v1.SuspendUserRequest\x1a\x16.google.protobuf.Empty\x12G\n" +
+	"\rUnsuspendUser\x12\x1e.admin.v1.UnsuspendUserRequest\x1a\x16.google.protobuf.Empty\x12C\n" +
+	"\vSetUserRole\x12\x1c.admin.v1.SetUserRoleRequest\x1a\x16.google.protobuf.EmptyB\x92\x01\n" +
+	"\fcom.admin.v1B\n" +
+	"AdminProtoP\x01Z5github.com/isyll/go-grpc-starter/gen/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
-	file_api_v1_admin_proto_rawDescOnce sync.Once
-	file_api_v1_admin_proto_rawDescData []byte
+	file_admin_v1_admin_proto_rawDescOnce sync.Once
+	file_admin_v1_admin_proto_rawDescData []byte
 )
 
-func file_api_v1_admin_proto_rawDescGZIP() []byte {
-	file_api_v1_admin_proto_rawDescOnce.Do(func() {
-		file_api_v1_admin_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_v1_admin_proto_rawDesc), len(file_api_v1_admin_proto_rawDesc)))
+func file_admin_v1_admin_proto_rawDescGZIP() []byte {
+	file_admin_v1_admin_proto_rawDescOnce.Do(func() {
+		file_admin_v1_admin_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_admin_v1_admin_proto_rawDesc), len(file_admin_v1_admin_proto_rawDesc)))
 	})
-	return file_api_v1_admin_proto_rawDescData
+	return file_admin_v1_admin_proto_rawDescData
 }
 
-var file_api_v1_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_api_v1_admin_proto_goTypes = []any{
-	(*ListUsersRequest)(nil),     // 0: api.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),    // 1: api.v1.ListUsersResponse
-	(*AdminGetUserRequest)(nil),  // 2: api.v1.AdminGetUserRequest
-	(*SuspendUserRequest)(nil),   // 3: api.v1.SuspendUserRequest
-	(*UnsuspendUserRequest)(nil), // 4: api.v1.UnsuspendUserRequest
-	(*SetUserRoleRequest)(nil),   // 5: api.v1.SetUserRoleRequest
-	(*Page)(nil),                 // 6: api.v1.Page
-	(*User)(nil),                 // 7: api.v1.User
+var file_admin_v1_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_admin_v1_admin_proto_goTypes = []any{
+	(*ListUsersRequest)(nil),     // 0: admin.v1.ListUsersRequest
+	(*ListUsersResponse)(nil),    // 1: admin.v1.ListUsersResponse
+	(*AdminGetUserRequest)(nil),  // 2: admin.v1.AdminGetUserRequest
+	(*SuspendUserRequest)(nil),   // 3: admin.v1.SuspendUserRequest
+	(*UnsuspendUserRequest)(nil), // 4: admin.v1.UnsuspendUserRequest
+	(*SetUserRoleRequest)(nil),   // 5: admin.v1.SetUserRoleRequest
+	(*v1.Page)(nil),              // 6: common.v1.Page
+	(*v1.User)(nil),              // 7: common.v1.User
 	(*emptypb.Empty)(nil),        // 8: google.protobuf.Empty
 }
-var file_api_v1_admin_proto_depIdxs = []int32{
-	6, // 0: api.v1.ListUsersRequest.page:type_name -> api.v1.Page
-	7, // 1: api.v1.ListUsersResponse.users:type_name -> api.v1.User
-	0, // 2: api.v1.AdminService.ListUsers:input_type -> api.v1.ListUsersRequest
-	2, // 3: api.v1.AdminService.GetUser:input_type -> api.v1.AdminGetUserRequest
-	3, // 4: api.v1.AdminService.SuspendUser:input_type -> api.v1.SuspendUserRequest
-	4, // 5: api.v1.AdminService.UnsuspendUser:input_type -> api.v1.UnsuspendUserRequest
-	5, // 6: api.v1.AdminService.SetUserRole:input_type -> api.v1.SetUserRoleRequest
-	1, // 7: api.v1.AdminService.ListUsers:output_type -> api.v1.ListUsersResponse
-	7, // 8: api.v1.AdminService.GetUser:output_type -> api.v1.User
-	8, // 9: api.v1.AdminService.SuspendUser:output_type -> google.protobuf.Empty
-	8, // 10: api.v1.AdminService.UnsuspendUser:output_type -> google.protobuf.Empty
-	8, // 11: api.v1.AdminService.SetUserRole:output_type -> google.protobuf.Empty
+var file_admin_v1_admin_proto_depIdxs = []int32{
+	6, // 0: admin.v1.ListUsersRequest.page:type_name -> common.v1.Page
+	7, // 1: admin.v1.ListUsersResponse.users:type_name -> common.v1.User
+	0, // 2: admin.v1.AdminService.ListUsers:input_type -> admin.v1.ListUsersRequest
+	2, // 3: admin.v1.AdminService.GetUser:input_type -> admin.v1.AdminGetUserRequest
+	3, // 4: admin.v1.AdminService.SuspendUser:input_type -> admin.v1.SuspendUserRequest
+	4, // 5: admin.v1.AdminService.UnsuspendUser:input_type -> admin.v1.UnsuspendUserRequest
+	5, // 6: admin.v1.AdminService.SetUserRole:input_type -> admin.v1.SetUserRoleRequest
+	1, // 7: admin.v1.AdminService.ListUsers:output_type -> admin.v1.ListUsersResponse
+	7, // 8: admin.v1.AdminService.GetUser:output_type -> common.v1.User
+	8, // 9: admin.v1.AdminService.SuspendUser:output_type -> google.protobuf.Empty
+	8, // 10: admin.v1.AdminService.UnsuspendUser:output_type -> google.protobuf.Empty
+	8, // 11: admin.v1.AdminService.SetUserRole:output_type -> google.protobuf.Empty
 	7, // [7:12] is the sub-list for method output_type
 	2, // [2:7] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -412,27 +412,26 @@ var file_api_v1_admin_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_api_v1_admin_proto_init() }
-func file_api_v1_admin_proto_init() {
-	if File_api_v1_admin_proto != nil {
+func init() { file_admin_v1_admin_proto_init() }
+func file_admin_v1_admin_proto_init() {
+	if File_admin_v1_admin_proto != nil {
 		return
 	}
-	file_api_v1_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_admin_proto_rawDesc), len(file_api_v1_admin_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admin_v1_admin_proto_rawDesc), len(file_admin_v1_admin_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_v1_admin_proto_goTypes,
-		DependencyIndexes: file_api_v1_admin_proto_depIdxs,
-		MessageInfos:      file_api_v1_admin_proto_msgTypes,
+		GoTypes:           file_admin_v1_admin_proto_goTypes,
+		DependencyIndexes: file_admin_v1_admin_proto_depIdxs,
+		MessageInfos:      file_admin_v1_admin_proto_msgTypes,
 	}.Build()
-	File_api_v1_admin_proto = out.File
-	file_api_v1_admin_proto_goTypes = nil
-	file_api_v1_admin_proto_depIdxs = nil
+	File_admin_v1_admin_proto = out.File
+	file_admin_v1_admin_proto_goTypes = nil
+	file_admin_v1_admin_proto_depIdxs = nil
 }

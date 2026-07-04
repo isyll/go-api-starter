@@ -2,12 +2,13 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: api/v1/admin.proto
+// source: admin/v1/admin.proto
 
-package apiv1
+package adminv1
 
 import (
 	context "context"
+	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,11 +21,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AdminService_ListUsers_FullMethodName     = "/api.v1.AdminService/ListUsers"
-	AdminService_GetUser_FullMethodName       = "/api.v1.AdminService/GetUser"
-	AdminService_SuspendUser_FullMethodName   = "/api.v1.AdminService/SuspendUser"
-	AdminService_UnsuspendUser_FullMethodName = "/api.v1.AdminService/UnsuspendUser"
-	AdminService_SetUserRole_FullMethodName   = "/api.v1.AdminService/SetUserRole"
+	AdminService_ListUsers_FullMethodName     = "/admin.v1.AdminService/ListUsers"
+	AdminService_GetUser_FullMethodName       = "/admin.v1.AdminService/GetUser"
+	AdminService_SuspendUser_FullMethodName   = "/admin.v1.AdminService/SuspendUser"
+	AdminService_UnsuspendUser_FullMethodName = "/admin.v1.AdminService/UnsuspendUser"
+	AdminService_SetUserRole_FullMethodName   = "/admin.v1.AdminService/SetUserRole"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -35,7 +36,7 @@ const (
 // moderation.
 type AdminServiceClient interface {
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
-	GetUser(ctx context.Context, in *AdminGetUserRequest, opts ...grpc.CallOption) (*User, error)
+	GetUser(ctx context.Context, in *AdminGetUserRequest, opts ...grpc.CallOption) (*v1.User, error)
 	SuspendUser(ctx context.Context, in *SuspendUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UnsuspendUser(ctx context.Context, in *UnsuspendUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserRole(ctx context.Context, in *SetUserRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -59,9 +60,9 @@ func (c *adminServiceClient) ListUsers(ctx context.Context, in *ListUsersRequest
 	return out, nil
 }
 
-func (c *adminServiceClient) GetUser(ctx context.Context, in *AdminGetUserRequest, opts ...grpc.CallOption) (*User, error) {
+func (c *adminServiceClient) GetUser(ctx context.Context, in *AdminGetUserRequest, opts ...grpc.CallOption) (*v1.User, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(User)
+	out := new(v1.User)
 	err := c.cc.Invoke(ctx, AdminService_GetUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -107,7 +108,7 @@ func (c *adminServiceClient) SetUserRole(ctx context.Context, in *SetUserRoleReq
 // moderation.
 type AdminServiceServer interface {
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
-	GetUser(context.Context, *AdminGetUserRequest) (*User, error)
+	GetUser(context.Context, *AdminGetUserRequest) (*v1.User, error)
 	SuspendUser(context.Context, *SuspendUserRequest) (*emptypb.Empty, error)
 	UnsuspendUser(context.Context, *UnsuspendUserRequest) (*emptypb.Empty, error)
 	SetUserRole(context.Context, *SetUserRoleRequest) (*emptypb.Empty, error)
@@ -124,7 +125,7 @@ type UnimplementedAdminServiceServer struct{}
 func (UnimplementedAdminServiceServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
 }
-func (UnimplementedAdminServiceServer) GetUser(context.Context, *AdminGetUserRequest) (*User, error) {
+func (UnimplementedAdminServiceServer) GetUser(context.Context, *AdminGetUserRequest) (*v1.User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 func (UnimplementedAdminServiceServer) SuspendUser(context.Context, *SuspendUserRequest) (*emptypb.Empty, error) {
@@ -251,7 +252,7 @@ func _AdminService_SetUserRole_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AdminService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.v1.AdminService",
+	ServiceName: "admin.v1.AdminService",
 	HandlerType: (*AdminServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -276,5 +277,5 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/v1/admin.proto",
+	Metadata: "admin/v1/admin.proto",
 }

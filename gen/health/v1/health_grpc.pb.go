@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: api/v1/health.proto
+// source: health/v1/health.proto
 
-package apiv1
+package healthv1
 
 import (
 	context "context"
@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HealthService_Check_FullMethodName = "/api.v1.HealthService/Check"
-	HealthService_Ready_FullMethodName = "/api.v1.HealthService/Ready"
+	HealthService_Check_FullMethodName = "/health.v1.HealthService/Check"
+	HealthService_Ready_FullMethodName = "/health.v1.HealthService/Ready"
 )
 
 // HealthServiceClient is the client API for HealthService service.
@@ -147,7 +147,7 @@ func _HealthService_Ready_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var HealthService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.v1.HealthService",
+	ServiceName: "health.v1.HealthService",
 	HandlerType: (*HealthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -160,5 +160,5 @@ var HealthService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/v1/health.proto",
+	Metadata: "health/v1/health.proto",
 }

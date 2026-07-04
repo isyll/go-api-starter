@@ -3,7 +3,7 @@ package grpcsvc
 import (
 	"context"
 
-	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
+	healthv1 "github.com/isyll/go-grpc-starter/gen/health/v1"
 	"github.com/isyll/go-grpc-starter/internal/store"
 
 	"github.com/redis/go-redis/v9"
@@ -11,7 +11,7 @@ import (
 )
 
 type HealthServer struct {
-	apiv1.UnimplementedHealthServiceServer
+	healthv1.UnimplementedHealthServiceServer
 	store   *store.Store
 	cache   *redis.Client
 	version string
@@ -21,11 +21,11 @@ func NewHealthServer(store *store.Store, cache *redis.Client, version string) *H
 	return &HealthServer{store: store, cache: cache, version: version}
 }
 
-func (s *HealthServer) Check(_ context.Context, _ *emptypb.Empty) (*apiv1.HealthResponse, error) {
-	return &apiv1.HealthResponse{Status: "ok", Version: s.version}, nil
+func (s *HealthServer) Check(_ context.Context, _ *emptypb.Empty) (*healthv1.HealthResponse, error) {
+	return &healthv1.HealthResponse{Status: "ok", Version: s.version}, nil
 }
 
-func (s *HealthServer) Ready(ctx context.Context, _ *emptypb.Empty) (*apiv1.HealthResponse, error) {
+func (s *HealthServer) Ready(ctx context.Context, _ *emptypb.Empty) (*healthv1.HealthResponse, error) {
 	checks := map[string]string{"database": "ok", "cache": "ok"}
 	status := "ok"
 
@@ -37,5 +37,5 @@ func (s *HealthServer) Ready(ctx context.Context, _ *emptypb.Empty) (*apiv1.Heal
 		checks["cache"] = "down"
 		status = "degraded"
 	}
-	return &apiv1.HealthResponse{Status: status, Version: s.version, Checks: checks}, nil
+	return &healthv1.HealthResponse{Status: status, Version: s.version, Checks: checks}, nil
 }
