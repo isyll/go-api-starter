@@ -13,7 +13,7 @@
     "**/buf.yaml": "yaml",
     "**/buf.gen.yaml": "yaml"
   },
-  "search.exclude": { "internal/gen/**": true },
+  "search.exclude": { "gen/**": true },
   "yaml.schemas": {},
   "cSpell.enabled": false
 }
