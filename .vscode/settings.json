@@ -8,7 +8,11 @@
     "editor.codeActionsOnSave": { "source.organizeImports": "explicit" }
   },
   "gopls": { "ui.semanticTokens": true },
-  "files.associations": { "*.proto": "proto3", "*.sqlfluffignore": "ignore" },
+  "files.associations": {
+    "*.proto": "proto3",
+    "*.sqlfluffignore": "ignore",
+    "*.yaml": "yaml"
+  },
   "search.exclude": { "internal/gen/**": true },
   "yaml.schemas": {},
   "cSpell.enabled": false
