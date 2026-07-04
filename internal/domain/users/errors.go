@@ -1,11 +1,11 @@
 package users
 
 import (
-	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
-	"github.com/isyll/go-grpc-starter/internal/errors/codes"
+	"github.com/isyll/go-grpc-starter/internal/errs"
+	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 )
 
 var (
-	ErrUserNotFound  = apperrors.ErrUserNotFound
-	ErrInvalidUserID = apperrors.BadRequest(codes.InvalidUserID, "user.invalid_id")
+	ErrUserNotFound  = errs.ErrUserNotFound
+	ErrInvalidUserID = errs.BadRequest(codes.InvalidUserID, "user.invalid_id")
 )

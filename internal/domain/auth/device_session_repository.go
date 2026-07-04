@@ -10,7 +10,7 @@ import (
 
 	"github.com/isyll/go-grpc-starter/gen/db"
 	"github.com/isyll/go-grpc-starter/internal/domain/users"
-	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
+	"github.com/isyll/go-grpc-starter/internal/errs"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
@@ -107,7 +107,7 @@ func (r *deviceSessionRepository) FindByID(ctx context.Context, id int64) (*Devi
 		row, err := q.GetDeviceSessionByID(ctx, id)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				return apperrors.ErrSessionNotFound
+				return errs.ErrSessionNotFound
 			}
 			return fmt.Errorf("get session %d: %w", id, err)
 		}
@@ -158,7 +158,7 @@ func (r *deviceSessionRepository) Revoke(
 		})
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				return apperrors.ErrSessionNotFound
+				return errs.ErrSessionNotFound
 			}
 			return fmt.Errorf("revoke session %d: %w", id, err)
 		}

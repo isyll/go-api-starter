@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
+	"github.com/isyll/go-grpc-starter/internal/errs"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
@@ -77,7 +77,7 @@ func (r *repository) FindByID(ctx context.Context, id int64) (*User, error) {
 		row, err := q.GetUserByID(ctx, id)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				return apperrors.ErrUserNotFound
+				return errs.ErrUserNotFound
 			}
 			return fmt.Errorf("find user %d: %w", id, err)
 		}
@@ -93,7 +93,7 @@ func (r *repository) FindByEmail(ctx context.Context, email string) (*User, erro
 		row, err := q.GetUserByEmail(ctx, email)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				return apperrors.ErrUserNotFound
+				return errs.ErrUserNotFound
 			}
 			return fmt.Errorf("find user by email: %w", err)
 		}
@@ -145,7 +145,7 @@ func (r *repository) UpdateProfile(
 		})
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				return apperrors.ErrUserNotFound
+				return errs.ErrUserNotFound
 			}
 			return fmt.Errorf("update profile: %w", err)
 		}

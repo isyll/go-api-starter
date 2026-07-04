@@ -5,11 +5,11 @@ import (
 	"errors"
 	"time"
 
-	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
-	"github.com/isyll/go-grpc-starter/internal/errors/codes"
+	"github.com/isyll/go-grpc-starter/internal/errs"
+	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 )
 
-var ErrUntilRequired = apperrors.BadRequest(codes.InvalidParam, "suspension.until_required")
+var ErrUntilRequired = errs.BadRequest(codes.InvalidParam, "suspension.until_required")
 
 type Service struct {
 	repo Repository

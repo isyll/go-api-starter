@@ -1,6 +1,6 @@
-package apperrors
+package errs
 
-import "github.com/isyll/go-grpc-starter/internal/errors/codes"
+import "github.com/isyll/go-grpc-starter/internal/errs/codes"
 
 var (
 	ErrInvalidID = BadRequest(codes.InvalidID, "common.invalid_id")

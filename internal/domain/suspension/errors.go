@@ -1,11 +1,11 @@
 package suspension
 
 import (
-	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
-	"github.com/isyll/go-grpc-starter/internal/errors/codes"
+	"github.com/isyll/go-grpc-starter/internal/errs"
+	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 )
 
-var ErrNotSuspended = apperrors.NotFound(
+var ErrNotSuspended = errs.NotFound(
 	codes.SuspensionNotFound,
 	"user.suspension.not_suspended",
 )
