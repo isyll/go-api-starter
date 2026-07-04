@@ -34,10 +34,58 @@ var publicMethods = map[string]bool{
 const adminServicePrefix = "/api.v1.AdminService/"
 
 type interceptors struct {
-	tokens   apptoken.AccessTokenManager
-	sessions auth.DeviceSessionRepository
-	cfg      *config.Configs
-	logger   *logger.Logger
+	tokens        apptoken.AccessTokenManager
+	sessions      auth.DeviceSessionRepository
+	cfg           *config.Configs
+	logger        *logger.Logger
+	locale        translator
+	localeDefLang string
+}
+
+// errorUnary is the single error-mapping interceptor: it turns domain errors
+// returned by any handler into a localized gRPC status with rich details.
+func (i *interceptors) errorUnary(
+	ctx context.Context,
+	req any,
+	_ *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (any, error) {
+	resp, err := handler(ctx, req)
+	if err != nil {
+		return resp, mapError(ctx, err, i.locale)
+	}
+	return resp, nil
+}
+
+// localeUnary resolves the request language from metadata (accept-language
+// style) once and stores it in the context for the error mapper and handlers.
+func (i *interceptors) localeUnary(
+	ctx context.Context,
+	req any,
+	_ *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (any, error) {
+	return handler(reqctx.WithLanguage(ctx, i.resolveLanguage(ctx)), req)
+}
+
+func (i *interceptors) resolveLanguage(ctx context.Context) string {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		for _, key := range []string{"accept-language", "lang"} {
+			if v := md.Get(key); len(v) > 0 && v[0] != "" {
+				return parseAcceptLanguage(v[0])
+			}
+		}
+	}
+	return i.localeDefLang
+}
+
+// parseAcceptLanguage takes the highest-priority tag from an Accept-Language
+// value ("fr-CA,fr;q=0.9,en;q=0.8" -> "fr").
+func parseAcceptLanguage(v string) string {
+	first, _, _ := strings.Cut(v, ",")
+	first, _, _ = strings.Cut(first, ";")
+	first, _, _ = strings.Cut(strings.TrimSpace(first), "-")
+	return strings.ToLower(first)
 }
 
 func (i *interceptors) authUnary(

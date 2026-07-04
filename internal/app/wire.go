@@ -9,6 +9,7 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/domain/suspension"
 	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	grpcserver "github.com/isyll/go-grpc-starter/internal/grpc"
+	"github.com/isyll/go-grpc-starter/pkg/locale"
 )
 
 func (a *App) buildGRPCDeps() grpcserver.Deps {
@@ -27,6 +28,11 @@ func (a *App) buildGRPCDeps() grpcserver.Deps {
 		webURL = "http://localhost:3000"
 	}
 	sender := newEmailSender(infra.Emails, webURL)
+
+	localeBundle, err := locale.New(infra.Config.App)
+	if err != nil {
+		infra.Logger.Warn("i18n disabled (untranslated error keys)", "error", err)
+	}
 
 	authSvc := auth.NewService(
 		infra.Config,
@@ -50,6 +56,7 @@ func (a *App) buildGRPCDeps() grpcserver.Deps {
 		Config:   infra.Config,
 		Tokens:   infra.AccessTokenManager,
 		Sessions: sessionRepo,
+		Locale:   localeBundle,
 		Auth:     grpcserver.NewAuthServer(authSvc, infra.IDEncoder),
 		User:     grpcserver.NewUserServer(usersSvc, settingsSvc, notifSvc, infra.IDEncoder),
 		Admin:    grpcserver.NewAdminServer(usersSvc, suspensionSvc, infra.EventBus, infra.IDEncoder),

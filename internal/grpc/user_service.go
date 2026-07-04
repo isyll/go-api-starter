@@ -34,7 +34,7 @@ func NewUserServer(
 func (s *UserServer) GetMe(ctx context.Context, _ *emptypb.Empty) (*apiv1.User, error) {
 	u, err := s.users.Get(ctx, currentUserID(ctx))
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoUser(u, s.enc), nil
 }
@@ -47,14 +47,14 @@ func (s *UserServer) UpdateMe(ctx context.Context, req *apiv1.UpdateMeRequest) (
 		Avatar:    req.Avatar,
 	})
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoUser(u, s.enc), nil
 }
 
 func (s *UserServer) DeleteMe(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
 	if err := s.users.DeleteAccount(ctx, currentUserID(ctx)); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -66,7 +66,7 @@ func (s *UserServer) GetUser(ctx context.Context, req *apiv1.GetUserRequest) (*a
 	}
 	u, err := s.users.Get(ctx, id)
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoPublicUser(u, s.enc), nil
 }
@@ -74,14 +74,14 @@ func (s *UserServer) GetUser(ctx context.Context, req *apiv1.GetUserRequest) (*a
 func (s *UserServer) GetSettings(ctx context.Context, _ *emptypb.Empty) (*apiv1.Settings, error) {
 	set, err := s.settings.Get(ctx, currentUserID(ctx))
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoSettings(set), nil
 }
 
 func (s *UserServer) UpdateSettings(ctx context.Context, req *apiv1.Settings) (*apiv1.Settings, error) {
 	if err := s.settings.Update(ctx, currentUserID(ctx), fromProtoSettings(req)); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return req, nil
 }
@@ -94,7 +94,7 @@ func (s *UserServer) RegisterPushToken(ctx context.Context, req *apiv1.RegisterP
 		AppVersion: req.GetAppVersion(),
 	})
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -102,7 +102,7 @@ func (s *UserServer) RegisterPushToken(ctx context.Context, req *apiv1.RegisterP
 func (s *UserServer) GetNotificationPreferences(ctx context.Context, _ *emptypb.Empty) (*apiv1.NotificationPreferences, error) {
 	prefs, err := s.notifs.GetPreferences(ctx, currentUserID(ctx))
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoNotifPrefs(prefs), nil
 }
@@ -120,7 +120,7 @@ func (s *UserServer) UpdateNotificationPreferences(ctx context.Context, req *api
 		Timezone:          &tz,
 	})
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoNotifPrefs(prefs), nil
 }
