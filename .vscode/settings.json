@@ -9,7 +9,6 @@
   },
   "gopls": { "ui.semanticTokens": true },
   "files.associations": {
-    "*.proto": "proto3",
     "*.sqlfluffignore": "ignore",
     "**/buf.yaml": "yaml",
     "**/buf.gen.yaml": "yaml"
