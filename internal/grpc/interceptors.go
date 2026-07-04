@@ -10,9 +10,9 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/pkg/config"
+	idgen "github.com/isyll/go-grpc-starter/pkg/id"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
-	"github.com/isyll/go-grpc-starter/pkg/utils"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -179,7 +179,7 @@ func (i *interceptors) requestIDUnary(
 ) (any, error) {
 	id := incomingRequestID(ctx)
 	if id == "" {
-		id = utils.NewUUIDNoDash()
+		id = idgen.NewUUIDNoDash()
 	}
 	return handler(reqctx.WithRequestID(ctx, id), req)
 }

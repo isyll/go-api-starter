@@ -11,8 +11,8 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/events"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
+	"github.com/isyll/go-grpc-starter/pkg/id"
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
-	"github.com/isyll/go-grpc-starter/pkg/utils"
 )
 
 func (s *Service) RefreshTokens(
@@ -87,7 +87,7 @@ func (s *Service) generateTokenPair(
 	s.refresh.Create(ctx, &RefreshToken{
 		SessionID:   session.ID,
 		TokenHash:   tokenHash,
-		TokenFamily: utils.NewUUIDNoDash(),
+		TokenFamily: id.NewUUIDNoDash(),
 		ExpiresAt:   time.Now().UTC().Add(s.cfg.Security.Auth.OAT.RefreshTokenExpiry),
 	})
 	return &TokenPair{

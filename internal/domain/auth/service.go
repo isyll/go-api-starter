@@ -10,9 +10,9 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/events"
 	"github.com/isyll/go-grpc-starter/internal/infra/cache"
 	"github.com/isyll/go-grpc-starter/pkg/config"
+	"github.com/isyll/go-grpc-starter/pkg/id"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
-	"github.com/isyll/go-grpc-starter/pkg/utils"
 )
 
 var (
@@ -165,7 +165,7 @@ func (s *Service) RequestPasswordReset(ctx context.Context, email string) error 
 	if err != nil {
 		return nil
 	}
-	token := utils.NewUUIDNoDash()
+	token := id.NewUUIDNoDash()
 	if err := s.cacheManager.Set(
 		ctx, cache.PasswordResetKey(token), tokenData{UserID: user.ID}, resetTokenTTL,
 	); err != nil {
@@ -219,7 +219,7 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, current, nex
 }
 
 func (s *Service) sendVerification(ctx context.Context, user *users.User) {
-	token := utils.NewUUIDNoDash()
+	token := id.NewUUIDNoDash()
 	if err := s.cacheManager.Set(
 		ctx, cache.VerificationTokenKey(token), tokenData{UserID: user.ID}, verifyTokenTTL,
 	); err != nil {

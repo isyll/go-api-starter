@@ -10,8 +10,8 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 	"github.com/isyll/go-grpc-starter/internal/events"
 	"github.com/isyll/go-grpc-starter/internal/platform/storage"
+	"github.com/isyll/go-grpc-starter/pkg/id"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
-	"github.com/isyll/go-grpc-starter/pkg/utils"
 )
 
 // MaxAvatarBytes bounds an uploaded avatar; the gRPC handler enforces it while
@@ -65,7 +65,7 @@ func (s *Service) UploadAvatar(
 		return "", errs.BadRequest(codes.AvatarTooLarge, "user.avatar_too_large")
 	}
 
-	key := fmt.Sprintf("avatars/%d/%s.%s", userID, utils.NewUUIDNoDash(), ext)
+	key := fmt.Sprintf("avatars/%d/%s.%s", userID, id.NewUUIDNoDash(), ext)
 	if err := s.storage.Put(ctx, key, bytes.NewReader(data), int64(len(data)), contentType); err != nil {
 		s.logger.Error("avatar upload failed", "error", err, "user_id", userID)
 		return "", errs.Internal(codes.UploadFailed, "storage.upload_failed")
