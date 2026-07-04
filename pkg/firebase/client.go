@@ -29,22 +29,6 @@ type Client struct {
 	storageBucket string
 }
 
-func InitFirebase(
-	env string,
-	cfgs *config.Configs,
-	logx *logger.Logger,
-) (*Client, error) {
-	fbConfig, err := config.LoadFirebaseConfig(env)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"failed to load firebase config: %w",
-			err,
-		)
-	}
-
-	return NewClient(fbConfig, logx)
-}
-
 func NewClient(
 	cfg *config.FirebaseConfig,
 	logx *logger.Logger,

@@ -74,7 +74,7 @@ func main() {
 	workers = append(workers, emailworker.NewWorker(redisAddr, redisPassword, emailProc, cfg.Email, logx))
 
 	// Push-notification worker (skipped when FCM is unavailable).
-	if fcmClient := initFCM(env, cfg, logx); fcmClient != nil {
+	if fcmClient := initFCM(cfg, logx); fcmClient != nil {
 		proc := notifworker.NewProcessor(
 			fcmClient,
 			notifworker.NewFCMTokenRepository(st),
@@ -118,8 +118,8 @@ func main() {
 	}
 }
 
-func initFCM(env string, cfg *config.Configs, logx *logger.Logger) *messaging.Client {
-	fb, err := firebase.InitFirebase(env, cfg, logx)
+func initFCM(cfg *config.Configs, logx *logger.Logger) *messaging.Client {
+	fb, err := firebase.NewClient(cfg.Firebase, logx)
 	if err != nil {
 		logx.Warn("push worker disabled: firebase init failed", "error", err)
 		return nil

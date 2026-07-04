@@ -1,14 +1,13 @@
 // Command gateway runs an optional HTTP/JSON reverse proxy in front of the
-// gRPC API using grpc-gateway. It is opt-in and disabled by default: it is not
-// part of `just run` or the default compose services. All routing is derived
-// from the google.api.http annotations in the proto files, so no route is
-// hand-maintained here.
+// gRPC API using grpc-gateway. It is opt-in and off by default: it exits unless
+// gateway.enabled is set, and it is never started by `just run` or the default
+// compose services. All routing is derived from the google.api.http annotations
+// in the proto files, so no route is hand-maintained here.
 package main
 
 import (
 	"context"
 	"errors"
-	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -21,6 +20,7 @@ import (
 	authv1 "github.com/isyll/go-grpc-starter/gen/auth/v1"
 	healthv1 "github.com/isyll/go-grpc-starter/gen/health/v1"
 	userv1 "github.com/isyll/go-grpc-starter/gen/user/v1"
+	"github.com/isyll/go-grpc-starter/pkg/config"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -30,16 +30,32 @@ import (
 type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
 
 func main() {
-	grpcAddr := flag.String("grpc", envOr("GATEWAY_GRPC_ADDR", "localhost:50051"), "upstream gRPC server address")
-	httpAddr := flag.String("http", envOr("GATEWAY_HTTP_ADDR", ":8080"), "HTTP listen address")
-	flag.Parse()
+	config.LoadEnvFile()
 
-	if err := run(*grpcAddr, *httpAddr); err != nil {
+	gw, err := config.LoadConfig[config.GatewayConfig]("configs/gateway.yaml")
+	if err != nil {
+		log.Fatalf("gateway: load config: %v", err)
+	}
+	if !gw.Enabled {
+		log.Print("gateway disabled (set gateway.enabled to run)")
+		return
+	}
+
+	app, err := config.LoadConfig[config.AppConfig]("configs/api.yaml")
+	if err != nil {
+		log.Fatalf("gateway: load server config: %v", err)
+	}
+	upstream := gw.UpstreamAddr
+	if upstream == "" {
+		upstream = "localhost:" + app.Server.Port
+	}
+
+	if err := run(gw.ListenAddr, upstream); err != nil {
 		log.Fatalf("gateway: %v", err)
 	}
 }
 
-func run(grpcAddr, httpAddr string) error {
+func run(listenAddr, upstreamAddr string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -52,12 +68,12 @@ func run(grpcAddr, httpAddr string) error {
 		adminv1.RegisterAdminServiceHandlerFromEndpoint,
 		healthv1.RegisterHealthServiceHandlerFromEndpoint,
 	} {
-		if err := register(ctx, mux, grpcAddr, opts); err != nil {
+		if err := register(ctx, mux, upstreamAddr, opts); err != nil {
 			return err
 		}
 	}
 
-	srv := &http.Server{Addr: httpAddr, Handler: mux, ReadHeaderTimeout: 10 * time.Second}
+	srv := &http.Server{Addr: listenAddr, Handler: mux, ReadHeaderTimeout: 10 * time.Second}
 
 	go func() {
 		<-ctx.Done()
@@ -66,7 +82,7 @@ func run(grpcAddr, httpAddr string) error {
 		_ = srv.Shutdown(shutdownCtx)
 	}()
 
-	log.Printf("gateway listening on %s, proxying to %s", httpAddr, grpcAddr)
+	log.Printf("gateway listening on %s, proxying to %s", listenAddr, upstreamAddr)
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
@@ -83,11 +99,4 @@ func headerMatcher(key string) (string, bool) {
 	default:
 		return runtime.DefaultHeaderMatcher(key)
 	}
-}
-
-func envOr(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
 }

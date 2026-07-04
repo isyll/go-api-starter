@@ -7,11 +7,6 @@ event_deep_links: {}
 worker:
   concurrency: ${NOTIFICATION_WORKER_CONCURRENCY:-10}
   retry_max: ${NOTIFICATION_RETRY_MAX:-3}
-  retry_delay: ${NOTIFICATION_RETRY_DELAY:-30s}
-
-batch:
-  max_size: 500
-  flush_interval: 100ms
 
 quiet_hours:
   check_enabled: ${NOTIFICATION_QUIET_HOURS_ENABLED:-true}

@@ -12,10 +12,12 @@ type EventsConfig struct {
 	} `yaml:"outbox"`
 }
 
-func EventsDefaults() *EventsConfig {
-	c := &EventsConfig{}
-	c.Outbox.Interval = 5 * time.Second
-	c.Outbox.MetricsInterval = 15 * time.Second
-	c.Outbox.DrainOnAPI = false
-	return c
+// applyDefaults fills the outbox intervals when they are left unset.
+func (c *EventsConfig) applyDefaults() {
+	if c.Outbox.Interval == 0 {
+		c.Outbox.Interval = 5 * time.Second
+	}
+	if c.Outbox.MetricsInterval == 0 {
+		c.Outbox.MetricsInterval = 15 * time.Second
+	}
 }

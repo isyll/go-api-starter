@@ -5,7 +5,6 @@ import "time"
 type SecurityConfig struct {
 	Auth struct {
 		MaxInactivityTimeout time.Duration `yaml:"max_inactivity_timeout"`
-		MaxSessionAge        time.Duration `yaml:"max_session_age"`
 		MaxDevicesPerUser    int           `yaml:"max_devices_per_user"`
 
 		OAT struct {

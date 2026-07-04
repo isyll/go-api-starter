@@ -1,7 +1,4 @@
-dev:
-  project_id: ${FIREBASE_PROJECT_ID:-}
-  credentials_file: ${FIREBASE_CREDENTIALS_FILE:-secrets/firebase-dev.json}
-
-prod:
-  project_id: ${FIREBASE_PROJECT_ID:-}
-  credentials_file: ${FIREBASE_CREDENTIALS_FILE:-secrets/firebase-prod.json}
+# Firebase is used for push notifications (FCM). Leave project_id empty to
+# disable; the server and worker start fine without it.
+project_id: ${FIREBASE_PROJECT_ID:-}
+credentials_file: ${FIREBASE_CREDENTIALS_FILE:-secrets/firebase.json}

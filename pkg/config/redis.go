@@ -25,17 +25,8 @@ type RedisConfig struct {
 		WriteTimeout    time.Duration `yaml:"write_timeout"`
 	} `yaml:"redis"`
 	Cache struct {
-		Prefix      string `yaml:"prefix"`
-		UserSession string `yaml:"user_session"`
-		UserProfile string `yaml:"user_profile"`
-		TripSearch  string `yaml:"trip_search"`
-		RateLimit   string `yaml:"rate_limit"`
-		OTP         string `yaml:"otp"`
+		Prefix string `yaml:"prefix"`
 	} `yaml:"cache"`
-	Session struct {
-		KeyPrefix string `yaml:"key_prefix"`
-		Expiry    string `yaml:"expiry"`
-	} `yaml:"session"`
 }
 
 func (r *RedisConfig) Credentials() (addr, password string) {

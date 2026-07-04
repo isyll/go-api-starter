@@ -1,5 +1,4 @@
 email:
-  provider: "resend"
   api_key: ${RESEND_API_KEY}
 
   senders:
@@ -16,7 +15,6 @@ email:
   worker:
     concurrency: ${EMAIL_WORKER_CONCURRENCY:-5}
     retry_max: 3
-    retry_delay: 10s
 
   templates:
     base_path: "./templates/emails"

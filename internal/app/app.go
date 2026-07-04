@@ -78,7 +78,7 @@ func (a *App) Initialize() error {
 	)
 	cacheManager := cache.NewCacheManager(rdb, cfgs.Redis.Cache.Prefix)
 
-	fcm := a.initFCM(envName, cfgs, logx)
+	fcm := a.initFCM(cfgs, logx)
 	objStore := a.initStorage(cfgs, logx)
 	d := buildDispatchers(cfgs, st, logx)
 
@@ -115,8 +115,8 @@ func (a *App) initStorage(cfgs *config.Configs, logx *logger.Logger) storage.Sto
 	return store
 }
 
-func (a *App) initFCM(env string, cfgs *config.Configs, logx *logger.Logger) *messaging.Client {
-	fb, err := firebase.InitFirebase(env, cfgs, logx)
+func (a *App) initFCM(cfgs *config.Configs, logx *logger.Logger) *messaging.Client {
+	fb, err := firebase.NewClient(cfgs.Firebase, logx)
 	if err != nil {
 		logx.Warn("firebase disabled (push notifications off)", "error", err)
 		return nil
