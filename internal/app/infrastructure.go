@@ -7,6 +7,8 @@ import (
 
 	"github.com/isyll/go-grpc-starter/internal/events"
 	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/internal/platform/storage"
+	"github.com/isyll/go-grpc-starter/internal/store"
 	"github.com/isyll/go-grpc-starter/internal/worker/emails"
 	"github.com/isyll/go-grpc-starter/internal/worker/notifications"
 	"github.com/isyll/go-grpc-starter/pkg/config"
@@ -15,13 +17,12 @@ import (
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
 
 	"github.com/redis/go-redis/v9"
-	"gorm.io/gorm"
 )
 
 type Infrastructure struct {
 	StartTime time.Time
 
-	DB     *gorm.DB
+	Store  *store.Store
 	Cache  *redis.Client
 	Config *config.Configs
 	Logger *logger.Logger
@@ -30,6 +31,8 @@ type Infrastructure struct {
 	AccessTokenManager apptoken.AccessTokenManager
 	CacheManager       *cache.CacheManager
 	FCM                *messaging.Client
+
+	Storage storage.Storage
 
 	Notifications notifications.Dispatcher
 	Emails        emails.Dispatcher

@@ -12,10 +12,10 @@ import (
 
 	"firebase.google.com/go/v4/messaging"
 	"github.com/hibiken/asynq"
-	"gorm.io/gorm"
+	"github.com/jackc/pgx/v5"
 
+	domnotif "github.com/isyll/go-grpc-starter/internal/domain/notifications"
 	"github.com/isyll/go-grpc-starter/internal/metrics"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
@@ -107,7 +107,7 @@ func (p *Processor) processNotification(
 
 	template, err := p.templateRepo.FindByEventType(ctx, event.Type)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			p.logger.Warn("No template found for event type",
 				"event_type", event.Type,
 			)
@@ -139,7 +139,7 @@ func (p *Processor) shouldSendNotification(
 ) bool {
 	prefs, err := p.preferencesRepo.FindByUserID(ctx, event.UserID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			p.logger.Debug(
 				"No preferences found for user, sending notification",
 				"user_id",
@@ -172,7 +172,7 @@ func (p *Processor) shouldSendNotification(
 }
 
 func (p *Processor) isCategoryEnabled(
-	prefs *models.NotificationPreferences,
+	prefs *domnotif.NotificationPreferences,
 	category string,
 ) bool {
 	switch category {
@@ -184,7 +184,7 @@ func (p *Processor) isCategoryEnabled(
 }
 
 func (p *Processor) isQuietHours(
-	prefs *models.NotificationPreferences,
+	prefs *domnotif.NotificationPreferences,
 ) bool {
 	if prefs.QuietHoursStart == nil || prefs.QuietHoursEnd == nil {
 		return false
@@ -216,8 +216,8 @@ func (p *Processor) isQuietHours(
 func (p *Processor) sendToToken(
 	ctx context.Context,
 	event *Event,
-	template *models.NotificationTemplate,
-	token *models.FCMToken,
+	template *domnotif.NotificationTemplate,
+	token *domnotif.FCMToken,
 ) *SendResult {
 	msg := p.buildFCMMessage(event, template, token)
 
@@ -262,8 +262,8 @@ func (p *Processor) sendToToken(
 
 func (p *Processor) buildFCMMessage(
 	event *Event,
-	template *models.NotificationTemplate,
-	token *models.FCMToken,
+	template *domnotif.NotificationTemplate,
+	token *domnotif.FCMToken,
 ) *messaging.Message {
 	var title, body string
 	lang := "en"
@@ -339,7 +339,7 @@ func (p *Processor) interpolate(
 }
 
 func (p *Processor) getChannelID(
-	template *models.NotificationTemplate,
+	template *domnotif.NotificationTemplate,
 ) string {
 	if template.AndroidChannelID != nil {
 		return *template.AndroidChannelID
@@ -357,25 +357,25 @@ func (p *Processor) getAPNSPriority(priority string) string {
 func (p *Processor) logNotification(
 	ctx context.Context,
 	event *Event,
-	token *models.FCMToken,
+	token *domnotif.FCMToken,
 	result *SendResult,
 ) error {
 	tokenID := token.ID
 
-	status := models.NotificationStatusSent
+	status := domnotif.NotificationStatusSent
 	var errCode, errMsg *string
 	if !result.Success {
-		status = models.NotificationStatusFailed
+		status = domnotif.NotificationStatusFailed
 		errCode = &result.ErrorCode
 		errMsg = &result.ErrorMessage
 	}
 
-	payload := models.JSONB{
+	payload := domnotif.JSONB{
 		"data":     event.Data,
 		"priority": event.Priority,
 	}
 
-	log := &models.NotificationLog{
+	log := &domnotif.NotificationLog{
 		UserID:       &event.UserID,
 		EventType:    event.Type,
 		EventID:      &result.MessageID,

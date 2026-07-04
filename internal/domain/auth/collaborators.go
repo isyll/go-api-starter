@@ -3,22 +3,23 @@ package auth
 import (
 	"context"
 
-	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/domain/settings"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 )
 
 type UserStore interface {
-	FindByEmail(ctx context.Context, email string) (*models.User, error)
+	FindByEmail(ctx context.Context, email string) (*users.User, error)
 	ExistsByEmail(ctx context.Context, email string) bool
-	Create(ctx context.Context, user *models.User) error
-	FindByID(ctx context.Context, id int64) (*models.User, error)
+	Create(ctx context.Context, user *users.User) error
+	FindByID(ctx context.Context, id int64) (*users.User, error)
 	UpdateLastLogin(ctx context.Context, id int64) error
 	UpdatePasswordHash(ctx context.Context, id int64, hash string) error
 	MarkEmailVerified(ctx context.Context, id int64) error
 }
 
 type SettingsStore interface {
-	Create(ctx context.Context, settings *models.UserSettings) error
-	GetByUserID(ctx context.Context, userID int64) (*models.Settings, error)
+	Create(ctx context.Context, settings *settings.UserSettings) error
+	GetByUserID(ctx context.Context, userID int64) (*settings.Settings, error)
 }
 
 type EmailSender interface {

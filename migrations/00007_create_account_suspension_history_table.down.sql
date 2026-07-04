@@ -10,3 +10,5 @@ DROP TRIGGER IF EXISTS deny_account_suspension_history_update
 ON auth.account_suspension_history;
 
 DROP TABLE IF EXISTS auth.account_suspension_history;
+
+DROP TYPE IF EXISTS auth.change_actor;

@@ -19,6 +19,10 @@ dev:
 proto:
     @buf lint && buf generate
 
+# Generate sqlc code from migrations + queries.
+sqlc:
+    @sqlc generate
+
 # Format Go code.
 fmt:
     @gofmt -w cmd internal pkg
@@ -70,9 +74,9 @@ worker-push:
 worker-events:
     @go run ./cmd/worker/event_dispatcher
 
-# Start postgres + redis (and everything) with docker.
+# Start postgres + redis + minio with docker.
 up:
-    @docker compose up -d postgres redis
+    @docker compose up -d postgres redis minio
 
 # Start the full stack with docker.
 up-all:

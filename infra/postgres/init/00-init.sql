@@ -26,6 +26,11 @@ CREATE SCHEMA IF NOT EXISTS notifications AUTHORIZATION app_owner;
 CREATE SCHEMA IF NOT EXISTS audit AUTHORIZATION app_owner;
 CREATE SCHEMA IF NOT EXISTS events AUTHORIZATION app_owner;
 
+-- Migrations run as app_owner and create shared trigger functions and the
+-- migration-history table in the public schema, which PostgreSQL 15+ no longer
+-- grants to non-owners by default.
+GRANT CREATE ON SCHEMA public TO app_owner;
+
 DO $$
 DECLARE s TEXT;
 BEGIN

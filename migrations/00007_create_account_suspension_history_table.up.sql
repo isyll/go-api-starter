@@ -2,6 +2,16 @@
 -- The trigger fires AFTER UPDATE when any of the mutable suspension
 -- fields (reason, details, suspended_until, is_permanent) change.
 -- A revoked or amended ban leaves a complete audit trail here.
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_type t
+        JOIN pg_namespace n ON t.typnamespace = n.oid
+        WHERE t.typname = 'change_actor' AND n.nspname = 'auth'
+    ) THEN
+        CREATE TYPE auth.change_actor AS ENUM ('admin', 'system');
+    END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS auth.account_suspension_history (
   id BIGSERIAL PRIMARY KEY,
   suspension_id BIGINT NOT NULL

@@ -1,0 +1,8 @@
+# S3-compatible object storage (MinIO in dev). Leave endpoint empty to disable
+# avatar upload; the server starts fine without it.
+endpoint: ${STORAGE_ENDPOINT:-}
+access_key: ${STORAGE_ACCESS_KEY:-minioadmin}
+secret_key: ${STORAGE_SECRET_KEY:-minioadmin}
+bucket: ${STORAGE_BUCKET:-avatars}
+use_ssl: ${STORAGE_USE_SSL:-false}
+public_base_url: ${STORAGE_PUBLIC_BASE_URL:-http://localhost:9000/avatars}

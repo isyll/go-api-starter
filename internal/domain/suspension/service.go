@@ -5,12 +5,11 @@ import (
 	"errors"
 	"time"
 
-	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
-	"github.com/isyll/go-grpc-starter/internal/errors/codes"
-	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/errs"
+	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 )
 
-var ErrUntilRequired = apperrors.BadRequest(codes.InvalidParam, "suspension.until_required")
+var ErrUntilRequired = errs.BadRequest(codes.InvalidParam, "suspension.until_required")
 
 type Service struct {
 	repo Repository
@@ -20,7 +19,7 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) GetActive(ctx context.Context, userID int64) (*models.AccountSuspension, error) {
+func (s *Service) GetActive(ctx context.Context, userID int64) (*AccountSuspension, error) {
 	sus, err := s.repo.GetActiveByUserID(ctx, userID)
 	if errors.Is(err, ErrNotSuspended) {
 		return nil, nil
@@ -30,17 +29,17 @@ func (s *Service) GetActive(ctx context.Context, userID int64) (*models.AccountS
 
 type SuspendInput struct {
 	UserID    int64
-	Reason    models.SuspensionReason
+	Reason    SuspensionReason
 	Details   string
 	Until     *time.Time
 	Permanent bool
 }
 
-func (s *Service) Suspend(ctx context.Context, in SuspendInput) (*models.AccountSuspension, error) {
+func (s *Service) Suspend(ctx context.Context, in SuspendInput) (*AccountSuspension, error) {
 	if !in.Permanent && in.Until == nil {
 		return nil, ErrUntilRequired
 	}
-	row := &models.AccountSuspension{
+	row := &AccountSuspension{
 		UserID:         in.UserID,
 		Reason:         in.Reason,
 		Details:        in.Details,

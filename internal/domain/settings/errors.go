@@ -1,8 +1,8 @@
 package settings
 
 import (
-	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
-	"github.com/isyll/go-grpc-starter/internal/errors/codes"
+	"github.com/isyll/go-grpc-starter/internal/errs"
+	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 )
 
-var ErrSettingsNotFound = apperrors.NotFound(codes.SettingsNotFound, "settings.not_found")
+var ErrSettingsNotFound = errs.NotFound(codes.SettingsNotFound, "settings.not_found")

@@ -8,7 +8,6 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/events"
 	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
@@ -38,7 +37,7 @@ func (s *AdminServer) ListUsers(ctx context.Context, req *apiv1.ListUsersRequest
 	page, size := pageParams(req.GetPage())
 	list, total, err := s.users.List(ctx, (page-1)*size, size)
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	out := make([]*apiv1.User, len(list))
 	for i := range list {
@@ -54,7 +53,7 @@ func (s *AdminServer) GetUser(ctx context.Context, req *apiv1.AdminGetUserReques
 	}
 	u, err := s.users.Get(ctx, id)
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoUser(u, s.enc), nil
 }
@@ -71,15 +70,15 @@ func (s *AdminServer) SuspendUser(ctx context.Context, req *apiv1.SuspendUserReq
 	}
 	if _, err := s.suspension.Suspend(ctx, suspension.SuspendInput{
 		UserID:    id,
-		Reason:    models.SuspensionReason(req.GetReason()),
+		Reason:    suspension.SuspensionReason(req.GetReason()),
 		Details:   req.GetDetails(),
 		Until:     until,
 		Permanent: req.GetPermanent(),
 	}); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
-	if err := s.users.SetStatus(ctx, id, models.UserStatusSuspended); err != nil {
-		return nil, toStatus(err)
+	if err := s.users.SetStatus(ctx, id, users.UserStatusSuspended); err != nil {
+		return nil, err
 	}
 	s.audit(ctx, "user.suspend", req.GetId())
 	return &emptypb.Empty{}, nil
@@ -91,10 +90,10 @@ func (s *AdminServer) UnsuspendUser(ctx context.Context, req *apiv1.UnsuspendUse
 		return nil, status.Error(codes.InvalidArgument, "user.invalid_id")
 	}
 	if err := s.suspension.Unsuspend(ctx, id); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
-	if err := s.users.SetStatus(ctx, id, models.UserStatusActive); err != nil {
-		return nil, toStatus(err)
+	if err := s.users.SetStatus(ctx, id, users.UserStatusActive); err != nil {
+		return nil, err
 	}
 	s.audit(ctx, "user.unsuspend", req.GetId())
 	return &emptypb.Empty{}, nil
@@ -105,8 +104,8 @@ func (s *AdminServer) SetUserRole(ctx context.Context, req *apiv1.SetUserRoleReq
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "user.invalid_id")
 	}
-	if err := s.users.SetRole(ctx, id, models.UserRole(req.GetRole())); err != nil {
-		return nil, toStatus(err)
+	if err := s.users.SetRole(ctx, id, users.UserRole(req.GetRole())); err != nil {
+		return nil, err
 	}
 	s.audit(ctx, "user.set_role", req.GetId())
 	return &emptypb.Empty{}, nil

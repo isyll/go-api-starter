@@ -18,4 +18,14 @@ type SecurityConfig struct {
 		MinLength int    `yaml:"min_length"`
 		Alphabet  string `yaml:"alphabet"`
 	} `yaml:"id_obfuscation"`
+
+	// PasswordHash holds the argon2id cost parameters. Zero values fall back
+	// to sensible defaults in the auth package.
+	PasswordHash struct {
+		Memory      uint32 `yaml:"memory"`
+		Iterations  uint32 `yaml:"iterations"`
+		Parallelism uint8  `yaml:"parallelism"`
+		SaltLength  uint32 `yaml:"salt_length"`
+		KeyLength   uint32 `yaml:"key_length"`
+	} `yaml:"password_hash"`
 }

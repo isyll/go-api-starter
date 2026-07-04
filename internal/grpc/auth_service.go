@@ -31,7 +31,7 @@ func (s *AuthServer) Register(ctx context.Context, req *apiv1.RegisterRequest) (
 		Device:    deviceInfo(ctx, req.GetDevice()),
 	})
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoTokenPair(tokens, s.enc), nil
 }
@@ -43,7 +43,7 @@ func (s *AuthServer) Login(ctx context.Context, req *apiv1.LoginRequest) (*apiv1
 		Device:   deviceInfo(ctx, req.GetDevice()),
 	})
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoTokenPair(tokens, s.enc), nil
 }
@@ -51,7 +51,7 @@ func (s *AuthServer) Login(ctx context.Context, req *apiv1.LoginRequest) (*apiv1
 func (s *AuthServer) RefreshToken(ctx context.Context, req *apiv1.RefreshTokenRequest) (*apiv1.TokenPair, error) {
 	tokens, err := s.svc.RefreshTokens(ctx, req.GetRefreshToken())
 	if err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return toProtoTokenPair(tokens, s.enc), nil
 }
@@ -64,35 +64,35 @@ func (s *AuthServer) Logout(ctx context.Context, _ *emptypb.Empty) (*emptypb.Emp
 
 func (s *AuthServer) VerifyEmail(ctx context.Context, req *apiv1.VerifyEmailRequest) (*emptypb.Empty, error) {
 	if err := s.svc.VerifyEmail(ctx, req.GetToken()); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
 func (s *AuthServer) ResendVerification(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
 	if err := s.svc.ResendVerification(ctx, currentUserID(ctx)); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
 func (s *AuthServer) RequestPasswordReset(ctx context.Context, req *apiv1.RequestPasswordResetRequest) (*emptypb.Empty, error) {
 	if err := s.svc.RequestPasswordReset(ctx, req.GetEmail()); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
 func (s *AuthServer) ResetPassword(ctx context.Context, req *apiv1.ResetPasswordRequest) (*emptypb.Empty, error) {
 	if err := s.svc.ResetPassword(ctx, req.GetToken(), req.GetNewPassword()); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
 func (s *AuthServer) ChangePassword(ctx context.Context, req *apiv1.ChangePasswordRequest) (*emptypb.Empty, error) {
 	if err := s.svc.ChangePassword(ctx, currentUserID(ctx), req.GetCurrentPassword(), req.GetNewPassword()); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -104,7 +104,7 @@ func (s *AuthServer) ListDevices(ctx context.Context, _ *emptypb.Empty) (*apiv1.
 
 func (s *AuthServer) RevokeDevice(ctx context.Context, req *apiv1.RevokeDeviceRequest) (*emptypb.Empty, error) {
 	if err := s.svc.RemoveDevice(ctx, currentUserID(ctx), req.GetDeviceId(), sessionIDFrom(ctx)); err != nil {
-		return nil, toStatus(err)
+		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }

@@ -1,0 +1,19 @@
+version: "2"
+sql:
+  - engine: postgresql
+    schema:
+      - internal/store/sqlc/preamble.sql
+      - migrations/*.up.sql
+    queries: internal/store/query
+    strict_function_checks: false
+    gen:
+      go:
+        package: db
+        out: gen/db
+        sql_package: pgx/v5
+        emit_interface: true
+        emit_pointers_for_null_types: true
+        emit_empty_slices: true
+        overrides:
+          - db_type: citext
+            go_type: string

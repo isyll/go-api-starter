@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/isyll/go-grpc-starter/internal/domain/settings"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/events"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
 	"github.com/isyll/go-grpc-starter/pkg/utils"
@@ -54,7 +55,7 @@ func (s *Service) RefreshTokens(
 	if err != nil {
 		return nil, err
 	}
-	s.refresh.Create(ctx, &models.RefreshToken{
+	s.refresh.Create(ctx, &RefreshToken{
 		SessionID:   session.ID,
 		TokenHash:   newHash,
 		TokenFamily: record.TokenFamily,
@@ -75,15 +76,15 @@ func (s *Service) RefreshTokens(
 
 func (s *Service) generateTokenPair(
 	ctx context.Context,
-	user *models.User,
-	session *models.DeviceSession,
-	settings *models.Settings,
+	user *users.User,
+	session *DeviceSession,
+	settings *settings.Settings,
 ) (*TokenPair, error) {
 	access, rawRefresh, tokenHash, err := s.issueTokenPair(ctx, session)
 	if err != nil {
 		return nil, err
 	}
-	s.refresh.Create(ctx, &models.RefreshToken{
+	s.refresh.Create(ctx, &RefreshToken{
 		SessionID:   session.ID,
 		TokenHash:   tokenHash,
 		TokenFamily: utils.NewUUIDNoDash(),
@@ -100,7 +101,7 @@ func (s *Service) generateTokenPair(
 
 func (s *Service) issueTokenPair(
 	ctx context.Context,
-	session *models.DeviceSession,
+	session *DeviceSession,
 ) (accessToken, rawRefresh, tokenHash string, err error) {
 	accessToken, err = s.atManager.Generate(ctx, session.ID, session.UserID, session.DeviceID)
 	if err != nil {

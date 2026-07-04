@@ -1,32 +1,32 @@
 package notifications
 
 import (
-	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
-	"github.com/isyll/go-grpc-starter/internal/errors/codes"
+	"github.com/isyll/go-grpc-starter/internal/errs"
+	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 )
 
 var (
-	ErrTokenNotFound = apperrors.NotFound(
+	ErrTokenNotFound = errs.NotFound(
 		codes.PushTokenNotFound,
 		"notification.token_not_found",
 	)
-	ErrTokenInactive = apperrors.BadRequest(
+	ErrTokenInactive = errs.BadRequest(
 		codes.PushTokenInactive,
 		"notification.token_inactive",
 	)
-	ErrDeviceMismatch = apperrors.Forbidden(
+	ErrDeviceMismatch = errs.Forbidden(
 		codes.DeviceMismatch,
 		"notification.device_mismatch",
 	)
-	ErrPrefNotFound = apperrors.NotFound(
+	ErrPrefNotFound = errs.NotFound(
 		codes.NotificationPrefsNotFound,
 		"notification.prefs_not_found",
 	)
-	ErrInvalidTimezone = apperrors.BadRequest(
+	ErrInvalidTimezone = errs.BadRequest(
 		codes.InvalidTimezone,
 		"notification.invalid_timezone",
 	)
-	ErrSendFailed = apperrors.Internal(
+	ErrSendFailed = errs.Internal(
 		codes.PushSendFailed,
 		"notification.send_failed",
 	)

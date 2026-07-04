@@ -9,3 +9,11 @@ auth:
 id_obfuscation:
   min_length: 10
   alphabet: "vortexqabcfghijkmnpuwydz986731254s"
+
+# argon2id password hashing cost. Defaults (OWASP-ish) are applied when unset.
+password_hash:
+  memory: ${ARGON2_MEMORY_KIB:-65536}
+  iterations: ${ARGON2_ITERATIONS:-3}
+  parallelism: ${ARGON2_PARALLELISM:-2}
+  salt_length: 16
+  key_length: 32

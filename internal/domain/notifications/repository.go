@@ -4,23 +4,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
-	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/jackc/pgx/v5"
 
-	"gorm.io/gorm"
+	"github.com/isyll/go-grpc-starter/gen/db"
+	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
 type TokenRepository interface {
-	Upsert(ctx context.Context, token *models.FCMToken) error
+	Upsert(ctx context.Context, token *FCMToken) error
 	ListByUserID(
 		ctx context.Context, userID int64,
-	) ([]*models.FCMToken, error)
+	) ([]*FCMToken, error)
 	FindByUserIDAndDeviceID(
 		ctx context.Context,
 		userID int64,
 		deviceID string,
-	) (*models.FCMToken, error)
+	) (*FCMToken, error)
 	DeleteByDeviceID(
 		ctx context.Context, userID int64, deviceID string,
 	) error
@@ -29,145 +29,194 @@ type TokenRepository interface {
 type PreferencesRepository interface {
 	FindByUserID(
 		ctx context.Context, userID int64,
-	) (*models.NotificationPreferences, error)
+	) (*NotificationPreferences, error)
 	Upsert(
 		ctx context.Context,
-		prefs *models.NotificationPreferences,
+		prefs *NotificationPreferences,
 	) error
 	Create(
 		ctx context.Context,
-		prefs *models.NotificationPreferences,
+		prefs *NotificationPreferences,
 	) error
 }
 
-type tokenRepository struct {
-	db *gorm.DB
+func toFCMToken(r db.AuthFcmToken) *FCMToken {
+	return &FCMToken{
+		ID:         r.ID,
+		UserID:     r.UserID,
+		DeviceID:   r.DeviceID,
+		Token:      r.Token,
+		Platform:   NotificationPlatform(r.Platform),
+		AppVersion: store.Str(r.AppVersion),
+		IsActive:   r.IsActive,
+		LastUsedAt: store.TimePtr(r.LastUsedAt),
+		CreatedAt:  store.Time(r.CreatedAt),
+		UpdatedAt:  store.Time(r.UpdatedAt),
+	}
 }
 
-func NewTokenRepository(db *gorm.DB) TokenRepository {
-	return &tokenRepository{db: db}
+func toPreferences(r db.NotificationsNotificationPreference) *NotificationPreferences {
+	return &NotificationPreferences{
+		UserID:            r.UserID,
+		Push:              r.Push,
+		Email:             r.Email,
+		Marketing:         r.Marketing,
+		QuietHoursEnabled: r.QuietHoursEnabled,
+		QuietHoursStart:   store.TimeOfDayStr(r.QuietHoursStart),
+		QuietHoursEnd:     store.TimeOfDayStr(r.QuietHoursEnd),
+		Timezone:          r.Timezone,
+		CreatedAt:         store.Time(r.CreatedAt),
+		UpdatedAt:         store.Time(r.UpdatedAt),
+	}
+}
+
+type tokenRepository struct {
+	store *store.Store
+}
+
+func NewTokenRepository(s *store.Store) TokenRepository {
+	return &tokenRepository{store: s}
 }
 
 func (r *tokenRepository) Upsert(
-	ctx context.Context, token *models.FCMToken,
+	ctx context.Context, token *FCMToken,
 ) error {
-	if err := r.db.WithContext(ctx).
-		Where(
-			"user_id = ? AND device_id = ?",
-			token.UserID, token.DeviceID,
-		).
-		Assign(map[string]any{
-			"token":       token.Token,
-			"platform":    token.Platform,
-			"app_version": token.AppVersion,
-			"is_active":   true,
-			"updated_at":  time.Now().UTC(),
-		}).
-		FirstOrCreate(token).Error; err != nil {
-		panic(fmt.Errorf("upsert FCM token: %w", err))
-	}
-	return nil
+	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
+		row, err := q.UpsertFCMToken(ctx, db.UpsertFCMTokenParams{
+			UserID:     token.UserID,
+			DeviceID:   token.DeviceID,
+			Token:      token.Token,
+			Platform:   db.AuthNotificationPlatform(token.Platform),
+			AppVersion: store.NullStr(token.AppVersion),
+		})
+		if err != nil {
+			return fmt.Errorf("upsert FCM token: %w", err)
+		}
+		*token = *toFCMToken(row)
+		return nil
+	})
 }
 
 func (r *tokenRepository) ListByUserID(
 	ctx context.Context, userID int64,
-) ([]*models.FCMToken, error) {
-	var tokens []*models.FCMToken
-	if err := r.db.WithContext(ctx).
-		Where("user_id = ?", userID).
-		Order("created_at DESC").
-		Find(&tokens).Error; err != nil {
-		panic(fmt.Errorf(
-			"list FCM tokens for user %d: %w", userID, err,
-		))
-	}
-	return tokens, nil
+) ([]*FCMToken, error) {
+	var tokens []*FCMToken
+	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
+		rows, err := q.ListFCMTokensByUserID(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("list FCM tokens for user %d: %w", userID, err)
+		}
+		tokens = make([]*FCMToken, len(rows))
+		for i, row := range rows {
+			tokens[i] = toFCMToken(row)
+		}
+		return nil
+	})
+	return tokens, err
 }
 
 func (r *tokenRepository) FindByUserIDAndDeviceID(
 	ctx context.Context,
 	userID int64,
 	deviceID string,
-) (*models.FCMToken, error) {
-	var token models.FCMToken
-	err := r.db.WithContext(ctx).
-		Where(
-			"user_id = ? AND device_id = ?",
-			userID, deviceID,
-		).
-		First(&token).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrTokenNotFound
+) (*FCMToken, error) {
+	var out *FCMToken
+	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
+		row, err := q.GetFCMTokenByUserAndDevice(ctx, db.GetFCMTokenByUserAndDeviceParams{
+			UserID:   userID,
+			DeviceID: deviceID,
+		})
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return ErrTokenNotFound
+			}
+			return fmt.Errorf("find FCM token: %w", err)
 		}
-		panic(fmt.Errorf("find FCM token: %w", err))
-	}
-	return &token, nil
+		out = toFCMToken(row)
+		return nil
+	})
+	return out, err
 }
 
 func (r *tokenRepository) DeleteByDeviceID(
 	ctx context.Context, userID int64, deviceID string,
 ) error {
-	if err := r.db.WithContext(ctx).
-		Where(
-			"user_id = ? AND device_id = ?",
-			userID, deviceID,
-		).
-		Delete(&models.FCMToken{}).Error; err != nil {
-		panic(fmt.Errorf("delete FCM token: %w", err))
-	}
-	return nil
+	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
+		return q.DeleteFCMTokenByDevice(ctx, db.DeleteFCMTokenByDeviceParams{
+			UserID:   userID,
+			DeviceID: deviceID,
+		})
+	})
 }
 
 type preferencesRepository struct {
-	db *gorm.DB
+	store *store.Store
 }
 
-func NewPreferencesRepository(db *gorm.DB) PreferencesRepository {
-	return &preferencesRepository{db: db}
+func NewPreferencesRepository(s *store.Store) PreferencesRepository {
+	return &preferencesRepository{store: s}
 }
 
 func (r *preferencesRepository) FindByUserID(
 	ctx context.Context, userID int64,
-) (*models.NotificationPreferences, error) {
-	var prefs models.NotificationPreferences
-	err := r.db.WithContext(ctx).
-		Where("user_id = ?", userID).
-		First(&prefs).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrPrefNotFound
+) (*NotificationPreferences, error) {
+	var out *NotificationPreferences
+	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
+		row, err := q.GetNotificationPreferences(ctx, userID)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return ErrPrefNotFound
+			}
+			return fmt.Errorf("find notification preferences: %w", err)
 		}
-		panic(fmt.Errorf(
-			"find notification preferences: %w", err,
-		))
-	}
-	return &prefs, nil
+		out = toPreferences(row)
+		return nil
+	})
+	return out, err
 }
 
 func (r *preferencesRepository) Create(
 	ctx context.Context,
-	prefs *models.NotificationPreferences,
+	prefs *NotificationPreferences,
 ) error {
-	if err := r.db.WithContext(ctx).Create(prefs).Error; err != nil {
-		panic(fmt.Errorf(
-			"create notification preferences: %w", err,
-		))
-	}
-	return nil
+	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
+		row, err := q.CreateNotificationPreferences(ctx, db.CreateNotificationPreferencesParams{
+			UserID:            prefs.UserID,
+			Push:              prefs.Push,
+			Email:             prefs.Email,
+			Marketing:         prefs.Marketing,
+			QuietHoursEnabled: prefs.QuietHoursEnabled,
+			QuietHoursStart:   store.TimeOfDay(prefs.QuietHoursStart),
+			QuietHoursEnd:     store.TimeOfDay(prefs.QuietHoursEnd),
+			Timezone:          prefs.Timezone,
+		})
+		if err != nil {
+			return fmt.Errorf("create notification preferences: %w", err)
+		}
+		*prefs = *toPreferences(row)
+		return nil
+	})
 }
 
 func (r *preferencesRepository) Upsert(
 	ctx context.Context,
-	prefs *models.NotificationPreferences,
+	prefs *NotificationPreferences,
 ) error {
-	if err := r.db.WithContext(ctx).
-		Where("user_id = ?", prefs.UserID).
-		Assign(prefs).
-		FirstOrCreate(prefs).Error; err != nil {
-		panic(fmt.Errorf(
-			"upsert notification preferences: %w", err,
-		))
-	}
-	return nil
+	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
+		row, err := q.UpsertNotificationPreferences(ctx, db.UpsertNotificationPreferencesParams{
+			UserID:            prefs.UserID,
+			Push:              prefs.Push,
+			Email:             prefs.Email,
+			Marketing:         prefs.Marketing,
+			QuietHoursEnabled: prefs.QuietHoursEnabled,
+			QuietHoursStart:   store.TimeOfDay(prefs.QuietHoursStart),
+			QuietHoursEnd:     store.TimeOfDay(prefs.QuietHoursEnd),
+			Timezone:          prefs.Timezone,
+		})
+		if err != nil {
+			return fmt.Errorf("upsert notification preferences: %w", err)
+		}
+		*prefs = *toPreferences(row)
+		return nil
+	})
 }

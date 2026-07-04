@@ -5,9 +5,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/isyll/go-grpc-starter/internal/domain/settings"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/events"
 	"github.com/isyll/go-grpc-starter/internal/infra/cache"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
@@ -30,6 +31,7 @@ type Service struct {
 	refresh      RefreshTokenRepository
 	email        EmailSender
 	bus          *events.Bus
+	hasher       passwordHasher
 }
 
 func NewService(
@@ -44,6 +46,7 @@ func NewService(
 	email EmailSender,
 	bus *events.Bus,
 ) *Service {
+	ph := cfg.Security.PasswordHash
 	return &Service{
 		cfg:          cfg,
 		logger:       logx,
@@ -55,6 +58,9 @@ func NewService(
 		refresh:      refresh,
 		email:        email,
 		bus:          bus,
+		hasher: newPasswordHasher(
+			ph.Memory, ph.Iterations, ph.Parallelism, ph.SaltLength, ph.KeyLength,
+		),
 	}
 }
 
@@ -71,24 +77,24 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (*TokenPair, e
 		return nil, ErrEmailExists
 	}
 
-	hash, err := hashPassword(in.Password)
+	hash, err := s.hasher.hash(in.Password)
 	if err != nil {
 		return nil, err
 	}
-	user := &models.User{
+	user := &users.User{
 		Email:        email,
 		PasswordHash: hash,
 		FirstName:    in.FirstName,
 		LastName:     in.LastName,
-		Status:       models.UserStatusActive,
-		Role:         models.UserRoleUser,
+		Status:       users.UserStatusActive,
+		Role:         users.UserRoleUser,
 	}
 	if err := s.users.Create(ctx, user); err != nil {
 		return nil, err
 	}
 
-	defaults := models.DefaultSettings()
-	if err := s.settings.Create(ctx, &models.UserSettings{
+	defaults := settings.DefaultSettings()
+	if err := s.settings.Create(ctx, &settings.UserSettings{
 		UserID:   user.ID,
 		Settings: defaults,
 	}); err != nil {
@@ -107,7 +113,7 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (*TokenPair, error) 
 		s.recordAttempt(ctx, email, 0, "login", "not_found")
 		return nil, ErrInvalidCredentials
 	}
-	if !checkPassword(user.PasswordHash, in.Password) {
+	if !verifyPassword(user.PasswordHash, in.Password) {
 		s.recordAttempt(ctx, email, user.ID, "login", "wrong_password")
 		return nil, ErrInvalidCredentials
 	}
@@ -180,7 +186,7 @@ func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) 
 	if err != nil || !found {
 		return ErrInvalidResetToken
 	}
-	hash, err := hashPassword(newPassword)
+	hash, err := s.hasher.hash(newPassword)
 	if err != nil {
 		return err
 	}
@@ -199,20 +205,20 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, current, nex
 	if err != nil {
 		return err
 	}
-	if !checkPassword(user.PasswordHash, current) {
+	if !verifyPassword(user.PasswordHash, current) {
 		return ErrIncorrectPassword
 	}
 	if err := validatePassword(next); err != nil {
 		return err
 	}
-	hash, err := hashPassword(next)
+	hash, err := s.hasher.hash(next)
 	if err != nil {
 		return err
 	}
 	return s.users.UpdatePasswordHash(ctx, userID, hash)
 }
 
-func (s *Service) sendVerification(ctx context.Context, user *models.User) {
+func (s *Service) sendVerification(ctx context.Context, user *users.User) {
 	token := utils.NewUUIDNoDash()
 	if err := s.cacheManager.Set(
 		ctx, cache.VerificationTokenKey(token), tokenData{UserID: user.ID}, verifyTokenTTL,

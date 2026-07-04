@@ -1,45 +1,45 @@
 package auth
 
 import (
-	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
-	"github.com/isyll/go-grpc-starter/internal/errors/codes"
+	"github.com/isyll/go-grpc-starter/internal/errs"
+	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 )
 
 var (
-	ErrInvalidCredentials = apperrors.Unauthorized(
+	ErrInvalidCredentials = errs.Unauthorized(
 		codes.InvalidCredentials, "auth.invalid_credentials",
 	)
-	ErrEmailExists = apperrors.Conflict(
+	ErrEmailExists = errs.Conflict(
 		codes.EmailAlreadyExists, "auth.email_exists",
 	)
-	ErrEmailNotVerified = apperrors.Forbidden(
+	ErrEmailNotVerified = errs.Forbidden(
 		codes.EmailNotVerified, "auth.email_not_verified",
 	)
-	ErrAccountInactive = apperrors.Forbidden(
+	ErrAccountInactive = errs.Forbidden(
 		codes.AccountInactive, "auth.account_inactive",
 	)
-	ErrInvalidToken = apperrors.Unauthorized(
+	ErrInvalidToken = errs.Unauthorized(
 		codes.InvalidAuthToken, "auth.invalid_token",
 	)
-	ErrTokenRevoked = apperrors.Unauthorized(
+	ErrTokenRevoked = errs.Unauthorized(
 		codes.AccessTokenRevoked, "auth.token_revoked",
 	)
-	ErrSessionNotFound = apperrors.Unauthorized(
+	ErrSessionNotFound = errs.Unauthorized(
 		codes.SessionNotFound, "auth.session_not_found",
 	)
-	ErrCannotRemoveCurrentDevice = apperrors.BadRequest(
+	ErrCannotRemoveCurrentDevice = errs.BadRequest(
 		codes.CannotRemoveCurrentDevice, "auth.cannot_remove_current_device",
 	)
-	ErrInvalidVerificationToken = apperrors.BadRequest(
+	ErrInvalidVerificationToken = errs.BadRequest(
 		codes.InvalidVerificationToken, "auth.invalid_verification_token",
 	)
-	ErrInvalidResetToken = apperrors.BadRequest(
+	ErrInvalidResetToken = errs.BadRequest(
 		codes.InvalidResetToken, "auth.invalid_reset_token",
 	)
-	ErrIncorrectPassword = apperrors.BadRequest(
+	ErrIncorrectPassword = errs.BadRequest(
 		codes.IncorrectPassword, "auth.incorrect_password",
 	)
-	ErrWeakPassword = apperrors.BadRequest(
+	ErrWeakPassword = errs.BadRequest(
 		codes.WeakPassword, "auth.weak_password",
 	)
 )
