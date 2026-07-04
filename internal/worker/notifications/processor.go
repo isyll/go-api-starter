@@ -14,8 +14,8 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5"
 
-	domnotif "github.com/isyll/go-grpc-starter/internal/domain/notifications"
 	"github.com/isyll/go-grpc-starter/internal/metrics"
+	domnotif "github.com/isyll/go-grpc-starter/internal/notifications"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )

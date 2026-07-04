@@ -3,12 +3,12 @@ package app
 import (
 	"os"
 
-	"github.com/isyll/go-grpc-starter/internal/domain/auth"
-	"github.com/isyll/go-grpc-starter/internal/domain/notifications"
-	"github.com/isyll/go-grpc-starter/internal/domain/settings"
-	"github.com/isyll/go-grpc-starter/internal/domain/suspension"
-	"github.com/isyll/go-grpc-starter/internal/domain/users"
+	"github.com/isyll/go-grpc-starter/internal/auth"
 	grpcserver "github.com/isyll/go-grpc-starter/internal/grpc"
+	"github.com/isyll/go-grpc-starter/internal/notifications"
+	"github.com/isyll/go-grpc-starter/internal/settings"
+	"github.com/isyll/go-grpc-starter/internal/suspension"
+	"github.com/isyll/go-grpc-starter/internal/users"
 	"github.com/isyll/go-grpc-starter/pkg/locale"
 )
 

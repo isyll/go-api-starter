@@ -3,7 +3,7 @@ package grpc
 import (
 	"net"
 
-	"github.com/isyll/go-grpc-starter/internal/domain/auth"
+	"github.com/isyll/go-grpc-starter/internal/auth"
 	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	"github.com/isyll/go-grpc-starter/pkg/locale"

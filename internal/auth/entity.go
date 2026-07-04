@@ -3,7 +3,7 @@ package auth
 import (
 	"time"
 
-	"github.com/isyll/go-grpc-starter/internal/domain/users"
+	"github.com/isyll/go-grpc-starter/internal/users"
 )
 
 // DeviceSession is a per-device authenticated session.

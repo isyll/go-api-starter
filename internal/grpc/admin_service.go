@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/isyll/go-grpc-starter/internal/domain/suspension"
-	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/events"
 	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
+	"github.com/isyll/go-grpc-starter/internal/suspension"
+	"github.com/isyll/go-grpc-starter/internal/users"
 	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
 	"google.golang.org/grpc/codes"

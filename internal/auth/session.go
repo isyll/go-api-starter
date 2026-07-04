@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/isyll/go-grpc-starter/internal/domain/settings"
-	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/internal/settings"
+	"github.com/isyll/go-grpc-starter/internal/users"
 )
 
 func (s *Service) createSessionAndTokens(

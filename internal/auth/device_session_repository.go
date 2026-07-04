@@ -9,9 +9,9 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/errs"
 	"github.com/isyll/go-grpc-starter/internal/store"
+	"github.com/isyll/go-grpc-starter/internal/users"
 )
 
 type DeviceSessionRepository interface {

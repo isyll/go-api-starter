@@ -6,12 +6,12 @@ import (
 	"errors"
 	"io"
 
-	"github.com/isyll/go-grpc-starter/internal/domain/notifications"
-	"github.com/isyll/go-grpc-starter/internal/domain/settings"
-	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/errs"
 	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
+	"github.com/isyll/go-grpc-starter/internal/notifications"
+	"github.com/isyll/go-grpc-starter/internal/settings"
+	"github.com/isyll/go-grpc-starter/internal/users"
 	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
 	"google.golang.org/protobuf/types/known/emptypb"

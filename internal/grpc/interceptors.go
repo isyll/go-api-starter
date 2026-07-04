@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/isyll/go-grpc-starter/internal/auth"
 	"github.com/isyll/go-grpc-starter/internal/authz"
-	"github.com/isyll/go-grpc-starter/internal/domain/auth"
-	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
+	"github.com/isyll/go-grpc-starter/internal/users"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	idgen "github.com/isyll/go-grpc-starter/pkg/id"
 	"github.com/isyll/go-grpc-starter/pkg/logger"

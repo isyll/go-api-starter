@@ -4,7 +4,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/isyll/go-grpc-starter/internal/domain/users"
+	"github.com/isyll/go-grpc-starter/internal/users"
 )
 
 type ctxKey int

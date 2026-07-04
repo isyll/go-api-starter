@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	domnotif "github.com/isyll/go-grpc-starter/internal/domain/notifications"
+	domnotif "github.com/isyll/go-grpc-starter/internal/notifications"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
