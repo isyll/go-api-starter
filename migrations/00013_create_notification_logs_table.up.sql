@@ -3,12 +3,9 @@
 -- their own delivery log. Soft chronology constraints guarantee that
 -- click / dismiss timestamps cannot precede sent_at.
 --
--- Range-partitioned monthly by sent_at and managed by pg_partman.
--- The partition key (sent_at) is part of the composite primary key
--- because PostgreSQL requires the partition key to appear in every
--- unique or primary key constraint on a partitioned table. Future
--- partitions are pre-created by the pg-partman-daily-maintenance
--- cron job registered in infra/postgres/init-schema.sh.
+-- Range-partitioned by sent_at. The partition key is part of the composite
+-- primary key because PostgreSQL requires the partition key to appear in every
+-- unique or primary key constraint on a partitioned table.
 DO $$ BEGIN
     IF NOT EXISTS (
         SELECT 1
@@ -52,16 +49,11 @@ CREATE TABLE IF NOT EXISTS notifications.notification_logs (
   PRIMARY KEY (id, sent_at)
 ) PARTITION BY RANGE (sent_at);
 
--- Register the table with pg_partman. p_premake=3 pre-creates the
--- current month plus the next 3 months as concrete child partitions.
--- A DEFAULT partition is created automatically to catch rows whose
--- sent_at falls outside the managed range.
-SELECT public.create_parent(
-  p_parent_table => 'notifications.notification_logs',
-  p_control => 'sent_at',
-  p_interval => '1 month',
-  p_premake => 3
-);
+-- A DEFAULT partition keeps the table functional on a stock PostgreSQL image.
+-- Introduce pg_partman (or a scheduled job) to roll monthly child partitions in
+-- production; the range-partitioned parent is already in place for it.
+CREATE TABLE IF NOT EXISTS notifications.notification_logs_default
+  PARTITION OF notifications.notification_logs DEFAULT;
 
 -- Indexes propagate from the partitioned parent to every existing
 -- and future child partition (PostgreSQL 13+).

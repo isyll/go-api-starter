@@ -549,6 +549,32 @@ type NotificationsNotificationLog struct {
 	DismissedAt pgtype.Timestamptz
 }
 
+type NotificationsNotificationLogsDefault struct {
+	ID int64
+	// Recipient user. SET NULL on user deletion to preserve historical delivery counts. NULL means a system-wide / broadcast notification.
+	UserID *int64
+	// Type of event that triggered the notification (e.g. user.welcome). Mirrors notification_templates.event_type.
+	EventType string
+	// Unique identifier for the originating domain event, used to deduplicate retries.
+	EventID *string
+	// Reference to the FCM token used to deliver the message. SET NULL on token deletion.
+	FcmTokenID *int64
+	// Delivery outcome: sent → clicked or dismissed (UPDATE allowed by the FCM-callback handler). Failures set status=failed with an error_code.
+	Status NotificationsNotificationStatus
+	// Short error code when status is failed (e.g. fcm/unregistered).
+	ErrorCode *string
+	// Detailed error message when status is failed.
+	ErrorMessage *string
+	// Complete FCM payload that was sent. Indexed with GIN for ad-hoc queries.
+	Payload []byte
+	// Timestamp of the dispatch attempt. Also the range-partition key; included in the composite primary key per PostgreSQL partitioning rules.
+	SentAt pgtype.Timestamptz
+	// Timestamp the user clicked the notification. CHECK enforces >= sent_at.
+	ClickedAt pgtype.Timestamptz
+	// Timestamp the user dismissed the notification. CHECK enforces >= sent_at.
+	DismissedAt pgtype.Timestamptz
+}
+
 type NotificationsNotificationPreference struct {
 	UserID            int64
 	Push              bool

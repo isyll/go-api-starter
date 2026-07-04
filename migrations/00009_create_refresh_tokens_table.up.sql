@@ -89,14 +89,12 @@ USING (
   EXISTS (
     SELECT 1 FROM auth.device_sessions AS ds
     WHERE ds.id = refresh_tokens.session_id
-      AND ds.TRUE
   )
 )
 WITH CHECK (
   EXISTS (
     SELECT 1 FROM auth.device_sessions AS ds
     WHERE ds.id = refresh_tokens.session_id
-      AND ds.TRUE
   )
 );
 
