@@ -31,6 +31,7 @@ type Service struct {
 	refresh      RefreshTokenRepository
 	email        EmailSender
 	bus          *events.Bus
+	hasher       passwordHasher
 }
 
 func NewService(
@@ -45,6 +46,7 @@ func NewService(
 	email EmailSender,
 	bus *events.Bus,
 ) *Service {
+	ph := cfg.Security.PasswordHash
 	return &Service{
 		cfg:          cfg,
 		logger:       logx,
@@ -56,6 +58,9 @@ func NewService(
 		refresh:      refresh,
 		email:        email,
 		bus:          bus,
+		hasher: newPasswordHasher(
+			ph.Memory, ph.Iterations, ph.Parallelism, ph.SaltLength, ph.KeyLength,
+		),
 	}
 }
 
@@ -72,7 +77,7 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (*TokenPair, e
 		return nil, ErrEmailExists
 	}
 
-	hash, err := hashPassword(in.Password)
+	hash, err := s.hasher.hash(in.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +113,7 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (*TokenPair, error) 
 		s.recordAttempt(ctx, email, 0, "login", "not_found")
 		return nil, ErrInvalidCredentials
 	}
-	if !checkPassword(user.PasswordHash, in.Password) {
+	if !verifyPassword(user.PasswordHash, in.Password) {
 		s.recordAttempt(ctx, email, user.ID, "login", "wrong_password")
 		return nil, ErrInvalidCredentials
 	}
@@ -181,7 +186,7 @@ func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) 
 	if err != nil || !found {
 		return ErrInvalidResetToken
 	}
-	hash, err := hashPassword(newPassword)
+	hash, err := s.hasher.hash(newPassword)
 	if err != nil {
 		return err
 	}
@@ -200,13 +205,13 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, current, nex
 	if err != nil {
 		return err
 	}
-	if !checkPassword(user.PasswordHash, current) {
+	if !verifyPassword(user.PasswordHash, current) {
 		return ErrIncorrectPassword
 	}
 	if err := validatePassword(next); err != nil {
 		return err
 	}
-	hash, err := hashPassword(next)
+	hash, err := s.hasher.hash(next)
 	if err != nil {
 		return err
 	}
