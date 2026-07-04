@@ -31,7 +31,7 @@ pull request. Keep all of them green.
 ## Conventions
 
 - The proto contract is the source of truth for the API. Never edit generated
-  code under `internal/gen`; change the `.proto` and run `just proto`.
+  code under `gen`; change the `.proto` and run `just proto`.
 - Add a migration whenever the schema changes.
 - Keep comments short: explain why, not what.
 - Use a clear, imperative commit subject.

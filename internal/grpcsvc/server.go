@@ -3,8 +3,8 @@ package grpcsvc
 import (
 	"net"
 
+	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/auth"
-	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	"github.com/isyll/go-grpc-starter/pkg/locale"
 	"github.com/isyll/go-grpc-starter/pkg/logger"

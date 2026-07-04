@@ -44,7 +44,7 @@ just lint           # golangci-lint
 
 - Services return `*apperrors.HTTPError`; the gRPC error interceptor
   maps them to status codes. Don't build status errors in services.
-- Never edit files under `internal/gen`. Change the `.proto` and run
+- Never edit files under `gen`. Change the `.proto` and run
   `just proto`.
 - New API: add the RPC to a `.proto`, run `just proto`, implement the
   method in `internal/grpc`, and call a domain service.

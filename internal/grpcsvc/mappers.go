@@ -1,8 +1,8 @@
 package grpcsvc
 
 import (
+	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/auth"
-	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/notifications"
 	"github.com/isyll/go-grpc-starter/internal/settings"
 	"github.com/isyll/go-grpc-starter/internal/users"

@@ -3,7 +3,7 @@ package grpcsvc
 import (
 	"context"
 
-	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
+	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/store"
 
 	"github.com/redis/go-redis/v9"

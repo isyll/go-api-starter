@@ -1,7 +1,7 @@
 # gRPC API
 
 The API is defined in `proto/api/v1`. Generated Go code lives in
-`internal/gen` and must not be edited by hand.
+`gen` and must not be edited by hand.
 
 ## Regenerate
 

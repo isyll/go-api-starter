@@ -7,5 +7,5 @@
     "MD041": false // first line need not be a heading
   },
   "globs": ["**/*.md"],
-  "ignores": ["internal/gen/**", "**/node_modules/**"]
+  "ignores": ["gen/**", "**/node_modules/**"]
 }

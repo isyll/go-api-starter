@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/event"
-	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/internal/suspension"
 	"github.com/isyll/go-grpc-starter/internal/users"
