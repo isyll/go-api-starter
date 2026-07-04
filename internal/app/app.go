@@ -15,7 +15,7 @@ import (
 	"github.com/hibiken/asynq"
 
 	"github.com/isyll/go-grpc-starter/internal/events"
-	grpcserver "github.com/isyll/go-grpc-starter/internal/grpc"
+	grpcserver "github.com/isyll/go-grpc-starter/internal/grpcsvc"
 	"github.com/isyll/go-grpc-starter/internal/monitor"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	database "github.com/isyll/go-grpc-starter/internal/platform/db"

@@ -1,5 +1,5 @@
-// Package grpc holds the gRPC server, interceptors, and services.
-package grpc
+// Package grpcsvc holds the gRPC server, interceptors, and services.
+package grpcsvc
 
 import (
 	"context"

@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/isyll/go-grpc-starter/internal/auth"
-	grpcserver "github.com/isyll/go-grpc-starter/internal/grpc"
+	grpcserver "github.com/isyll/go-grpc-starter/internal/grpcsvc"
 	"github.com/isyll/go-grpc-starter/internal/notifications"
 	"github.com/isyll/go-grpc-starter/internal/settings"
 	"github.com/isyll/go-grpc-starter/internal/suspension"

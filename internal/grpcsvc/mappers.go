@@ -1,4 +1,4 @@
-package grpc
+package grpcsvc
 
 import (
 	"github.com/isyll/go-grpc-starter/internal/auth"
