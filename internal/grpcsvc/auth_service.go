@@ -5,6 +5,7 @@ import (
 
 	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/auth"
+	"github.com/isyll/go-grpc-starter/internal/interceptor"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
@@ -58,7 +59,7 @@ func (s *AuthServer) RefreshToken(ctx context.Context, req *apiv1.RefreshTokenRe
 }
 
 func (s *AuthServer) Logout(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
-	token, _ := bearerToken(ctx)
+	token, _ := interceptor.BearerToken(ctx)
 	s.svc.Logout(ctx, reqctx.SubjectFrom(ctx).SessionID, token)
 	return &emptypb.Empty{}, nil
 }

@@ -5,6 +5,7 @@ import (
 
 	apiv1 "github.com/isyll/go-grpc-starter/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/auth"
+	"github.com/isyll/go-grpc-starter/internal/interceptor"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	"github.com/isyll/go-grpc-starter/pkg/locale"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
@@ -34,26 +35,15 @@ type Server struct {
 }
 
 func New(d Deps) *Server {
-	ic := &interceptors{
-		tokens:        d.Tokens,
-		sessions:      d.Sessions,
-		cfg:           d.Config,
-		logger:        d.Logger,
-		localeDefLang: "en",
-	}
-	if d.Locale != nil {
-		ic.locale = d.Locale
-		ic.localeDefLang = d.Locale.DefaultLanguage()
-	}
+	ic := interceptor.New(interceptor.Config{
+		Tokens:   d.Tokens,
+		Sessions: d.Sessions,
+		Cfg:      d.Config,
+		Logger:   d.Logger,
+		Locale:   d.Locale,
+	})
 
-	srv := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		ic.recoveryUnary,
-		ic.loggingUnary,
-		ic.localeUnary,
-		ic.errorUnary,
-		ic.requestIDUnary,
-		ic.authUnary,
-	))
+	srv := grpc.NewServer(grpc.ChainUnaryInterceptor(ic.Unary()...))
 
 	apiv1.RegisterAuthServiceServer(srv, d.Auth)
 	apiv1.RegisterUserServiceServer(srv, d.User)

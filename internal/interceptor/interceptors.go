@@ -1,4 +1,6 @@
-package grpcsvc
+// Package interceptor holds the unary gRPC interceptors: recovery, logging,
+// locale resolution, domain-error mapping, request id, and authentication.
+package interceptor
 
 import (
 	"context"
@@ -10,6 +12,7 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/users"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	idgen "github.com/isyll/go-grpc-starter/pkg/id"
+	"github.com/isyll/go-grpc-starter/pkg/locale"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
 
@@ -18,6 +21,54 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
+
+// Config carries the dependencies the interceptors need.
+type Config struct {
+	Tokens   apptoken.AccessTokenManager
+	Sessions auth.DeviceSessionRepository
+	Cfg      *config.Configs
+	Logger   *logger.Logger
+	Locale   *locale.Bundle
+}
+
+// Set is the configured interceptor chain.
+type Set struct {
+	tokens        apptoken.AccessTokenManager
+	sessions      auth.DeviceSessionRepository
+	cfg           *config.Configs
+	logger        *logger.Logger
+	locale        translator
+	localeDefLang string
+}
+
+// New builds the interceptor set. i18n is optional: without it, error message
+// keys are emitted untranslated.
+func New(c Config) *Set {
+	s := &Set{
+		tokens:        c.Tokens,
+		sessions:      c.Sessions,
+		cfg:           c.Cfg,
+		logger:        c.Logger,
+		localeDefLang: "en",
+	}
+	if c.Locale != nil {
+		s.locale = c.Locale
+		s.localeDefLang = c.Locale.DefaultLanguage()
+	}
+	return s
+}
+
+// Unary returns the interceptor chain in outermost-to-innermost order.
+func (i *Set) Unary() []grpc.UnaryServerInterceptor {
+	return []grpc.UnaryServerInterceptor{
+		i.recoveryUnary,
+		i.loggingUnary,
+		i.localeUnary,
+		i.errorUnary,
+		i.requestIDUnary,
+		i.authUnary,
+	}
+}
 
 var publicMethods = map[string]bool{
 	"/api.v1.HealthService/Check":              true,
@@ -32,18 +83,9 @@ var publicMethods = map[string]bool{
 
 const adminServicePrefix = "/api.v1.AdminService/"
 
-type interceptors struct {
-	tokens        apptoken.AccessTokenManager
-	sessions      auth.DeviceSessionRepository
-	cfg           *config.Configs
-	logger        *logger.Logger
-	locale        translator
-	localeDefLang string
-}
-
 // errorUnary is the single error-mapping interceptor: it turns domain errors
 // returned by any handler into a localized gRPC status with rich details.
-func (i *interceptors) errorUnary(
+func (i *Set) errorUnary(
 	ctx context.Context,
 	req any,
 	_ *grpc.UnaryServerInfo,
@@ -58,7 +100,7 @@ func (i *interceptors) errorUnary(
 
 // localeUnary resolves the request language from metadata (accept-language
 // style) once and stores it in the context for the error mapper and handlers.
-func (i *interceptors) localeUnary(
+func (i *Set) localeUnary(
 	ctx context.Context,
 	req any,
 	_ *grpc.UnaryServerInfo,
@@ -67,7 +109,7 @@ func (i *interceptors) localeUnary(
 	return handler(reqctx.WithLanguage(ctx, i.resolveLanguage(ctx)), req)
 }
 
-func (i *interceptors) resolveLanguage(ctx context.Context) string {
+func (i *Set) resolveLanguage(ctx context.Context) string {
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
 		for _, key := range []string{"accept-language", "lang"} {
 			if v := md.Get(key); len(v) > 0 && v[0] != "" {
@@ -87,7 +129,7 @@ func parseAcceptLanguage(v string) string {
 	return strings.ToLower(first)
 }
 
-func (i *interceptors) authUnary(
+func (i *Set) authUnary(
 	ctx context.Context,
 	req any,
 	info *grpc.UnaryServerInfo,
@@ -115,8 +157,8 @@ func (i *interceptors) authUnary(
 	return handler(ctx, req)
 }
 
-func (i *interceptors) authenticate(ctx context.Context) (*users.User, *auth.DeviceSession, error) {
-	token, err := bearerToken(ctx)
+func (i *Set) authenticate(ctx context.Context) (*users.User, *auth.DeviceSession, error) {
+	token, err := BearerToken(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -137,7 +179,7 @@ func (i *interceptors) authenticate(ctx context.Context) (*users.User, *auth.Dev
 	return &session.User, session, nil
 }
 
-func bearerToken(ctx context.Context) (string, error) {
+func BearerToken(ctx context.Context) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return "", status.Error(codes.Unauthenticated, "auth.missing_metadata")
@@ -153,7 +195,7 @@ func bearerToken(ctx context.Context) (string, error) {
 	return parts[1], nil
 }
 
-func (i *interceptors) recoveryUnary(
+func (i *Set) recoveryUnary(
 	ctx context.Context,
 	req any,
 	info *grpc.UnaryServerInfo,
@@ -168,7 +210,7 @@ func (i *interceptors) recoveryUnary(
 	return handler(ctx, req)
 }
 
-func (i *interceptors) requestIDUnary(
+func (i *Set) requestIDUnary(
 	ctx context.Context,
 	req any,
 	_ *grpc.UnaryServerInfo,
@@ -181,7 +223,7 @@ func (i *interceptors) requestIDUnary(
 	return handler(reqctx.WithRequestID(ctx, id), req)
 }
 
-func (i *interceptors) loggingUnary(
+func (i *Set) loggingUnary(
 	ctx context.Context,
 	req any,
 	info *grpc.UnaryServerInfo,
