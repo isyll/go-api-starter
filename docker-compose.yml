@@ -29,6 +29,23 @@ services:
       timeout: 5s
       retries: 10
 
+  minio:
+    image: minio/minio:latest
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY:-minioadmin}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   migrate:
     build:
       context: .
@@ -53,6 +70,7 @@ services:
     environment:
       DB_HOST: postgres
       REDIS_HOST: redis
+      STORAGE_ENDPOINT: minio:9000
     ports:
       - "${SERVER_PORT:-8080}:8080"
       - "9090:9090"
@@ -60,6 +78,8 @@ services:
       migrate:
         condition: service_completed_successfully
       redis:
+        condition: service_healthy
+      minio:
         condition: service_healthy
 
   event_dispatcher:
@@ -114,3 +134,4 @@ services:
 
 volumes:
   pgdata:
+  miniodata:

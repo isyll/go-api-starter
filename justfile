@@ -74,9 +74,9 @@ worker-push:
 worker-events:
     @go run ./cmd/worker/event_dispatcher
 
-# Start postgres + redis (and everything) with docker.
+# Start postgres + redis + minio with docker.
 up:
-    @docker compose up -d postgres redis
+    @docker compose up -d postgres redis minio
 
 # Start the full stack with docker.
 up-all:

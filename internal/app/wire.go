@@ -46,7 +46,7 @@ func (a *App) buildGRPCDeps() grpcserver.Deps {
 		sender,
 		infra.EventBus,
 	)
-	usersSvc := users.NewService(userRepo, authSvc, infra.EventBus, infra.Logger)
+	usersSvc := users.NewService(userRepo, authSvc, infra.EventBus, infra.Storage, infra.Logger)
 	settingsSvc := settings.NewService(settingsRepo)
 	suspensionSvc := suspension.NewService(suspensionRepo)
 	notifSvc := notifications.NewService(tokenRepo, prefRepo, infra.FCM, infra.Logger)

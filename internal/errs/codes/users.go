@@ -24,4 +24,8 @@ var (
 	InvalidTimezone = register("INVALID_TIMEZONE")
 
 	InvalidTimezoneForCountry = register("INVALID_TIMEZONE_FOR_COUNTRY")
+
+	AvatarInvalidType = register("AVATAR_INVALID_TYPE")
+
+	AvatarTooLarge = register("AVATAR_TOO_LARGE")
 )

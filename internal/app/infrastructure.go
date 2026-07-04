@@ -7,6 +7,7 @@ import (
 
 	"github.com/isyll/go-grpc-starter/internal/events"
 	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/internal/platform/storage"
 	"github.com/isyll/go-grpc-starter/internal/store"
 	"github.com/isyll/go-grpc-starter/internal/worker/emails"
 	"github.com/isyll/go-grpc-starter/internal/worker/notifications"
@@ -30,6 +31,8 @@ type Infrastructure struct {
 	AccessTokenManager apptoken.AccessTokenManager
 	CacheManager       *cache.CacheManager
 	FCM                *messaging.Client
+
+	Storage storage.Storage
 
 	Notifications notifications.Dispatcher
 	Emails        emails.Dispatcher

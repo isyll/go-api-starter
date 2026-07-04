@@ -134,6 +134,132 @@ func (x *GetUserRequest) GetId() string {
 	return ""
 }
 
+type UploadAvatarRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Data:
+	//
+	//	*UploadAvatarRequest_ContentType
+	//	*UploadAvatarRequest_Chunk
+	Data          isUploadAvatarRequest_Data `protobuf_oneof:"data"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadAvatarRequest) Reset() {
+	*x = UploadAvatarRequest{}
+	mi := &file_api_v1_users_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadAvatarRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadAvatarRequest) ProtoMessage() {}
+
+func (x *UploadAvatarRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_users_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadAvatarRequest.ProtoReflect.Descriptor instead.
+func (*UploadAvatarRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_users_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UploadAvatarRequest) GetData() isUploadAvatarRequest_Data {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *UploadAvatarRequest) GetContentType() string {
+	if x != nil {
+		if x, ok := x.Data.(*UploadAvatarRequest_ContentType); ok {
+			return x.ContentType
+		}
+	}
+	return ""
+}
+
+func (x *UploadAvatarRequest) GetChunk() []byte {
+	if x != nil {
+		if x, ok := x.Data.(*UploadAvatarRequest_Chunk); ok {
+			return x.Chunk
+		}
+	}
+	return nil
+}
+
+type isUploadAvatarRequest_Data interface {
+	isUploadAvatarRequest_Data()
+}
+
+type UploadAvatarRequest_ContentType struct {
+	ContentType string `protobuf:"bytes,1,opt,name=content_type,json=contentType,proto3,oneof"`
+}
+
+type UploadAvatarRequest_Chunk struct {
+	Chunk []byte `protobuf:"bytes,2,opt,name=chunk,proto3,oneof"`
+}
+
+func (*UploadAvatarRequest_ContentType) isUploadAvatarRequest_Data() {}
+
+func (*UploadAvatarRequest_Chunk) isUploadAvatarRequest_Data() {}
+
+type UploadAvatarResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AvatarUrl     string                 `protobuf:"bytes,1,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadAvatarResponse) Reset() {
+	*x = UploadAvatarResponse{}
+	mi := &file_api_v1_users_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadAvatarResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadAvatarResponse) ProtoMessage() {}
+
+func (x *UploadAvatarResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_users_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadAvatarResponse.ProtoReflect.Descriptor instead.
+func (*UploadAvatarResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_users_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UploadAvatarResponse) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
+	}
+	return ""
+}
+
 type RegisterPushTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DeviceId      string                 `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
@@ -146,7 +272,7 @@ type RegisterPushTokenRequest struct {
 
 func (x *RegisterPushTokenRequest) Reset() {
 	*x = RegisterPushTokenRequest{}
-	mi := &file_api_v1_users_proto_msgTypes[2]
+	mi := &file_api_v1_users_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -158,7 +284,7 @@ func (x *RegisterPushTokenRequest) String() string {
 func (*RegisterPushTokenRequest) ProtoMessage() {}
 
 func (x *RegisterPushTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_users_proto_msgTypes[2]
+	mi := &file_api_v1_users_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -171,7 +297,7 @@ func (x *RegisterPushTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterPushTokenRequest.ProtoReflect.Descriptor instead.
 func (*RegisterPushTokenRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_users_proto_rawDescGZIP(), []int{2}
+	return file_api_v1_users_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RegisterPushTokenRequest) GetDeviceId() string {
@@ -217,7 +343,7 @@ type NotificationPreferences struct {
 
 func (x *NotificationPreferences) Reset() {
 	*x = NotificationPreferences{}
-	mi := &file_api_v1_users_proto_msgTypes[3]
+	mi := &file_api_v1_users_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -229,7 +355,7 @@ func (x *NotificationPreferences) String() string {
 func (*NotificationPreferences) ProtoMessage() {}
 
 func (x *NotificationPreferences) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_users_proto_msgTypes[3]
+	mi := &file_api_v1_users_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -242,7 +368,7 @@ func (x *NotificationPreferences) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationPreferences.ProtoReflect.Descriptor instead.
 func (*NotificationPreferences) Descriptor() ([]byte, []int) {
-	return file_api_v1_users_proto_rawDescGZIP(), []int{3}
+	return file_api_v1_users_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *NotificationPreferences) GetPush() bool {
@@ -311,7 +437,14 @@ const file_api_v1_users_proto_rawDesc = "" +
 	"\x04_bioB\t\n" +
 	"\a_avatar\" \n" +
 	"\x0eGetUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x8a\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"Z\n" +
+	"\x13UploadAvatarRequest\x12#\n" +
+	"\fcontent_type\x18\x01 \x01(\tH\x00R\vcontentType\x12\x16\n" +
+	"\x05chunk\x18\x02 \x01(\fH\x00R\x05chunkB\x06\n" +
+	"\x04data\"5\n" +
+	"\x14UploadAvatarResponse\x12\x1d\n" +
+	"\n" +
+	"avatar_url\x18\x01 \x01(\tR\tavatarUrl\"\x8a\x01\n" +
 	"\x18RegisterPushTokenRequest\x12\x1b\n" +
 	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId\x12\x14\n" +
 	"\x05token\x18\x02 \x01(\tR\x05token\x12\x1a\n" +
@@ -325,12 +458,13 @@ const file_api_v1_users_proto_rawDesc = "" +
 	"\x13quiet_hours_enabled\x18\x04 \x01(\bR\x11quietHoursEnabled\x12*\n" +
 	"\x11quiet_hours_start\x18\x05 \x01(\tR\x0fquietHoursStart\x12&\n" +
 	"\x0fquiet_hours_end\x18\x06 \x01(\tR\rquietHoursEnd\x12\x1a\n" +
-	"\btimezone\x18\a \x01(\tR\btimezone2\xda\x04\n" +
+	"\btimezone\x18\a \x01(\tR\btimezone2\xa7\x05\n" +
 	"\vUserService\x12-\n" +
 	"\x05GetMe\x12\x16.google.protobuf.Empty\x1a\f.api.v1.User\x121\n" +
 	"\bUpdateMe\x12\x17.api.v1.UpdateMeRequest\x1a\f.api.v1.User\x12:\n" +
 	"\bDeleteMe\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x125\n" +
-	"\aGetUser\x12\x16.api.v1.GetUserRequest\x1a\x12.api.v1.PublicUser\x127\n" +
+	"\aGetUser\x12\x16.api.v1.GetUserRequest\x1a\x12.api.v1.PublicUser\x12K\n" +
+	"\fUploadAvatar\x12\x1b.api.v1.UploadAvatarRequest\x1a\x1c.api.v1.UploadAvatarResponse(\x01\x127\n" +
 	"\vGetSettings\x12\x16.google.protobuf.Empty\x1a\x10.api.v1.Settings\x124\n" +
 	"\x0eUpdateSettings\x12\x10.api.v1.Settings\x1a\x10.api.v1.Settings\x12M\n" +
 	"\x11RegisterPushToken\x12 .api.v1.RegisterPushTokenRequest\x1a\x16.google.protobuf.Empty\x12U\n" +
@@ -352,41 +486,45 @@ func file_api_v1_users_proto_rawDescGZIP() []byte {
 	return file_api_v1_users_proto_rawDescData
 }
 
-var file_api_v1_users_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_api_v1_users_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_api_v1_users_proto_goTypes = []any{
 	(*UpdateMeRequest)(nil),          // 0: api.v1.UpdateMeRequest
 	(*GetUserRequest)(nil),           // 1: api.v1.GetUserRequest
-	(*RegisterPushTokenRequest)(nil), // 2: api.v1.RegisterPushTokenRequest
-	(*NotificationPreferences)(nil),  // 3: api.v1.NotificationPreferences
-	(*emptypb.Empty)(nil),            // 4: google.protobuf.Empty
-	(*Settings)(nil),                 // 5: api.v1.Settings
-	(*User)(nil),                     // 6: api.v1.User
-	(*PublicUser)(nil),               // 7: api.v1.PublicUser
+	(*UploadAvatarRequest)(nil),      // 2: api.v1.UploadAvatarRequest
+	(*UploadAvatarResponse)(nil),     // 3: api.v1.UploadAvatarResponse
+	(*RegisterPushTokenRequest)(nil), // 4: api.v1.RegisterPushTokenRequest
+	(*NotificationPreferences)(nil),  // 5: api.v1.NotificationPreferences
+	(*emptypb.Empty)(nil),            // 6: google.protobuf.Empty
+	(*Settings)(nil),                 // 7: api.v1.Settings
+	(*User)(nil),                     // 8: api.v1.User
+	(*PublicUser)(nil),               // 9: api.v1.PublicUser
 }
 var file_api_v1_users_proto_depIdxs = []int32{
-	4, // 0: api.v1.UserService.GetMe:input_type -> google.protobuf.Empty
-	0, // 1: api.v1.UserService.UpdateMe:input_type -> api.v1.UpdateMeRequest
-	4, // 2: api.v1.UserService.DeleteMe:input_type -> google.protobuf.Empty
-	1, // 3: api.v1.UserService.GetUser:input_type -> api.v1.GetUserRequest
-	4, // 4: api.v1.UserService.GetSettings:input_type -> google.protobuf.Empty
-	5, // 5: api.v1.UserService.UpdateSettings:input_type -> api.v1.Settings
-	2, // 6: api.v1.UserService.RegisterPushToken:input_type -> api.v1.RegisterPushTokenRequest
-	4, // 7: api.v1.UserService.GetNotificationPreferences:input_type -> google.protobuf.Empty
-	3, // 8: api.v1.UserService.UpdateNotificationPreferences:input_type -> api.v1.NotificationPreferences
-	6, // 9: api.v1.UserService.GetMe:output_type -> api.v1.User
-	6, // 10: api.v1.UserService.UpdateMe:output_type -> api.v1.User
-	4, // 11: api.v1.UserService.DeleteMe:output_type -> google.protobuf.Empty
-	7, // 12: api.v1.UserService.GetUser:output_type -> api.v1.PublicUser
-	5, // 13: api.v1.UserService.GetSettings:output_type -> api.v1.Settings
-	5, // 14: api.v1.UserService.UpdateSettings:output_type -> api.v1.Settings
-	4, // 15: api.v1.UserService.RegisterPushToken:output_type -> google.protobuf.Empty
-	3, // 16: api.v1.UserService.GetNotificationPreferences:output_type -> api.v1.NotificationPreferences
-	3, // 17: api.v1.UserService.UpdateNotificationPreferences:output_type -> api.v1.NotificationPreferences
-	9, // [9:18] is the sub-list for method output_type
-	0, // [0:9] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	6,  // 0: api.v1.UserService.GetMe:input_type -> google.protobuf.Empty
+	0,  // 1: api.v1.UserService.UpdateMe:input_type -> api.v1.UpdateMeRequest
+	6,  // 2: api.v1.UserService.DeleteMe:input_type -> google.protobuf.Empty
+	1,  // 3: api.v1.UserService.GetUser:input_type -> api.v1.GetUserRequest
+	2,  // 4: api.v1.UserService.UploadAvatar:input_type -> api.v1.UploadAvatarRequest
+	6,  // 5: api.v1.UserService.GetSettings:input_type -> google.protobuf.Empty
+	7,  // 6: api.v1.UserService.UpdateSettings:input_type -> api.v1.Settings
+	4,  // 7: api.v1.UserService.RegisterPushToken:input_type -> api.v1.RegisterPushTokenRequest
+	6,  // 8: api.v1.UserService.GetNotificationPreferences:input_type -> google.protobuf.Empty
+	5,  // 9: api.v1.UserService.UpdateNotificationPreferences:input_type -> api.v1.NotificationPreferences
+	8,  // 10: api.v1.UserService.GetMe:output_type -> api.v1.User
+	8,  // 11: api.v1.UserService.UpdateMe:output_type -> api.v1.User
+	6,  // 12: api.v1.UserService.DeleteMe:output_type -> google.protobuf.Empty
+	9,  // 13: api.v1.UserService.GetUser:output_type -> api.v1.PublicUser
+	3,  // 14: api.v1.UserService.UploadAvatar:output_type -> api.v1.UploadAvatarResponse
+	7,  // 15: api.v1.UserService.GetSettings:output_type -> api.v1.Settings
+	7,  // 16: api.v1.UserService.UpdateSettings:output_type -> api.v1.Settings
+	6,  // 17: api.v1.UserService.RegisterPushToken:output_type -> google.protobuf.Empty
+	5,  // 18: api.v1.UserService.GetNotificationPreferences:output_type -> api.v1.NotificationPreferences
+	5,  // 19: api.v1.UserService.UpdateNotificationPreferences:output_type -> api.v1.NotificationPreferences
+	10, // [10:20] is the sub-list for method output_type
+	0,  // [0:10] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_users_proto_init() }
@@ -396,13 +534,17 @@ func file_api_v1_users_proto_init() {
 	}
 	file_api_v1_common_proto_init()
 	file_api_v1_users_proto_msgTypes[0].OneofWrappers = []any{}
+	file_api_v1_users_proto_msgTypes[2].OneofWrappers = []any{
+		(*UploadAvatarRequest_ContentType)(nil),
+		(*UploadAvatarRequest_Chunk)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_users_proto_rawDesc), len(file_api_v1_users_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

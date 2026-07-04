@@ -1,16 +1,19 @@
 package grpc
 
 import (
+	"bytes"
 	"context"
+	"errors"
+	"io"
 
 	"github.com/isyll/go-grpc-starter/internal/domain/notifications"
 	"github.com/isyll/go-grpc-starter/internal/domain/settings"
 	"github.com/isyll/go-grpc-starter/internal/domain/users"
+	"github.com/isyll/go-grpc-starter/internal/errs"
+	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -62,13 +65,52 @@ func (s *UserServer) DeleteMe(ctx context.Context, _ *emptypb.Empty) (*emptypb.E
 func (s *UserServer) GetUser(ctx context.Context, req *apiv1.GetUserRequest) (*apiv1.PublicUser, error) {
 	id, err := s.enc.Decode(req.GetId())
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "user.invalid_id")
+		return nil, errs.BadRequest(codes.InvalidUserID, "user.invalid_id")
 	}
 	u, err := s.users.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	return toProtoPublicUser(u, s.enc), nil
+}
+
+func (s *UserServer) UploadAvatar(stream apiv1.UserService_UploadAvatarServer) error {
+	ctx := stream.Context()
+	userID := currentUserID(ctx)
+
+	var (
+		contentType string
+		gotMeta     bool
+		buf         bytes.Buffer
+	)
+	for {
+		req, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		switch data := req.GetData().(type) {
+		case *apiv1.UploadAvatarRequest_ContentType:
+			contentType = data.ContentType
+			gotMeta = true
+		case *apiv1.UploadAvatarRequest_Chunk:
+			if buf.Len()+len(data.Chunk) > users.MaxAvatarBytes {
+				return errs.BadRequest(codes.AvatarTooLarge, "user.avatar_too_large")
+			}
+			buf.Write(data.Chunk)
+		}
+	}
+	if !gotMeta {
+		return errs.BadRequest(codes.InvalidPayload, "user.avatar_missing_content_type")
+	}
+
+	url, err := s.users.UploadAvatar(ctx, userID, contentType, buf.Bytes())
+	if err != nil {
+		return err
+	}
+	return stream.SendAndClose(&apiv1.UploadAvatarResponse{AvatarUrl: url})
 }
 
 func (s *UserServer) GetSettings(ctx context.Context, _ *emptypb.Empty) (*apiv1.Settings, error) {

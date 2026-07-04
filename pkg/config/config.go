@@ -10,6 +10,7 @@ type Configs struct {
 	Notifications *NotificationsConfig
 	Email         *EmailConfig
 	Events        *EventsConfig
+	Storage       *StorageConfig
 }
 
 func LoadAllConfigs() (*Configs, error) {
@@ -60,6 +61,11 @@ func LoadAllConfigs() (*Configs, error) {
 		}
 	}
 
+	storageCfg, storageErr := LoadConfig[StorageConfig]("configs/storage.yaml")
+	if storageErr != nil {
+		storageCfg = &StorageConfig{}
+	}
+
 	return &Configs{
 		App:           app,
 		Database:      db,
@@ -68,5 +74,6 @@ func LoadAllConfigs() (*Configs, error) {
 		Notifications: notifications,
 		Email:         email,
 		Events:        eventsCfg,
+		Storage:       storageCfg,
 	}, nil
 }

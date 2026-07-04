@@ -13,6 +13,11 @@ service UserService {
   rpc DeleteMe(google.protobuf.Empty) returns (google.protobuf.Empty);
   rpc GetUser(GetUserRequest) returns (PublicUser);
 
+  // UploadAvatar streams an avatar image to server-side object storage. The
+  // first message must carry content_type; subsequent messages carry file
+  // chunks. Size and content type are validated server-side.
+  rpc UploadAvatar(stream UploadAvatarRequest) returns (UploadAvatarResponse);
+
   rpc GetSettings(google.protobuf.Empty) returns (Settings);
   rpc UpdateSettings(Settings) returns (Settings);
 
@@ -30,6 +35,17 @@ message UpdateMeRequest {
 
 message GetUserRequest {
   string id = 1;
+}
+
+message UploadAvatarRequest {
+  oneof data {
+    string content_type = 1;
+    bytes chunk = 2;
+  }
+}
+
+message UploadAvatarResponse {
+  string avatar_url = 1;
 }
 
 message RegisterPushTokenRequest {

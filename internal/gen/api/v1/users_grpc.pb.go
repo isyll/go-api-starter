@@ -24,6 +24,7 @@ const (
 	UserService_UpdateMe_FullMethodName                      = "/api.v1.UserService/UpdateMe"
 	UserService_DeleteMe_FullMethodName                      = "/api.v1.UserService/DeleteMe"
 	UserService_GetUser_FullMethodName                       = "/api.v1.UserService/GetUser"
+	UserService_UploadAvatar_FullMethodName                  = "/api.v1.UserService/UploadAvatar"
 	UserService_GetSettings_FullMethodName                   = "/api.v1.UserService/GetSettings"
 	UserService_UpdateSettings_FullMethodName                = "/api.v1.UserService/UpdateSettings"
 	UserService_RegisterPushToken_FullMethodName             = "/api.v1.UserService/RegisterPushToken"
@@ -42,6 +43,10 @@ type UserServiceClient interface {
 	UpdateMe(ctx context.Context, in *UpdateMeRequest, opts ...grpc.CallOption) (*User, error)
 	DeleteMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*PublicUser, error)
+	// UploadAvatar streams an avatar image to server-side object storage. The
+	// first message must carry content_type; subsequent messages carry file
+	// chunks. Size and content type are validated server-side.
+	UploadAvatar(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadAvatarRequest, UploadAvatarResponse], error)
 	GetSettings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Settings, error)
 	UpdateSettings(ctx context.Context, in *Settings, opts ...grpc.CallOption) (*Settings, error)
 	RegisterPushToken(ctx context.Context, in *RegisterPushTokenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -96,6 +101,19 @@ func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opt
 	}
 	return out, nil
 }
+
+func (c *userServiceClient) UploadAvatar(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadAvatarRequest, UploadAvatarResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &UserService_ServiceDesc.Streams[0], UserService_UploadAvatar_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[UploadAvatarRequest, UploadAvatarResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type UserService_UploadAvatarClient = grpc.ClientStreamingClient[UploadAvatarRequest, UploadAvatarResponse]
 
 func (c *userServiceClient) GetSettings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Settings, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -158,6 +176,10 @@ type UserServiceServer interface {
 	UpdateMe(context.Context, *UpdateMeRequest) (*User, error)
 	DeleteMe(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	GetUser(context.Context, *GetUserRequest) (*PublicUser, error)
+	// UploadAvatar streams an avatar image to server-side object storage. The
+	// first message must carry content_type; subsequent messages carry file
+	// chunks. Size and content type are validated server-side.
+	UploadAvatar(grpc.ClientStreamingServer[UploadAvatarRequest, UploadAvatarResponse]) error
 	GetSettings(context.Context, *emptypb.Empty) (*Settings, error)
 	UpdateSettings(context.Context, *Settings) (*Settings, error)
 	RegisterPushToken(context.Context, *RegisterPushTokenRequest) (*emptypb.Empty, error)
@@ -184,6 +206,9 @@ func (UnimplementedUserServiceServer) DeleteMe(context.Context, *emptypb.Empty) 
 }
 func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*PublicUser, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedUserServiceServer) UploadAvatar(grpc.ClientStreamingServer[UploadAvatarRequest, UploadAvatarResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method UploadAvatar not implemented")
 }
 func (UnimplementedUserServiceServer) GetSettings(context.Context, *emptypb.Empty) (*Settings, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSettings not implemented")
@@ -292,6 +317,13 @@ func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	return interceptor(ctx, in, info, handler)
 }
+
+func _UserService_UploadAvatar_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(UserServiceServer).UploadAvatar(&grpc.GenericServerStream[UploadAvatarRequest, UploadAvatarResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type UserService_UploadAvatarServer = grpc.ClientStreamingServer[UploadAvatarRequest, UploadAvatarResponse]
 
 func _UserService_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
@@ -427,6 +459,12 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_UpdateNotificationPreferences_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "UploadAvatar",
+			Handler:       _UserService_UploadAvatar_Handler,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "api/v1/users.proto",
 }

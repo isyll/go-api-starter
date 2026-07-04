@@ -19,6 +19,7 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/infra/cache"
 	database "github.com/isyll/go-grpc-starter/internal/infra/db"
 	"github.com/isyll/go-grpc-starter/internal/monitor"
+	"github.com/isyll/go-grpc-starter/internal/platform/storage"
 	"github.com/isyll/go-grpc-starter/internal/store"
 	"github.com/isyll/go-grpc-starter/internal/worker/emails"
 	"github.com/isyll/go-grpc-starter/internal/worker/notifications"
@@ -78,6 +79,7 @@ func (a *App) Initialize() error {
 	cacheManager := cache.NewCacheManager(rdb, cfgs.Redis.Cache.Prefix)
 
 	fcm := a.initFCM(envName, cfgs, logx)
+	objStore := a.initStorage(cfgs, logx)
 	d := buildDispatchers(cfgs, st, logx)
 
 	a.Infra = &Infrastructure{
@@ -90,6 +92,7 @@ func (a *App) Initialize() error {
 		AccessTokenManager: accessTokenManager,
 		CacheManager:       cacheManager,
 		FCM:                fcm,
+		Storage:            objStore,
 		Notifications:      d.notif,
 		Emails:             d.email,
 		EventBus:           d.eventBus,
@@ -97,6 +100,19 @@ func (a *App) Initialize() error {
 		OutboxRepo:         d.outboxRepo,
 	}
 	return nil
+}
+
+func (a *App) initStorage(cfgs *config.Configs, logx *logger.Logger) storage.Storage {
+	if !cfgs.Storage.Enabled() {
+		logx.Warn("object storage disabled (avatar upload off)")
+		return nil
+	}
+	store, err := storage.NewMinIO(context.Background(), cfgs.Storage)
+	if err != nil {
+		logx.Warn("object storage unavailable (avatar upload off)", "error", err)
+		return nil
+	}
+	return store
 }
 
 func (a *App) initFCM(env string, cfgs *config.Configs, logx *logger.Logger) *messaging.Client {

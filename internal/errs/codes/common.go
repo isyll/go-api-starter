@@ -28,4 +28,8 @@ var (
 	MethodNotAllowed = register("METHOD_NOT_ALLOWED")
 
 	RouteNotFound = register("ROUTE_NOT_FOUND")
+
+	StorageUnavailable = register("STORAGE_UNAVAILABLE")
+
+	UploadFailed = register("UPLOAD_FAILED")
 )
