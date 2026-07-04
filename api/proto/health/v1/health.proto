@@ -2,12 +2,17 @@ syntax = "proto3";
 
 package health.v1;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 // HealthService reports liveness and readiness.
 service HealthService {
-  rpc Check(google.protobuf.Empty) returns (HealthResponse);
-  rpc Ready(google.protobuf.Empty) returns (HealthResponse);
+  rpc Check(google.protobuf.Empty) returns (HealthResponse) {
+    option (google.api.http) = {get: "/v1/health"};
+  }
+  rpc Ready(google.protobuf.Empty) returns (HealthResponse) {
+    option (google.api.http) = {get: "/v1/health/ready"};
+  }
 }
 
 message HealthResponse {

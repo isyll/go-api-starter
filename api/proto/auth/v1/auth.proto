@@ -2,22 +2,66 @@ syntax = "proto3";
 
 package auth.v1;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "common/v1/common.proto";
 
 // AuthService handles registration, login, tokens, and devices.
 service AuthService {
-  rpc Register(RegisterRequest) returns (common.v1.TokenPair);
-  rpc Login(LoginRequest) returns (common.v1.TokenPair);
-  rpc RefreshToken(RefreshTokenRequest) returns (common.v1.TokenPair);
-  rpc Logout(google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc VerifyEmail(VerifyEmailRequest) returns (google.protobuf.Empty);
-  rpc ResendVerification(google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (google.protobuf.Empty);
-  rpc ResetPassword(ResetPasswordRequest) returns (google.protobuf.Empty);
-  rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty);
-  rpc ListDevices(google.protobuf.Empty) returns (ListDevicesResponse);
-  rpc RevokeDevice(RevokeDeviceRequest) returns (google.protobuf.Empty);
+  rpc Register(RegisterRequest) returns (common.v1.TokenPair) {
+    option (google.api.http) = {
+      post: "/v1/auth/register"
+      body: "*"
+    };
+  }
+  rpc Login(LoginRequest) returns (common.v1.TokenPair) {
+    option (google.api.http) = {
+      post: "/v1/auth/login"
+      body: "*"
+    };
+  }
+  rpc RefreshToken(RefreshTokenRequest) returns (common.v1.TokenPair) {
+    option (google.api.http) = {
+      post: "/v1/auth/token/refresh"
+      body: "*"
+    };
+  }
+  rpc Logout(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/v1/auth/logout"};
+  }
+  rpc VerifyEmail(VerifyEmailRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/auth/email/verify"
+      body: "*"
+    };
+  }
+  rpc ResendVerification(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/v1/auth/email/resend"};
+  }
+  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/auth/password/reset-request"
+      body: "*"
+    };
+  }
+  rpc ResetPassword(ResetPasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/auth/password/reset"
+      body: "*"
+    };
+  }
+  rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/auth/password/change"
+      body: "*"
+    };
+  }
+  rpc ListDevices(google.protobuf.Empty) returns (ListDevicesResponse) {
+    option (google.api.http) = {get: "/v1/auth/devices"};
+  }
+  rpc RevokeDevice(RevokeDeviceRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/auth/devices/{device_id}"};
+  }
 }
 
 message RegisterRequest {

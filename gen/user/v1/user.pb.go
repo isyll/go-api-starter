@@ -8,6 +8,7 @@ package userv1
 
 import (
 	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -425,7 +426,7 @@ var File_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/v1/user.proto\x12\auser.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"\xbb\x01\n" +
+	"\x12user/v1/user.proto\x12\auser.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"\xbb\x01\n" +
 	"\x0fUpdateMeRequest\x12\"\n" +
 	"\n" +
 	"first_name\x18\x01 \x01(\tH\x00R\tfirstName\x88\x01\x01\x12 \n" +
@@ -459,18 +460,18 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\x13quiet_hours_enabled\x18\x04 \x01(\bR\x11quietHoursEnabled\x12*\n" +
 	"\x11quiet_hours_start\x18\x05 \x01(\tR\x0fquietHoursStart\x12&\n" +
 	"\x0fquiet_hours_end\x18\x06 \x01(\tR\rquietHoursEnd\x12\x1a\n" +
-	"\btimezone\x18\a \x01(\tR\btimezone2\xc1\x05\n" +
-	"\vUserService\x120\n" +
-	"\x05GetMe\x12\x16.google.protobuf.Empty\x1a\x0f.common.v1.User\x125\n" +
-	"\bUpdateMe\x12\x18.user.v1.UpdateMeRequest\x1a\x0f.common.v1.User\x12:\n" +
-	"\bDeleteMe\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x129\n" +
-	"\aGetUser\x12\x17.user.v1.GetUserRequest\x1a\x15.common.v1.PublicUser\x12M\n" +
-	"\fUploadAvatar\x12\x1c.user.v1.UploadAvatarRequest\x1a\x1d.user.v1.UploadAvatarResponse(\x01\x12:\n" +
-	"\vGetSettings\x12\x16.google.protobuf.Empty\x1a\x13.common.v1.Settings\x12:\n" +
-	"\x0eUpdateSettings\x12\x13.common.v1.Settings\x1a\x13.common.v1.Settings\x12N\n" +
-	"\x11RegisterPushToken\x12!.user.v1.RegisterPushTokenRequest\x1a\x16.google.protobuf.Empty\x12V\n" +
-	"\x1aGetNotificationPreferences\x12\x16.google.protobuf.Empty\x1a .user.v1.NotificationPreferences\x12c\n" +
-	"\x1dUpdateNotificationPreferences\x12 .user.v1.NotificationPreferences\x1a .user.v1.NotificationPreferencesB\x8a\x01\n" +
+	"\btimezone\x18\a \x01(\tR\btimezone2\xe7\a\n" +
+	"\vUserService\x12F\n" +
+	"\x05GetMe\x12\x16.google.protobuf.Empty\x1a\x0f.common.v1.User\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/users/me\x12N\n" +
+	"\bUpdateMe\x12\x18.user.v1.UpdateMeRequest\x1a\x0f.common.v1.User\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*2\f/v1/users/me\x12P\n" +
+	"\bDeleteMe\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x14\x82\xd3\xe4\x93\x02\x0e*\f/v1/users/me\x12Q\n" +
+	"\aGetUser\x12\x17.user.v1.GetUserRequest\x1a\x15.common.v1.PublicUser\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/{id}\x12M\n" +
+	"\fUploadAvatar\x12\x1c.user.v1.UploadAvatarRequest\x1a\x1d.user.v1.UploadAvatarResponse(\x01\x12Y\n" +
+	"\vGetSettings\x12\x16.google.protobuf.Empty\x1a\x13.common.v1.Settings\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/users/me/settings\x12\\\n" +
+	"\x0eUpdateSettings\x12\x13.common.v1.Settings\x1a\x13.common.v1.Settings\" \x82\xd3\xe4\x93\x02\x1a:\x01*\x1a\x15/v1/users/me/settings\x12s\n" +
+	"\x11RegisterPushToken\x12!.user.v1.RegisterPushTokenRequest\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/users/me/push-tokens\x12\x85\x01\n" +
+	"\x1aGetNotificationPreferences\x12\x16.google.protobuf.Empty\x1a .user.v1.NotificationPreferences\"-\x82\xd3\xe4\x93\x02'\x12%/v1/users/me/notification-preferences\x12\x95\x01\n" +
+	"\x1dUpdateNotificationPreferences\x12 .user.v1.NotificationPreferences\x1a .user.v1.NotificationPreferences\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/v1/users/me/notification-preferencesB\x8a\x01\n" +
 	"\vcom.user.v1B\tUserProtoP\x01Z3github.com/isyll/go-grpc-starter/gen/user/v1;userv1\xa2\x02\x03UXX\xaa\x02\aUser.V1\xca\x02\aUser\\V1\xe2\x02\x13User\\V1\\GPBMetadata\xea\x02\bUser::V1b\x06proto3"
 
 var (

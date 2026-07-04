@@ -8,6 +8,7 @@ package authv1
 
 import (
 	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -487,7 +488,7 @@ var File_auth_v1_auth_proto protoreflect.FileDescriptor
 
 const file_auth_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x12auth/v1/auth.proto\x12\aauth.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"\xae\x01\n" +
+	"\x12auth/v1/auth.proto\x12\aauth.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"\xae\x01\n" +
 	"\x0fRegisterRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1d\n" +
@@ -514,19 +515,19 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"\x13ListDevicesResponse\x12+\n" +
 	"\adevices\x18\x01 \x03(\v2\x11.common.v1.DeviceR\adevices\"2\n" +
 	"\x13RevokeDeviceRequest\x12\x1b\n" +
-	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId2\xfa\x05\n" +
-	"\vAuthService\x12:\n" +
-	"\bRegister\x12\x18.auth.v1.RegisterRequest\x1a\x14.common.v1.TokenPair\x124\n" +
-	"\x05Login\x12\x15.auth.v1.LoginRequest\x1a\x14.common.v1.TokenPair\x12B\n" +
-	"\fRefreshToken\x12\x1c.auth.v1.RefreshTokenRequest\x1a\x14.common.v1.TokenPair\x128\n" +
-	"\x06Logout\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x12B\n" +
-	"\vVerifyEmail\x12\x1b.auth.v1.VerifyEmailRequest\x1a\x16.google.protobuf.Empty\x12D\n" +
-	"\x12ResendVerification\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x12T\n" +
-	"\x14RequestPasswordReset\x12$.auth.v1.RequestPasswordResetRequest\x1a\x16.google.protobuf.Empty\x12F\n" +
-	"\rResetPassword\x12\x1d.auth.v1.ResetPasswordRequest\x1a\x16.google.protobuf.Empty\x12H\n" +
-	"\x0eChangePassword\x12\x1e.auth.v1.ChangePasswordRequest\x1a\x16.google.protobuf.Empty\x12C\n" +
-	"\vListDevices\x12\x16.google.protobuf.Empty\x1a\x1c.auth.v1.ListDevicesResponse\x12D\n" +
-	"\fRevokeDevice\x12\x1c.auth.v1.RevokeDeviceRequest\x1a\x16.google.protobuf.EmptyB\x8a\x01\n" +
+	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId2\xe6\b\n" +
+	"\vAuthService\x12X\n" +
+	"\bRegister\x12\x18.auth.v1.RegisterRequest\x1a\x14.common.v1.TokenPair\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/register\x12O\n" +
+	"\x05Login\x12\x15.auth.v1.LoginRequest\x1a\x14.common.v1.TokenPair\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12e\n" +
+	"\fRefreshToken\x12\x1c.auth.v1.RefreshTokenRequest\x1a\x14.common.v1.TokenPair\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/auth/token/refresh\x12Q\n" +
+	"\x06Logout\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x17\x82\xd3\xe4\x93\x02\x11\"\x0f/v1/auth/logout\x12d\n" +
+	"\vVerifyEmail\x12\x1b.auth.v1.VerifyEmailRequest\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/auth/email/verify\x12c\n" +
+	"\x12ResendVerification\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x1d\x82\xd3\xe4\x93\x02\x17\"\x15/v1/auth/email/resend\x12\x80\x01\n" +
+	"\x14RequestPasswordReset\x12$.auth.v1.RequestPasswordResetRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/auth/password/reset-request\x12j\n" +
+	"\rResetPassword\x12\x1d.auth.v1.ResetPasswordRequest\x1a\x16.google.protobuf.Empty\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/auth/password/reset\x12m\n" +
+	"\x0eChangePassword\x12\x1e.auth.v1.ChangePasswordRequest\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/auth/password/change\x12]\n" +
+	"\vListDevices\x12\x16.google.protobuf.Empty\x1a\x1c.auth.v1.ListDevicesResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/v1/auth/devices\x12j\n" +
+	"\fRevokeDevice\x12\x1c.auth.v1.RevokeDeviceRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/v1/auth/devices/{device_id}B\x8a\x01\n" +
 	"\vcom.auth.v1B\tAuthProtoP\x01Z3github.com/isyll/go-grpc-starter/gen/auth/v1;authv1\xa2\x02\x03AXX\xaa\x02\aAuth.V1\xca\x02\aAuth\\V1\xe2\x02\x13Auth\\V1\\GPBMetadata\xea\x02\bAuth::V1b\x06proto3"
 
 var (

@@ -8,6 +8,7 @@ package adminv1
 
 import (
 	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -340,7 +341,7 @@ var File_admin_v1_admin_proto protoreflect.FileDescriptor
 
 const file_admin_v1_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x14admin/v1/admin.proto\x12\badmin.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"7\n" +
+	"\x14admin/v1/admin.proto\x12\badmin.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"7\n" +
 	"\x10ListUsersRequest\x12#\n" +
 	"\x04page\x18\x01 \x01(\v2\x0f.common.v1.PageR\x04page\"P\n" +
 	"\x11ListUsersResponse\x12%\n" +
@@ -358,13 +359,13 @@ const file_admin_v1_admin_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"8\n" +
 	"\x12SetUserRoleRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04role\x18\x02 \x01(\tR\x04role2\xe2\x02\n" +
-	"\fAdminService\x12D\n" +
-	"\tListUsers\x12\x1a.admin.v1.ListUsersRequest\x1a\x1b.admin.v1.ListUsersResponse\x129\n" +
-	"\aGetUser\x12\x1d.admin.v1.AdminGetUserRequest\x1a\x0f.common.v1.User\x12C\n" +
-	"\vSuspendUser\x12\x1c.admin.v1.SuspendUserRequest\x1a\x16.google.protobuf.Empty\x12G\n" +
-	"\rUnsuspendUser\x12\x1e.admin.v1.UnsuspendUserRequest\x1a\x16.google.protobuf.Empty\x12C\n" +
-	"\vSetUserRole\x12\x1c.admin.v1.SetUserRoleRequest\x1a\x16.google.protobuf.EmptyB\x92\x01\n" +
+	"\x04role\x18\x02 \x01(\tR\x04role2\x90\x04\n" +
+	"\fAdminService\x12]\n" +
+	"\tListUsers\x12\x1a.admin.v1.ListUsersRequest\x1a\x1b.admin.v1.ListUsersResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/admin/users\x12W\n" +
+	"\aGetUser\x12\x1d.admin.v1.AdminGetUserRequest\x1a\x0f.common.v1.User\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/admin/users/{id}\x12l\n" +
+	"\vSuspendUser\x12\x1c.admin.v1.SuspendUserRequest\x1a\x16.google.protobuf.Empty\"'\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/admin/users/{id}/suspend\x12o\n" +
+	"\rUnsuspendUser\x12\x1e.admin.v1.UnsuspendUserRequest\x1a\x16.google.protobuf.Empty\"&\x82\xd3\xe4\x93\x02 \"\x1e/v1/admin/users/{id}/unsuspend\x12i\n" +
+	"\vSetUserRole\x12\x1c.admin.v1.SetUserRoleRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\x1a\x19/v1/admin/users/{id}/roleB\x92\x01\n" +
 	"\fcom.admin.v1B\n" +
 	"AdminProtoP\x01Z5github.com/isyll/go-grpc-starter/gen/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 

@@ -2,17 +2,34 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "common/v1/common.proto";
 
 // AdminService is guarded by the admin role. It manages users and
 // moderation.
 service AdminService {
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
-  rpc GetUser(AdminGetUserRequest) returns (common.v1.User);
-  rpc SuspendUser(SuspendUserRequest) returns (google.protobuf.Empty);
-  rpc UnsuspendUser(UnsuspendUserRequest) returns (google.protobuf.Empty);
-  rpc SetUserRole(SetUserRoleRequest) returns (google.protobuf.Empty);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/v1/admin/users"};
+  }
+  rpc GetUser(AdminGetUserRequest) returns (common.v1.User) {
+    option (google.api.http) = {get: "/v1/admin/users/{id}"};
+  }
+  rpc SuspendUser(SuspendUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/admin/users/{id}/suspend"
+      body: "*"
+    };
+  }
+  rpc UnsuspendUser(UnsuspendUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/v1/admin/users/{id}/unsuspend"};
+  }
+  rpc SetUserRole(SetUserRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/admin/users/{id}/role"
+      body: "*"
+    };
+  }
 }
 
 message ListUsersRequest {

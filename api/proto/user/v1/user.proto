@@ -2,28 +2,60 @@ syntax = "proto3";
 
 package user.v1;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "common/v1/common.proto";
 
 // UserService handles the authenticated user's own profile, settings,
 // push tokens, and notification preferences.
 service UserService {
-  rpc GetMe(google.protobuf.Empty) returns (common.v1.User);
-  rpc UpdateMe(UpdateMeRequest) returns (common.v1.User);
-  rpc DeleteMe(google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc GetUser(GetUserRequest) returns (common.v1.PublicUser);
+  rpc GetMe(google.protobuf.Empty) returns (common.v1.User) {
+    option (google.api.http) = {get: "/v1/users/me"};
+  }
+  rpc UpdateMe(UpdateMeRequest) returns (common.v1.User) {
+    option (google.api.http) = {
+      patch: "/v1/users/me"
+      body: "*"
+    };
+  }
+  rpc DeleteMe(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/users/me"};
+  }
+  rpc GetUser(GetUserRequest) returns (common.v1.PublicUser) {
+    option (google.api.http) = {get: "/v1/users/{id}"};
+  }
 
   // UploadAvatar streams an avatar image to server-side object storage. The
   // first message must carry content_type; subsequent messages carry file
-  // chunks. Size and content type are validated server-side.
+  // chunks. Size and content type are validated server-side. Client-streaming,
+  // so it is intentionally gRPC-only and not exposed through the gateway.
   rpc UploadAvatar(stream UploadAvatarRequest) returns (UploadAvatarResponse);
 
-  rpc GetSettings(google.protobuf.Empty) returns (common.v1.Settings);
-  rpc UpdateSettings(common.v1.Settings) returns (common.v1.Settings);
+  rpc GetSettings(google.protobuf.Empty) returns (common.v1.Settings) {
+    option (google.api.http) = {get: "/v1/users/me/settings"};
+  }
+  rpc UpdateSettings(common.v1.Settings) returns (common.v1.Settings) {
+    option (google.api.http) = {
+      put: "/v1/users/me/settings"
+      body: "*"
+    };
+  }
 
-  rpc RegisterPushToken(RegisterPushTokenRequest) returns (google.protobuf.Empty);
-  rpc GetNotificationPreferences(google.protobuf.Empty) returns (NotificationPreferences);
-  rpc UpdateNotificationPreferences(NotificationPreferences) returns (NotificationPreferences);
+  rpc RegisterPushToken(RegisterPushTokenRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/users/me/push-tokens"
+      body: "*"
+    };
+  }
+  rpc GetNotificationPreferences(google.protobuf.Empty) returns (NotificationPreferences) {
+    option (google.api.http) = {get: "/v1/users/me/notification-preferences"};
+  }
+  rpc UpdateNotificationPreferences(NotificationPreferences) returns (NotificationPreferences) {
+    option (google.api.http) = {
+      put: "/v1/users/me/notification-preferences"
+      body: "*"
+    };
+  }
 }
 
 message UpdateMeRequest {

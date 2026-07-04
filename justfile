@@ -15,6 +15,10 @@ run:
 dev:
     @air
 
+# Run the optional HTTP/JSON gateway (opt-in; proxies to the gRPC server).
+gateway:
+    @go run ./cmd/gateway
+
 # Generate protobuf code (buf).
 proto:
     @buf lint && buf generate

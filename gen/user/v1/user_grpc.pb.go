@@ -46,7 +46,8 @@ type UserServiceClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*v1.PublicUser, error)
 	// UploadAvatar streams an avatar image to server-side object storage. The
 	// first message must carry content_type; subsequent messages carry file
-	// chunks. Size and content type are validated server-side.
+	// chunks. Size and content type are validated server-side. Client-streaming,
+	// so it is intentionally gRPC-only and not exposed through the gateway.
 	UploadAvatar(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadAvatarRequest, UploadAvatarResponse], error)
 	GetSettings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.Settings, error)
 	UpdateSettings(ctx context.Context, in *v1.Settings, opts ...grpc.CallOption) (*v1.Settings, error)
@@ -179,7 +180,8 @@ type UserServiceServer interface {
 	GetUser(context.Context, *GetUserRequest) (*v1.PublicUser, error)
 	// UploadAvatar streams an avatar image to server-side object storage. The
 	// first message must carry content_type; subsequent messages carry file
-	// chunks. Size and content type are validated server-side.
+	// chunks. Size and content type are validated server-side. Client-streaming,
+	// so it is intentionally gRPC-only and not exposed through the gateway.
 	UploadAvatar(grpc.ClientStreamingServer[UploadAvatarRequest, UploadAvatarResponse]) error
 	GetSettings(context.Context, *emptypb.Empty) (*v1.Settings, error)
 	UpdateSettings(context.Context, *v1.Settings) (*v1.Settings, error)

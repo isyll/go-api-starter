@@ -7,6 +7,7 @@
 package healthv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -87,17 +88,18 @@ var File_health_v1_health_proto protoreflect.FileDescriptor
 
 const file_health_v1_health_proto_rawDesc = "" +
 	"\n" +
-	"\x16health/v1/health.proto\x12\thealth.v1\x1a\x1bgoogle/protobuf/empty.proto\"\xbc\x01\n" +
+	"\x16health/v1/health.proto\x12\thealth.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xbc\x01\n" +
 	"\x0eHealthResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12=\n" +
 	"\x06checks\x18\x03 \x03(\v2%.health.v1.HealthResponse.ChecksEntryR\x06checks\x1a9\n" +
 	"\vChecksEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\x87\x01\n" +
-	"\rHealthService\x12:\n" +
-	"\x05Check\x12\x16.google.protobuf.Empty\x1a\x19.health.v1.HealthResponse\x12:\n" +
-	"\x05Ready\x12\x16.google.protobuf.Empty\x1a\x19.health.v1.HealthResponseB\x9a\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xb5\x01\n" +
+	"\rHealthService\x12N\n" +
+	"\x05Check\x12\x16.google.protobuf.Empty\x1a\x19.health.v1.HealthResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
+	"/v1/health\x12T\n" +
+	"\x05Ready\x12\x16.google.protobuf.Empty\x1a\x19.health.v1.HealthResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/v1/health/readyB\x9a\x01\n" +
 	"\rcom.health.v1B\vHealthProtoP\x01Z7github.com/isyll/go-grpc-starter/gen/health/v1;healthv1\xa2\x02\x03HXX\xaa\x02\tHealth.V1\xca\x02\tHealth\\V1\xe2\x02\x15Health\\V1\\GPBMetadata\xea\x02\n" +
 	"Health::V1b\x06proto3"
 
