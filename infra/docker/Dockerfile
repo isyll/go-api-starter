@@ -6,9 +6,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /out/server ./cmd/server \
  && CGO_ENABLED=0 go build -o /out/migrate ./cmd/migrate \
- && CGO_ENABLED=0 go build -o /out/email_sender ./cmd/worker/email_sender \
- && CGO_ENABLED=0 go build -o /out/push_notifications ./cmd/worker/push_notifications \
- && CGO_ENABLED=0 go build -o /out/event_dispatcher ./cmd/worker/event_dispatcher
+ && CGO_ENABLED=0 go build -o /out/worker ./cmd/worker
 
 FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /app

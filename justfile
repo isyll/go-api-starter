@@ -62,17 +62,9 @@ migrate-create name:
 migrate-status:
     @go run ./cmd/migrate -status
 
-# Run the email worker.
-worker-email:
-    @go run ./cmd/worker/email_sender
-
-# Run the push worker.
-worker-push:
-    @go run ./cmd/worker/push_notifications
-
-# Run the event dispatcher worker.
-worker-events:
-    @go run ./cmd/worker/event_dispatcher
+# Run all background workers (email, push, event dispatcher).
+worker:
+    @go run ./cmd/worker
 
 # Start postgres + redis + minio with docker.
 up:
