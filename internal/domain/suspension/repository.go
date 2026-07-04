@@ -9,13 +9,12 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
 type Repository interface {
-	GetActiveByUserID(ctx context.Context, userID int64) (*models.AccountSuspension, error)
-	Create(ctx context.Context, s *models.AccountSuspension) error
+	GetActiveByUserID(ctx context.Context, userID int64) (*AccountSuspension, error)
+	Create(ctx context.Context, s *AccountSuspension) error
 	DeactivateByUserID(ctx context.Context, userID int64) error
 }
 
@@ -27,11 +26,11 @@ func NewRepository(s *store.Store) Repository {
 	return &repository{store: s}
 }
 
-func toSuspension(row db.AuthAccountSuspension) *models.AccountSuspension {
-	return &models.AccountSuspension{
+func toSuspension(row db.AuthAccountSuspension) *AccountSuspension {
+	return &AccountSuspension{
 		ID:             row.ID,
 		UserID:         row.UserID,
-		Reason:         models.SuspensionReason(row.Reason),
+		Reason:         SuspensionReason(row.Reason),
 		Details:        store.Str(row.Details),
 		SuspendedAt:    store.Time(row.SuspendedAt),
 		SuspendedUntil: store.TimePtr(row.SuspendedUntil),
@@ -43,8 +42,8 @@ func toSuspension(row db.AuthAccountSuspension) *models.AccountSuspension {
 
 func (r *repository) GetActiveByUserID(
 	ctx context.Context, userID int64,
-) (*models.AccountSuspension, error) {
-	var out *models.AccountSuspension
+) (*AccountSuspension, error) {
+	var out *AccountSuspension
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetActiveSuspensionByUserID(ctx, userID)
 		if err != nil {
@@ -59,7 +58,7 @@ func (r *repository) GetActiveByUserID(
 	return out, err
 }
 
-func (r *repository) Create(ctx context.Context, s *models.AccountSuspension) error {
+func (r *repository) Create(ctx context.Context, s *AccountSuspension) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.CreateSuspension(ctx, db.CreateSuspensionParams{
 			UserID:         s.UserID,

@@ -4,15 +4,16 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/isyll/go-grpc-starter/internal/domain/settings"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/infra/cache"
-	"github.com/isyll/go-grpc-starter/internal/models"
 )
 
 func (s *Service) createSessionAndTokens(
 	ctx context.Context,
-	user *models.User,
+	user *users.User,
 	device DeviceInfo,
-	settings *models.Settings,
+	settings *settings.Settings,
 ) (*TokenPair, error) {
 	s.evictOldestIfOverLimit(ctx, user.ID)
 
@@ -103,7 +104,7 @@ func (s *Service) GetDeviceSession(
 	ctx context.Context,
 	userID int64,
 	deviceID string,
-) *models.DeviceSession {
+) *DeviceSession {
 	return s.sessions.FindByUserAndDeviceID(ctx, userID, deviceID)
 }
 
@@ -127,7 +128,7 @@ func (s *Service) evictOldestIfOverLimit(ctx context.Context, userID int64) {
 
 func (s *Service) revokeSessionAndTokens(
 	ctx context.Context,
-	session *models.DeviceSession,
+	session *DeviceSession,
 	reason string,
 ) error {
 	if _, err := s.sessions.Revoke(ctx, reason, session.ID); err != nil {

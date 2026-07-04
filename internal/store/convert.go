@@ -45,7 +45,7 @@ func Str(s *string) string {
 	return *s
 }
 
-// Ptr returns a pointer to s, so an empty string is stored as '' (not NULL).
+// Ptr returns a pointer to s, so an empty string is stored as ” (not NULL).
 func Ptr(s string) *string {
 	return &s
 }

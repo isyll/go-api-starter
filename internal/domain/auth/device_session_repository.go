@@ -9,17 +9,17 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
 type DeviceSessionRepository interface {
-	Create(ctx context.Context, session *models.DeviceSession)
-	FindByID(ctx context.Context, id int64) (*models.DeviceSession, error)
-	FindByUserAndDeviceID(ctx context.Context, userID int64, deviceID string) *models.DeviceSession
-	Revoke(ctx context.Context, reason string, id int64) (*models.DeviceSession, error)
-	FindActiveDevicesByUser(ctx context.Context, userID int64, inactivityTimeout time.Duration) []models.DeviceSession
+	Create(ctx context.Context, session *DeviceSession)
+	FindByID(ctx context.Context, id int64) (*DeviceSession, error)
+	FindByUserAndDeviceID(ctx context.Context, userID int64, deviceID string) *DeviceSession
+	Revoke(ctx context.Context, reason string, id int64) (*DeviceSession, error)
+	FindActiveDevicesByUser(ctx context.Context, userID int64, inactivityTimeout time.Duration) []DeviceSession
 	RevokeAllByUserID(ctx context.Context, userID int64, reason string) error
 }
 
@@ -31,8 +31,8 @@ func NewDeviceSessionRepository(s *store.Store) DeviceSessionRepository {
 	return &deviceSessionRepository{store: s}
 }
 
-func toDeviceSession(r db.AuthDeviceSession) *models.DeviceSession {
-	return &models.DeviceSession{
+func toDeviceSession(r db.AuthDeviceSession) *DeviceSession {
+	return &DeviceSession{
 		ID:               r.ID,
 		UserID:           r.UserID,
 		Platform:         r.Platform,
@@ -59,8 +59,8 @@ func toDeviceSession(r db.AuthDeviceSession) *models.DeviceSession {
 	}
 }
 
-func rowToUser(r db.AuthUser) models.User {
-	return models.User{
+func rowToUser(r db.AuthUser) users.User {
+	return users.User{
 		ID:              r.ID,
 		Email:           r.Email,
 		PasswordHash:    r.PasswordHash,
@@ -68,8 +68,8 @@ func rowToUser(r db.AuthUser) models.User {
 		LastName:        r.LastName,
 		Avatar:          r.Avatar,
 		Bio:             r.Bio,
-		Status:          models.UserStatus(r.Status),
-		Role:            models.UserRole(r.Role),
+		Status:          users.UserStatus(r.Status),
+		Role:            users.UserRole(r.Role),
 		EmailVerifiedAt: store.TimePtr(r.EmailVerifiedAt),
 		LastLoginAt:     store.TimePtr(r.LastLoginAt),
 		CreatedAt:       store.Time(r.CreatedAt),
@@ -78,7 +78,7 @@ func rowToUser(r db.AuthUser) models.User {
 	}
 }
 
-func (r *deviceSessionRepository) Create(ctx context.Context, session *models.DeviceSession) {
+func (r *deviceSessionRepository) Create(ctx context.Context, session *DeviceSession) {
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.CreateDeviceSession(ctx, db.CreateDeviceSessionParams{
 			UserID:       session.UserID,
@@ -101,8 +101,8 @@ func (r *deviceSessionRepository) Create(ctx context.Context, session *models.De
 	}
 }
 
-func (r *deviceSessionRepository) FindByID(ctx context.Context, id int64) (*models.DeviceSession, error) {
-	var out *models.DeviceSession
+func (r *deviceSessionRepository) FindByID(ctx context.Context, id int64) (*DeviceSession, error) {
+	var out *DeviceSession
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetDeviceSessionByID(ctx, id)
 		if err != nil {
@@ -125,8 +125,8 @@ func (r *deviceSessionRepository) FindByID(ctx context.Context, id int64) (*mode
 
 func (r *deviceSessionRepository) FindByUserAndDeviceID(
 	ctx context.Context, userID int64, deviceID string,
-) *models.DeviceSession {
-	var out *models.DeviceSession
+) *DeviceSession {
+	var out *DeviceSession
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetActiveDeviceSessionByUserAndDevice(ctx, db.GetActiveDeviceSessionByUserAndDeviceParams{
 			UserID:   userID,
@@ -149,8 +149,8 @@ func (r *deviceSessionRepository) FindByUserAndDeviceID(
 
 func (r *deviceSessionRepository) Revoke(
 	ctx context.Context, reason string, id int64,
-) (*models.DeviceSession, error) {
-	var out *models.DeviceSession
+) (*DeviceSession, error) {
+	var out *DeviceSession
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.RevokeDeviceSession(ctx, db.RevokeDeviceSessionParams{
 			ID:            id,
@@ -170,9 +170,9 @@ func (r *deviceSessionRepository) Revoke(
 
 func (r *deviceSessionRepository) FindActiveDevicesByUser(
 	ctx context.Context, userID int64, inactivityTimeout time.Duration,
-) []models.DeviceSession {
+) []DeviceSession {
 	threshold := time.Now().UTC().Add(-inactivityTimeout)
-	var sessions []models.DeviceSession
+	var sessions []DeviceSession
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		rows, err := q.ListActiveDevicesByUser(ctx, db.ListActiveDevicesByUserParams{
 			UserID:       userID,
@@ -181,7 +181,7 @@ func (r *deviceSessionRepository) FindActiveDevicesByUser(
 		if err != nil {
 			return fmt.Errorf("find active devices: %w", err)
 		}
-		sessions = make([]models.DeviceSession, len(rows))
+		sessions = make([]DeviceSession, len(rows))
 		for i, row := range rows {
 			sessions[i] = *toDeviceSession(row)
 		}

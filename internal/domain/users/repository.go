@@ -10,23 +10,22 @@ import (
 
 	"github.com/isyll/go-grpc-starter/gen/db"
 	apperrors "github.com/isyll/go-grpc-starter/internal/errors"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
 type Repository interface {
-	Create(ctx context.Context, user *models.User) error
-	FindByID(ctx context.Context, id int64) (*models.User, error)
-	FindByEmail(ctx context.Context, email string) (*models.User, error)
+	Create(ctx context.Context, user *User) error
+	FindByID(ctx context.Context, id int64) (*User, error)
+	FindByEmail(ctx context.Context, email string) (*User, error)
 	ExistsByEmail(ctx context.Context, email string) bool
 	UpdateLastLogin(ctx context.Context, id int64) error
 	UpdatePasswordHash(ctx context.Context, id int64, hash string) error
 	MarkEmailVerified(ctx context.Context, id int64) error
-	UpdateProfile(ctx context.Context, id int64, upd ProfileUpdate) (*models.User, error)
-	UpdateStatus(ctx context.Context, id int64, status models.UserStatus) error
-	UpdateRole(ctx context.Context, id int64, role models.UserRole) error
+	UpdateProfile(ctx context.Context, id int64, upd ProfileUpdate) (*User, error)
+	UpdateStatus(ctx context.Context, id int64, status UserStatus) error
+	UpdateRole(ctx context.Context, id int64, role UserRole) error
 	SoftDeleteByID(ctx context.Context, id int64) error
-	List(ctx context.Context, offset, limit int) ([]models.User, int64, error)
+	List(ctx context.Context, offset, limit int) ([]User, int64, error)
 }
 
 type repository struct {
@@ -37,8 +36,8 @@ func NewRepository(s *store.Store) Repository {
 	return &repository{store: s}
 }
 
-func toUser(r db.AuthUser) *models.User {
-	return &models.User{
+func toUser(r db.AuthUser) *User {
+	return &User{
 		ID:              r.ID,
 		Email:           r.Email,
 		PasswordHash:    r.PasswordHash,
@@ -46,8 +45,8 @@ func toUser(r db.AuthUser) *models.User {
 		LastName:        r.LastName,
 		Avatar:          r.Avatar,
 		Bio:             r.Bio,
-		Status:          models.UserStatus(r.Status),
-		Role:            models.UserRole(r.Role),
+		Status:          UserStatus(r.Status),
+		Role:            UserRole(r.Role),
 		EmailVerifiedAt: store.TimePtr(r.EmailVerifiedAt),
 		LastLoginAt:     store.TimePtr(r.LastLoginAt),
 		CreatedAt:       store.Time(r.CreatedAt),
@@ -56,7 +55,7 @@ func toUser(r db.AuthUser) *models.User {
 	}
 }
 
-func (r *repository) Create(ctx context.Context, user *models.User) error {
+func (r *repository) Create(ctx context.Context, user *User) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.CreateUser(ctx, db.CreateUserParams{
 			Email:        user.Email,
@@ -72,8 +71,8 @@ func (r *repository) Create(ctx context.Context, user *models.User) error {
 	})
 }
 
-func (r *repository) FindByID(ctx context.Context, id int64) (*models.User, error) {
-	var out *models.User
+func (r *repository) FindByID(ctx context.Context, id int64) (*User, error) {
+	var out *User
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetUserByID(ctx, id)
 		if err != nil {
@@ -88,8 +87,8 @@ func (r *repository) FindByID(ctx context.Context, id int64) (*models.User, erro
 	return out, err
 }
 
-func (r *repository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
-	var out *models.User
+func (r *repository) FindByEmail(ctx context.Context, email string) (*User, error) {
+	var out *User
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetUserByEmail(ctx, email)
 		if err != nil {
@@ -134,8 +133,8 @@ func (r *repository) MarkEmailVerified(ctx context.Context, id int64) error {
 
 func (r *repository) UpdateProfile(
 	ctx context.Context, id int64, upd ProfileUpdate,
-) (*models.User, error) {
-	var out *models.User
+) (*User, error) {
+	var out *User
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.UpdateUserProfile(ctx, db.UpdateUserProfileParams{
 			FirstName: upd.FirstName,
@@ -156,13 +155,13 @@ func (r *repository) UpdateProfile(
 	return out, err
 }
 
-func (r *repository) UpdateStatus(ctx context.Context, id int64, status models.UserStatus) error {
+func (r *repository) UpdateStatus(ctx context.Context, id int64, status UserStatus) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		return q.UpdateUserStatus(ctx, db.UpdateUserStatusParams{ID: id, Status: db.AuthUserStatus(status)})
 	})
 }
 
-func (r *repository) UpdateRole(ctx context.Context, id int64, role models.UserRole) error {
+func (r *repository) UpdateRole(ctx context.Context, id int64, role UserRole) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		return q.UpdateUserRole(ctx, db.UpdateUserRoleParams{ID: id, Role: db.AuthUserRole(role)})
 	})
@@ -174,8 +173,8 @@ func (r *repository) SoftDeleteByID(ctx context.Context, id int64) error {
 	})
 }
 
-func (r *repository) List(ctx context.Context, offset, limit int) ([]models.User, int64, error) {
-	var users []models.User
+func (r *repository) List(ctx context.Context, offset, limit int) ([]User, int64, error) {
+	var users []User
 	var total int64
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		var err error
@@ -187,7 +186,7 @@ func (r *repository) List(ctx context.Context, offset, limit int) ([]models.User
 		if err != nil {
 			return fmt.Errorf("list users: %w", err)
 		}
-		users = make([]models.User, len(rows))
+		users = make([]User, len(rows))
 		for i, row := range rows {
 			users[i] = *toUser(row)
 		}

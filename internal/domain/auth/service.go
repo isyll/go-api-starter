@@ -5,9 +5,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/isyll/go-grpc-starter/internal/domain/settings"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/events"
 	"github.com/isyll/go-grpc-starter/internal/infra/cache"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
@@ -75,20 +76,20 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (*TokenPair, e
 	if err != nil {
 		return nil, err
 	}
-	user := &models.User{
+	user := &users.User{
 		Email:        email,
 		PasswordHash: hash,
 		FirstName:    in.FirstName,
 		LastName:     in.LastName,
-		Status:       models.UserStatusActive,
-		Role:         models.UserRoleUser,
+		Status:       users.UserStatusActive,
+		Role:         users.UserRoleUser,
 	}
 	if err := s.users.Create(ctx, user); err != nil {
 		return nil, err
 	}
 
-	defaults := models.DefaultSettings()
-	if err := s.settings.Create(ctx, &models.UserSettings{
+	defaults := settings.DefaultSettings()
+	if err := s.settings.Create(ctx, &settings.UserSettings{
 		UserID:   user.ID,
 		Settings: defaults,
 	}); err != nil {
@@ -212,7 +213,7 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, current, nex
 	return s.users.UpdatePasswordHash(ctx, userID, hash)
 }
 
-func (s *Service) sendVerification(ctx context.Context, user *models.User) {
+func (s *Service) sendVerification(ctx context.Context, user *users.User) {
 	token := utils.NewUUIDNoDash()
 	if err := s.cacheManager.Set(
 		ctx, cache.VerificationTokenKey(token), tokenData{UserID: user.ID}, verifyTokenTTL,

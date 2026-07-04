@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/isyll/go-grpc-starter/internal/events"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
@@ -32,13 +31,13 @@ func NewService(
 	return &Service{repo: repo, sessions: sessions, bus: bus, logger: logx}
 }
 
-func (s *Service) Get(ctx context.Context, id int64) (*models.User, error) {
+func (s *Service) Get(ctx context.Context, id int64) (*User, error) {
 	return s.repo.FindByID(ctx, id)
 }
 
 func (s *Service) UpdateProfile(
 	ctx context.Context, id int64, upd ProfileUpdate,
-) (*models.User, error) {
+) (*User, error) {
 	return s.repo.UpdateProfile(ctx, id, upd)
 }
 
@@ -58,14 +57,14 @@ func (s *Service) DeleteAccount(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (s *Service) List(ctx context.Context, offset, limit int) ([]models.User, int64, error) {
+func (s *Service) List(ctx context.Context, offset, limit int) ([]User, int64, error) {
 	return s.repo.List(ctx, offset, limit)
 }
 
-func (s *Service) SetStatus(ctx context.Context, id int64, status models.UserStatus) error {
+func (s *Service) SetStatus(ctx context.Context, id int64, status UserStatus) error {
 	return s.repo.UpdateStatus(ctx, id, status)
 }
 
-func (s *Service) SetRole(ctx context.Context, id int64, role models.UserRole) error {
+func (s *Service) SetRole(ctx context.Context, id int64, role UserRole) error {
 	return s.repo.UpdateRole(ctx, id, role)
 }

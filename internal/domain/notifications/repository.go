@@ -8,20 +8,19 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
 type TokenRepository interface {
-	Upsert(ctx context.Context, token *models.FCMToken) error
+	Upsert(ctx context.Context, token *FCMToken) error
 	ListByUserID(
 		ctx context.Context, userID int64,
-	) ([]*models.FCMToken, error)
+	) ([]*FCMToken, error)
 	FindByUserIDAndDeviceID(
 		ctx context.Context,
 		userID int64,
 		deviceID string,
-	) (*models.FCMToken, error)
+	) (*FCMToken, error)
 	DeleteByDeviceID(
 		ctx context.Context, userID int64, deviceID string,
 	) error
@@ -30,24 +29,24 @@ type TokenRepository interface {
 type PreferencesRepository interface {
 	FindByUserID(
 		ctx context.Context, userID int64,
-	) (*models.NotificationPreferences, error)
+	) (*NotificationPreferences, error)
 	Upsert(
 		ctx context.Context,
-		prefs *models.NotificationPreferences,
+		prefs *NotificationPreferences,
 	) error
 	Create(
 		ctx context.Context,
-		prefs *models.NotificationPreferences,
+		prefs *NotificationPreferences,
 	) error
 }
 
-func toFCMToken(r db.AuthFcmToken) *models.FCMToken {
-	return &models.FCMToken{
+func toFCMToken(r db.AuthFcmToken) *FCMToken {
+	return &FCMToken{
 		ID:         r.ID,
 		UserID:     r.UserID,
 		DeviceID:   r.DeviceID,
 		Token:      r.Token,
-		Platform:   models.NotificationPlatform(r.Platform),
+		Platform:   NotificationPlatform(r.Platform),
 		AppVersion: store.Str(r.AppVersion),
 		IsActive:   r.IsActive,
 		LastUsedAt: store.TimePtr(r.LastUsedAt),
@@ -56,8 +55,8 @@ func toFCMToken(r db.AuthFcmToken) *models.FCMToken {
 	}
 }
 
-func toPreferences(r db.NotificationsNotificationPreference) *models.NotificationPreferences {
-	return &models.NotificationPreferences{
+func toPreferences(r db.NotificationsNotificationPreference) *NotificationPreferences {
+	return &NotificationPreferences{
 		UserID:            r.UserID,
 		Push:              r.Push,
 		Email:             r.Email,
@@ -80,7 +79,7 @@ func NewTokenRepository(s *store.Store) TokenRepository {
 }
 
 func (r *tokenRepository) Upsert(
-	ctx context.Context, token *models.FCMToken,
+	ctx context.Context, token *FCMToken,
 ) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.UpsertFCMToken(ctx, db.UpsertFCMTokenParams{
@@ -100,14 +99,14 @@ func (r *tokenRepository) Upsert(
 
 func (r *tokenRepository) ListByUserID(
 	ctx context.Context, userID int64,
-) ([]*models.FCMToken, error) {
-	var tokens []*models.FCMToken
+) ([]*FCMToken, error) {
+	var tokens []*FCMToken
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		rows, err := q.ListFCMTokensByUserID(ctx, userID)
 		if err != nil {
 			return fmt.Errorf("list FCM tokens for user %d: %w", userID, err)
 		}
-		tokens = make([]*models.FCMToken, len(rows))
+		tokens = make([]*FCMToken, len(rows))
 		for i, row := range rows {
 			tokens[i] = toFCMToken(row)
 		}
@@ -120,8 +119,8 @@ func (r *tokenRepository) FindByUserIDAndDeviceID(
 	ctx context.Context,
 	userID int64,
 	deviceID string,
-) (*models.FCMToken, error) {
-	var out *models.FCMToken
+) (*FCMToken, error) {
+	var out *FCMToken
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetFCMTokenByUserAndDevice(ctx, db.GetFCMTokenByUserAndDeviceParams{
 			UserID:   userID,
@@ -160,8 +159,8 @@ func NewPreferencesRepository(s *store.Store) PreferencesRepository {
 
 func (r *preferencesRepository) FindByUserID(
 	ctx context.Context, userID int64,
-) (*models.NotificationPreferences, error) {
-	var out *models.NotificationPreferences
+) (*NotificationPreferences, error) {
+	var out *NotificationPreferences
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetNotificationPreferences(ctx, userID)
 		if err != nil {
@@ -178,7 +177,7 @@ func (r *preferencesRepository) FindByUserID(
 
 func (r *preferencesRepository) Create(
 	ctx context.Context,
-	prefs *models.NotificationPreferences,
+	prefs *NotificationPreferences,
 ) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.CreateNotificationPreferences(ctx, db.CreateNotificationPreferencesParams{
@@ -201,7 +200,7 @@ func (r *preferencesRepository) Create(
 
 func (r *preferencesRepository) Upsert(
 	ctx context.Context,
-	prefs *models.NotificationPreferences,
+	prefs *NotificationPreferences,
 ) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.UpsertNotificationPreferences(ctx, db.UpsertNotificationPreferencesParams{

@@ -2,14 +2,16 @@ package grpc
 
 import (
 	"github.com/isyll/go-grpc-starter/internal/domain/auth"
+	"github.com/isyll/go-grpc-starter/internal/domain/notifications"
+	"github.com/isyll/go-grpc-starter/internal/domain/settings"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func toProtoUser(u *models.User, enc idenc.IDEncoder) *apiv1.User {
+func toProtoUser(u *users.User, enc idenc.IDEncoder) *apiv1.User {
 	return &apiv1.User{
 		Id:            enc.Encode(u.ID),
 		Email:         u.Email,
@@ -25,7 +27,7 @@ func toProtoUser(u *models.User, enc idenc.IDEncoder) *apiv1.User {
 	}
 }
 
-func toProtoPublicUser(u *models.User, enc idenc.IDEncoder) *apiv1.PublicUser {
+func toProtoPublicUser(u *users.User, enc idenc.IDEncoder) *apiv1.PublicUser {
 	return &apiv1.PublicUser{
 		Id:          enc.Encode(u.ID),
 		FirstName:   u.FirstName,
@@ -45,7 +47,7 @@ func toProtoTokenPair(tp *auth.TokenPair, enc idenc.IDEncoder) *apiv1.TokenPair 
 	}
 }
 
-func toProtoSettings(s *models.Settings) *apiv1.Settings {
+func toProtoSettings(s *settings.Settings) *apiv1.Settings {
 	return &apiv1.Settings{
 		Locale:             s.Locale,
 		Timezone:           s.Timezone,
@@ -56,11 +58,11 @@ func toProtoSettings(s *models.Settings) *apiv1.Settings {
 	}
 }
 
-func fromProtoSettings(s *apiv1.Settings) models.Settings {
-	return models.Settings{
+func fromProtoSettings(s *apiv1.Settings) settings.Settings {
+	return settings.Settings{
 		Locale:             s.GetLocale(),
 		Timezone:           s.GetTimezone(),
-		Theme:              models.Theme(s.GetTheme()),
+		Theme:              settings.Theme(s.GetTheme()),
 		EmailNotifications: s.GetEmailNotifications(),
 		PushNotifications:  s.GetPushNotifications(),
 		MarketingEmails:    s.GetMarketingEmails(),
@@ -83,7 +85,7 @@ func toProtoDevices(devices []auth.DeviceSessionInfo) []*apiv1.Device {
 	return out
 }
 
-func toProtoNotifPrefs(p *models.NotificationPreferences) *apiv1.NotificationPreferences {
+func toProtoNotifPrefs(p *notifications.NotificationPreferences) *apiv1.NotificationPreferences {
 	out := &apiv1.NotificationPreferences{
 		Push:              p.Push,
 		Email:             p.Email,

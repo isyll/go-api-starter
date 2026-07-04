@@ -10,14 +10,13 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
 type Repository interface {
-	GetByUserID(ctx context.Context, userID int64) (*models.Settings, error)
-	Create(ctx context.Context, s *models.UserSettings) error
-	Update(ctx context.Context, userID int64, s models.Settings) error
+	GetByUserID(ctx context.Context, userID int64) (*Settings, error)
+	Create(ctx context.Context, s *UserSettings) error
+	Update(ctx context.Context, userID int64, s Settings) error
 }
 
 type repository struct {
@@ -28,8 +27,8 @@ func NewRepository(s *store.Store) Repository {
 	return &repository{store: s}
 }
 
-func (r *repository) GetByUserID(ctx context.Context, userID int64) (*models.Settings, error) {
-	var out *models.Settings
+func (r *repository) GetByUserID(ctx context.Context, userID int64) (*Settings, error) {
+	var out *Settings
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetUserSettings(ctx, userID)
 		if err != nil {
@@ -38,7 +37,7 @@ func (r *repository) GetByUserID(ctx context.Context, userID int64) (*models.Set
 			}
 			return fmt.Errorf("get settings: %w", err)
 		}
-		var s models.Settings
+		var s Settings
 		if err := json.Unmarshal(row.Settings, &s); err != nil {
 			return fmt.Errorf("unmarshal settings: %w", err)
 		}
@@ -48,7 +47,7 @@ func (r *repository) GetByUserID(ctx context.Context, userID int64) (*models.Set
 	return out, err
 }
 
-func (r *repository) Create(ctx context.Context, us *models.UserSettings) error {
+func (r *repository) Create(ctx context.Context, us *UserSettings) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		b, err := json.Marshal(&us.Settings)
 		if err != nil {
@@ -64,7 +63,7 @@ func (r *repository) Create(ctx context.Context, us *models.UserSettings) error 
 	})
 }
 
-func (r *repository) Update(ctx context.Context, userID int64, s models.Settings) error {
+func (r *repository) Update(ctx context.Context, userID int64, s Settings) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		b, err := json.Marshal(&s)
 		if err != nil {

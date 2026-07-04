@@ -7,7 +7,7 @@ import (
 
 	"github.com/isyll/go-grpc-starter/internal/authz"
 	"github.com/isyll/go-grpc-starter/internal/domain/auth"
-	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
@@ -70,7 +70,7 @@ func (i *interceptors) authUnary(
 	return handler(ctx, req)
 }
 
-func (i *interceptors) authenticate(ctx context.Context) (*models.User, *models.DeviceSession, error) {
+func (i *interceptors) authenticate(ctx context.Context) (*users.User, *auth.DeviceSession, error) {
 	token, err := bearerToken(ctx)
 	if err != nil {
 		return nil, nil, err

@@ -7,7 +7,6 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/domain/settings"
 	"github.com/isyll/go-grpc-starter/internal/domain/users"
 	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/pkg/idenc"
 
 	"google.golang.org/grpc/codes"
@@ -91,7 +90,7 @@ func (s *UserServer) RegisterPushToken(ctx context.Context, req *apiv1.RegisterP
 	err := s.notifs.RegisterToken(ctx, currentUserID(ctx), notifications.RegisterTokenInput{
 		DeviceID:   req.GetDeviceId(),
 		Token:      req.GetToken(),
-		Platform:   models.NotificationPlatform(req.GetPlatform()),
+		Platform:   notifications.NotificationPlatform(req.GetPlatform()),
 		AppVersion: req.GetAppVersion(),
 	})
 	if err != nil {

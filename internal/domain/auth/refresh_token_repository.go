@@ -6,13 +6,12 @@ import (
 	"fmt"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
 type RefreshTokenRepository interface {
-	Create(ctx context.Context, token *models.RefreshToken)
-	FindByTokenHash(ctx context.Context, tokenHash string) (*models.RefreshToken, error)
+	Create(ctx context.Context, token *RefreshToken)
+	FindByTokenHash(ctx context.Context, tokenHash string) (*RefreshToken, error)
 	RevokeByTokenHash(ctx context.Context, tokenHash, reason string) error
 	RevokeBySessionID(ctx context.Context, sessionID int64, reason string) error
 	RevokeByTokenFamily(ctx context.Context, tokenFamily, reason string) error
@@ -27,8 +26,8 @@ func NewRefreshTokenRepository(s *store.Store) RefreshTokenRepository {
 	return &refreshTokenRepository{store: s}
 }
 
-func toRefreshToken(r db.AuthRefreshToken) *models.RefreshToken {
-	return &models.RefreshToken{
+func toRefreshToken(r db.AuthRefreshToken) *RefreshToken {
+	return &RefreshToken{
 		ID:            store.UUIDString(r.ID),
 		SessionID:     r.SessionID,
 		TokenHash:     r.TokenHash,
@@ -41,7 +40,7 @@ func toRefreshToken(r db.AuthRefreshToken) *models.RefreshToken {
 	}
 }
 
-func (r *refreshTokenRepository) Create(ctx context.Context, token *models.RefreshToken) {
+func (r *refreshTokenRepository) Create(ctx context.Context, token *RefreshToken) {
 	prefix := token.TokenPrefix
 	if prefix == "" && len(token.TokenHash) >= 8 {
 		prefix = token.TokenHash[:8]
@@ -67,11 +66,11 @@ func (r *refreshTokenRepository) Create(ctx context.Context, token *models.Refre
 
 func (r *refreshTokenRepository) FindByTokenHash(
 	ctx context.Context, tokenHash string,
-) (*models.RefreshToken, error) {
+) (*RefreshToken, error) {
 	if len(tokenHash) < 8 {
 		return nil, ErrInvalidToken
 	}
-	var out *models.RefreshToken
+	var out *RefreshToken
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		rows, err := q.ListRefreshTokensByPrefix(ctx, tokenHash[:8])
 		if err != nil {

@@ -4,7 +4,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 )
 
 type ctxKey int
@@ -14,12 +14,12 @@ const (
 	sessionIDKey
 )
 
-func withUser(ctx context.Context, u *models.User) context.Context {
+func withUser(ctx context.Context, u *users.User) context.Context {
 	return context.WithValue(ctx, userKey, u)
 }
 
-func userFrom(ctx context.Context) (*models.User, bool) {
-	u, ok := ctx.Value(userKey).(*models.User)
+func userFrom(ctx context.Context) (*users.User, bool) {
+	u, ok := ctx.Value(userKey).(*users.User)
 	return u, ok
 }
 

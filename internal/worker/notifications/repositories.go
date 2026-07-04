@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	"github.com/isyll/go-grpc-starter/internal/models"
+	domnotif "github.com/isyll/go-grpc-starter/internal/domain/notifications"
 	"github.com/isyll/go-grpc-starter/internal/store"
 )
 
@@ -13,7 +13,7 @@ type FCMTokenRepository interface {
 	FindActiveByUserID(
 		ctx context.Context,
 		userID int64,
-	) ([]*models.FCMToken, error)
+	) ([]*domnotif.FCMToken, error)
 	DeactivateByID(ctx context.Context, id int64) error
 	UpdateLastUsed(ctx context.Context, id int64) error
 }
@@ -22,30 +22,30 @@ type NotificationPreferencesRepository interface {
 	FindByUserID(
 		ctx context.Context,
 		userID int64,
-	) (*models.NotificationPreferences, error)
+	) (*domnotif.NotificationPreferences, error)
 }
 
 type NotificationTemplateRepository interface {
 	FindByEventType(
 		ctx context.Context,
 		eventType string,
-	) (*models.NotificationTemplate, error)
+	) (*domnotif.NotificationTemplate, error)
 }
 
 type NotificationLogRepository interface {
 	Create(
 		ctx context.Context,
-		log *models.NotificationLog,
+		log *domnotif.NotificationLog,
 	) error
 }
 
-func toFCMToken(r db.AuthFcmToken) *models.FCMToken {
-	return &models.FCMToken{
+func toFCMToken(r db.AuthFcmToken) *domnotif.FCMToken {
+	return &domnotif.FCMToken{
 		ID:         r.ID,
 		UserID:     r.UserID,
 		DeviceID:   r.DeviceID,
 		Token:      r.Token,
-		Platform:   models.NotificationPlatform(r.Platform),
+		Platform:   domnotif.NotificationPlatform(r.Platform),
 		AppVersion: store.Str(r.AppVersion),
 		IsActive:   r.IsActive,
 		LastUsedAt: store.TimePtr(r.LastUsedAt),
@@ -54,8 +54,8 @@ func toFCMToken(r db.AuthFcmToken) *models.FCMToken {
 	}
 }
 
-func toPreferences(r db.NotificationsNotificationPreference) *models.NotificationPreferences {
-	return &models.NotificationPreferences{
+func toPreferences(r db.NotificationsNotificationPreference) *domnotif.NotificationPreferences {
+	return &domnotif.NotificationPreferences{
 		UserID:            r.UserID,
 		Push:              r.Push,
 		Email:             r.Email,
@@ -69,8 +69,8 @@ func toPreferences(r db.NotificationsNotificationPreference) *models.Notificatio
 	}
 }
 
-func toTemplate(r db.NotificationsNotificationTemplate) *models.NotificationTemplate {
-	return &models.NotificationTemplate{
+func toTemplate(r db.NotificationsNotificationTemplate) *domnotif.NotificationTemplate {
+	return &domnotif.NotificationTemplate{
 		ID:               int(r.ID),
 		EventType:        r.EventType,
 		Icon:             r.Icon,
@@ -85,8 +85,8 @@ func toTemplate(r db.NotificationsNotificationTemplate) *models.NotificationTemp
 
 func toTemplateTranslation(
 	r db.NotificationsNotificationTemplateTranslation,
-) *models.NotificationTemplateTranslation {
-	return &models.NotificationTemplateTranslation{
+) *domnotif.NotificationTemplateTranslation {
+	return &domnotif.NotificationTemplateTranslation{
 		ID:         int(r.ID),
 		TemplateID: int(r.TemplateID),
 		Language:   r.Language,
@@ -108,14 +108,14 @@ func NewFCMTokenRepository(s *store.Store) FCMTokenRepository {
 func (r *fcmTokenRepository) FindActiveByUserID(
 	ctx context.Context,
 	userID int64,
-) ([]*models.FCMToken, error) {
-	var tokens []*models.FCMToken
+) ([]*domnotif.FCMToken, error) {
+	var tokens []*domnotif.FCMToken
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		rows, err := q.ListActiveFCMTokensByUserID(ctx, userID)
 		if err != nil {
 			return err
 		}
-		tokens = make([]*models.FCMToken, len(rows))
+		tokens = make([]*domnotif.FCMToken, len(rows))
 		for i, row := range rows {
 			tokens[i] = toFCMToken(row)
 		}
@@ -155,8 +155,8 @@ func NewNotificationPreferencesRepository(
 func (r *notifPreferencesRepository) FindByUserID(
 	ctx context.Context,
 	userID int64,
-) (*models.NotificationPreferences, error) {
-	var out *models.NotificationPreferences
+) (*domnotif.NotificationPreferences, error) {
+	var out *domnotif.NotificationPreferences
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetNotificationPreferences(ctx, userID)
 		if err != nil {
@@ -179,8 +179,8 @@ func NewTemplateRepository(s *store.Store) NotificationTemplateRepository {
 func (r *templateRepository) FindByEventType(
 	ctx context.Context,
 	eventType string,
-) (*models.NotificationTemplate, error) {
-	var out *models.NotificationTemplate
+) (*domnotif.NotificationTemplate, error) {
+	var out *domnotif.NotificationTemplate
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		row, err := q.GetNotificationTemplateByEventType(ctx, eventType)
 		if err != nil {
@@ -191,7 +191,7 @@ func (r *templateRepository) FindByEventType(
 		if err != nil {
 			return err
 		}
-		tmpl.Translations = make([]*models.NotificationTemplateTranslation, len(translations))
+		tmpl.Translations = make([]*domnotif.NotificationTemplateTranslation, len(translations))
 		for i, tr := range translations {
 			tmpl.Translations[i] = toTemplateTranslation(tr)
 		}
@@ -211,7 +211,7 @@ func NewLogRepository(s *store.Store) NotificationLogRepository {
 
 func (r *logRepository) Create(
 	ctx context.Context,
-	log *models.NotificationLog,
+	log *domnotif.NotificationLog,
 ) error {
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		var payload []byte

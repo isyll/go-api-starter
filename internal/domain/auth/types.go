@@ -4,7 +4,8 @@ package auth
 import (
 	"time"
 
-	"github.com/isyll/go-grpc-starter/internal/models"
+	"github.com/isyll/go-grpc-starter/internal/domain/settings"
+	"github.com/isyll/go-grpc-starter/internal/domain/users"
 )
 
 type DeviceInfo struct {
@@ -17,8 +18,8 @@ type DeviceInfo struct {
 	UserAgent    string
 }
 
-func (d DeviceInfo) toSession(userID int64) *models.DeviceSession {
-	return &models.DeviceSession{
+func (d DeviceInfo) toSession(userID int64) *DeviceSession {
+	return &DeviceSession{
 		UserID:       userID,
 		DeviceID:     d.DeviceID,
 		Name:         d.Name,
@@ -48,8 +49,8 @@ type TokenPair struct {
 	AccessToken  string
 	RefreshToken string
 	ExpiresIn    int64
-	User         *models.User
-	Settings     *models.Settings
+	User         *users.User
+	Settings     *settings.Settings
 }
 
 type DeviceSessionInfo struct {

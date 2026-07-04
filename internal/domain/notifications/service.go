@@ -7,14 +7,13 @@ import (
 
 	"firebase.google.com/go/v4/messaging"
 
-	"github.com/isyll/go-grpc-starter/internal/models"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
 type RegisterTokenInput struct {
 	DeviceID   string
 	Token      string
-	Platform   models.NotificationPlatform
+	Platform   NotificationPlatform
 	AppVersion string
 }
 
@@ -45,7 +44,7 @@ func NewService(
 }
 
 func (s *Service) RegisterToken(ctx context.Context, userID int64, in RegisterTokenInput) error {
-	return s.tokens.Upsert(ctx, &models.FCMToken{
+	return s.tokens.Upsert(ctx, &FCMToken{
 		UserID:     userID,
 		DeviceID:   in.DeviceID,
 		Token:      in.Token,
@@ -55,7 +54,7 @@ func (s *Service) RegisterToken(ctx context.Context, userID int64, in RegisterTo
 	})
 }
 
-func (s *Service) ListTokens(ctx context.Context, userID int64) ([]*models.FCMToken, error) {
+func (s *Service) ListTokens(ctx context.Context, userID int64) ([]*FCMToken, error) {
 	return s.tokens.ListByUserID(ctx, userID)
 }
 
@@ -65,7 +64,7 @@ func (s *Service) DeleteToken(ctx context.Context, userID int64, deviceID string
 
 func (s *Service) GetPreferences(
 	ctx context.Context, userID int64,
-) (*models.NotificationPreferences, error) {
+) (*NotificationPreferences, error) {
 	prefs, err := s.prefs.FindByUserID(ctx, userID)
 	if err == nil {
 		return prefs, nil
@@ -73,7 +72,7 @@ func (s *Service) GetPreferences(
 	if !errors.Is(err, ErrPrefNotFound) {
 		return nil, err
 	}
-	defaults := &models.NotificationPreferences{
+	defaults := &NotificationPreferences{
 		UserID: userID, Push: true, Email: true, Marketing: false, Timezone: "UTC",
 	}
 	if cErr := s.prefs.Create(ctx, defaults); cErr != nil {
@@ -84,7 +83,7 @@ func (s *Service) GetPreferences(
 
 func (s *Service) UpdatePreferences(
 	ctx context.Context, userID int64, upd PreferencesUpdate,
-) (*models.NotificationPreferences, error) {
+) (*NotificationPreferences, error) {
 	prefs, err := s.GetPreferences(ctx, userID)
 	if err != nil {
 		return nil, err
