@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	"github.com/isyll/go-grpc-starter/internal/store"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )

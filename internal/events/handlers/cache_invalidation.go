@@ -5,8 +5,8 @@ import (
 	"context"
 
 	"github.com/isyll/go-grpc-starter/internal/events"
-	"github.com/isyll/go-grpc-starter/internal/infra/cache"
 	"github.com/isyll/go-grpc-starter/internal/metrics"
+	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 

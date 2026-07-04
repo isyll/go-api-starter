@@ -6,7 +6,7 @@ import (
 	"firebase.google.com/go/v4/messaging"
 
 	"github.com/isyll/go-grpc-starter/internal/events"
-	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	"github.com/isyll/go-grpc-starter/internal/platform/storage"
 	"github.com/isyll/go-grpc-starter/internal/store"
 	"github.com/isyll/go-grpc-starter/internal/worker/emails"

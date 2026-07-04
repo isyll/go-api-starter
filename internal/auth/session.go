@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/isyll/go-grpc-starter/internal/infra/cache"
+	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	"github.com/isyll/go-grpc-starter/internal/settings"
 	"github.com/isyll/go-grpc-starter/internal/users"
 )

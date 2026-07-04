@@ -16,9 +16,9 @@ import (
 
 	"github.com/isyll/go-grpc-starter/internal/events"
 	grpcserver "github.com/isyll/go-grpc-starter/internal/grpc"
-	"github.com/isyll/go-grpc-starter/internal/infra/cache"
-	database "github.com/isyll/go-grpc-starter/internal/infra/db"
 	"github.com/isyll/go-grpc-starter/internal/monitor"
+	"github.com/isyll/go-grpc-starter/internal/platform/cache"
+	database "github.com/isyll/go-grpc-starter/internal/platform/db"
 	"github.com/isyll/go-grpc-starter/internal/platform/storage"
 	"github.com/isyll/go-grpc-starter/internal/store"
 	"github.com/isyll/go-grpc-starter/internal/worker/emails"
