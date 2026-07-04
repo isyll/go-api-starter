@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/metrics"
 	"github.com/isyll/go-grpc-starter/internal/store"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
@@ -22,7 +22,7 @@ func NewAuditLogHandler(s *store.Store, logx *logger.Logger) *AuditLogHandler {
 
 func (h *AuditLogHandler) OnAuditLogWritten(
 	ctx context.Context,
-	evt *events.AuditLogWritten,
+	evt *event.AuditLogWritten,
 ) error {
 	status := evt.Status
 	if status == "" {

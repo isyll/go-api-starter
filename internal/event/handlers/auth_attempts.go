@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/store"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
@@ -23,7 +23,7 @@ func NewAuthAttemptHandler(
 
 func (h *AuthAttemptHandler) OnAuthAttemptRecorded(
 	ctx context.Context,
-	evt *events.AuthAttemptRecorded,
+	evt *event.AuthAttemptRecorded,
 ) error {
 	var userID *int64
 	if evt.UserID != 0 {

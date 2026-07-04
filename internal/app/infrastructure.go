@@ -5,7 +5,7 @@ import (
 
 	"firebase.google.com/go/v4/messaging"
 
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	"github.com/isyll/go-grpc-starter/internal/platform/storage"
 	"github.com/isyll/go-grpc-starter/internal/store"
@@ -37,7 +37,7 @@ type Infrastructure struct {
 	Notifications notifications.Dispatcher
 	Emails        emails.Dispatcher
 
-	EventBus           *events.Bus
-	EventBusDispatcher *events.AsynqDispatcher
-	OutboxRepo         *events.OutboxRepository
+	EventBus           *event.Bus
+	EventBusDispatcher *event.AsynqDispatcher
+	OutboxRepo         *event.OutboxRepository
 }

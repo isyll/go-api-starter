@@ -14,7 +14,7 @@ import (
 	"firebase.google.com/go/v4/messaging"
 	"github.com/hibiken/asynq"
 
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	grpcserver "github.com/isyll/go-grpc-starter/internal/grpcsvc"
 	"github.com/isyll/go-grpc-starter/internal/monitor"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
@@ -132,24 +132,24 @@ func (a *App) initFCM(env string, cfgs *config.Configs, logx *logger.Logger) *me
 type dispatcherBundle struct {
 	notif      notifications.Dispatcher
 	email      emails.Dispatcher
-	eventAsynq *events.AsynqDispatcher
-	outboxRepo *events.OutboxRepository
-	eventBus   *events.Bus
+	eventAsynq *event.AsynqDispatcher
+	outboxRepo *event.OutboxRepository
+	eventBus   *event.Bus
 }
 
 func buildDispatchers(cfgs *config.Configs, st *store.Store, logx *logger.Logger) dispatcherBundle {
 	addr, password := cfgs.Redis.Credentials()
 
 	asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: addr, Password: password})
-	eventDispatcher := events.NewAsynqDispatcher(asynqClient, logx)
-	outboxRepo := events.NewOutboxRepository(st, logx)
+	eventDispatcher := event.NewAsynqDispatcher(asynqClient, logx)
+	outboxRepo := event.NewOutboxRepository(st, logx)
 
 	return dispatcherBundle{
 		notif:      notifications.NewDispatcher(addr, password, cfgs.Notifications, logx),
 		email:      emails.NewDispatcher(addr, password, cfgs.Email, logx),
 		eventAsynq: eventDispatcher,
 		outboxRepo: outboxRepo,
-		eventBus:   events.NewWithOutbox(eventDispatcher, outboxRepo, logx),
+		eventBus:   event.NewWithOutbox(eventDispatcher, outboxRepo, logx),
 	}
 }
 

@@ -1,5 +1,5 @@
 // Package events implements the in-process event bus and outbox.
-package events
+package event
 
 import "context"
 

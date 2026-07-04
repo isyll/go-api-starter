@@ -1,10 +1,10 @@
-// Package handlers holds the reactions wired to bus events.
+// Package handlers holds the reactions wired to bus event.
 package handlers
 
 import (
 	"context"
 
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/metrics"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
@@ -24,7 +24,7 @@ func NewCacheInvalidator(
 
 func (h *CacheInvalidator) OnUserAccountDeleted(
 	ctx context.Context,
-	evt *events.UserAccountDeleted,
+	evt *event.UserAccountDeleted,
 ) error {
 	return h.invalidate(ctx, evt.EventType(), cache.UserTag(evt.UserID))
 }

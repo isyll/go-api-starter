@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/internal/settings"
 	"github.com/isyll/go-grpc-starter/internal/users"
@@ -120,7 +120,7 @@ func (s *Service) recordAttempt(
 	userID int64,
 	channel, outcome string,
 ) {
-	if err := s.bus.Publish(ctx, &events.AuthAttemptRecorded{
+	if err := s.bus.Publish(ctx, &event.AuthAttemptRecorded{
 		Email:      email,
 		UserID:     userID,
 		Channel:    channel,

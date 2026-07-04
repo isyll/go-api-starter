@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	apiv1 "github.com/isyll/go-grpc-starter/internal/gen/api/v1"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/internal/suspension"
@@ -20,14 +20,14 @@ type AdminServer struct {
 	apiv1.UnimplementedAdminServiceServer
 	users      *users.Service
 	suspension *suspension.Service
-	bus        *events.Bus
+	bus        *event.Bus
 	enc        idenc.IDEncoder
 }
 
 func NewAdminServer(
 	u *users.Service,
 	s *suspension.Service,
-	bus *events.Bus,
+	bus *event.Bus,
 	enc idenc.IDEncoder,
 ) *AdminServer {
 	return &AdminServer{users: u, suspension: s, bus: bus, enc: enc}
@@ -112,7 +112,7 @@ func (s *AdminServer) SetUserRole(ctx context.Context, req *apiv1.SetUserRoleReq
 }
 
 func (s *AdminServer) audit(ctx context.Context, action, resourceID string) {
-	_ = s.bus.Publish(ctx, &events.AuditLogWritten{
+	_ = s.bus.Publish(ctx, &event.AuditLogWritten{
 		AdminID:    currentUserID(ctx),
 		Action:     action,
 		Resource:   "user",

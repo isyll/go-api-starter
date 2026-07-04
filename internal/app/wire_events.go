@@ -4,21 +4,21 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/isyll/go-grpc-starter/internal/events"
-	"github.com/isyll/go-grpc-starter/internal/events/handlers"
+	"github.com/isyll/go-grpc-starter/internal/event"
+	"github.com/isyll/go-grpc-starter/internal/event/handlers"
 )
 
-func WireEventSubscriptions(bus *events.Bus, deps *EventHandlerDeps) {
+func WireEventSubscriptions(bus *event.Bus, deps *EventHandlerDeps) {
 	cacheInv := handlers.NewCacheInvalidator(deps.CacheManager, deps.Logger)
-	events.Subscribe(bus, cacheInv.OnUserAccountDeleted)
+	event.Subscribe(bus, cacheInv.OnUserAccountDeleted)
 
 	audit := handlers.NewAuditLogHandler(deps.Store, deps.Logger)
-	events.SubscribeAsync(
+	event.SubscribeAsync(
 		bus, audit.OnAuditLogWritten,
-		events.WithQueue("high"),
-		events.WithUniqueWindow(5*time.Minute),
-		events.WithTaskIDFn(func(e events.Event) string {
-			if evt, ok := e.(*events.AuditLogWritten); ok {
+		event.WithQueue("high"),
+		event.WithUniqueWindow(5*time.Minute),
+		event.WithTaskIDFn(func(e event.Event) string {
+			if evt, ok := e.(*event.AuditLogWritten); ok {
 				return fmt.Sprintf("audit:%s:%s", evt.RequestID, evt.Action)
 			}
 			return ""
@@ -26,12 +26,12 @@ func WireEventSubscriptions(bus *events.Bus, deps *EventHandlerDeps) {
 	)
 
 	attempts := handlers.NewAuthAttemptHandler(deps.Store, deps.Logger)
-	events.SubscribeAsync(
+	event.SubscribeAsync(
 		bus, attempts.OnAuthAttemptRecorded,
-		events.WithQueue("normal"),
-		events.WithUniqueWindow(5*time.Minute),
-		events.WithTaskIDFn(func(e events.Event) string {
-			if evt, ok := e.(*events.AuthAttemptRecorded); ok {
+		event.WithQueue("normal"),
+		event.WithUniqueWindow(5*time.Minute),
+		event.WithTaskIDFn(func(e event.Event) string {
+			if evt, ok := e.(*event.AuthAttemptRecorded); ok {
 				return fmt.Sprintf("auth:%s:%s", evt.RequestID, evt.Channel)
 			}
 			return ""

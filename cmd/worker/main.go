@@ -15,7 +15,7 @@ import (
 	"github.com/hibiken/asynq"
 
 	"github.com/isyll/go-grpc-starter/internal/app"
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	database "github.com/isyll/go-grpc-starter/internal/platform/db"
 	"github.com/isyll/go-grpc-starter/internal/store"
@@ -90,11 +90,11 @@ func main() {
 	// Event dispatcher: outbox drain + async event handlers.
 	asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: redisAddr, Password: redisPassword})
 	defer func() { _ = asynqClient.Close() }()
-	dispatcher := events.NewAsynqDispatcher(asynqClient, logx)
-	outboxRepo := events.NewOutboxRepository(st, logx)
-	bus := events.NewWithOutbox(dispatcher, outboxRepo, logx)
+	dispatcher := event.NewAsynqDispatcher(asynqClient, logx)
+	outboxRepo := event.NewOutboxRepository(st, logx)
+	bus := event.NewWithOutbox(dispatcher, outboxRepo, logx)
 	app.WireEventSubscriptions(bus, &app.EventHandlerDeps{Store: st, CacheManager: cm, Logger: logx})
-	workers = append(workers, events.NewWorker(redisAddr, redisPassword, bus, events.DefaultWorkerConfig(), logx))
+	workers = append(workers, event.NewWorker(redisAddr, redisPassword, bus, event.DefaultWorkerConfig(), logx))
 
 	for _, w := range workers {
 		if err := w.Start(); err != nil {
@@ -133,7 +133,7 @@ func initFCM(env string, cfg *config.Configs, logx *logger.Logger) *messaging.Cl
 }
 
 func runOutboxMetrics(
-	ctx context.Context, repo *events.OutboxRepository, interval time.Duration, logx *logger.Logger,
+	ctx context.Context, repo *event.OutboxRepository, interval time.Duration, logx *logger.Logger,
 ) {
 	if interval <= 0 {
 		interval = 15 * time.Second

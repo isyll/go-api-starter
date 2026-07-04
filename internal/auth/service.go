@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	"github.com/isyll/go-grpc-starter/internal/settings"
 	"github.com/isyll/go-grpc-starter/internal/users"
@@ -30,7 +30,7 @@ type Service struct {
 	settings     SettingsStore
 	refresh      RefreshTokenRepository
 	email        EmailSender
-	bus          *events.Bus
+	bus          *event.Bus
 	hasher       passwordHasher
 }
 
@@ -44,7 +44,7 @@ func NewService(
 	settings SettingsStore,
 	refresh RefreshTokenRepository,
 	email EmailSender,
-	bus *events.Bus,
+	bus *event.Bus,
 ) *Service {
 	ph := cfg.Security.PasswordHash
 	return &Service{

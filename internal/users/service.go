@@ -8,7 +8,7 @@ import (
 
 	"github.com/isyll/go-grpc-starter/internal/errs"
 	"github.com/isyll/go-grpc-starter/internal/errs/codes"
-	"github.com/isyll/go-grpc-starter/internal/events"
+	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/platform/storage"
 	"github.com/isyll/go-grpc-starter/pkg/id"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
@@ -34,7 +34,7 @@ type ProfileUpdate struct {
 type Service struct {
 	repo     Repository
 	sessions SessionRevoker
-	bus      *events.Bus
+	bus      *event.Bus
 	storage  storage.Storage
 	logger   *logger.Logger
 }
@@ -42,7 +42,7 @@ type Service struct {
 func NewService(
 	repo Repository,
 	sessions SessionRevoker,
-	bus *events.Bus,
+	bus *event.Bus,
 	store storage.Storage,
 	logx *logger.Logger,
 ) *Service {
@@ -95,7 +95,7 @@ func (s *Service) DeleteAccount(ctx context.Context, id int64) error {
 	if err := s.sessions.RevokeAllSessions(ctx, id, "account_deleted"); err != nil {
 		s.logger.Warn("revoke sessions on delete failed", "error", err, "user_id", id)
 	}
-	if err := s.bus.Publish(ctx, &events.UserAccountDeleted{
+	if err := s.bus.Publish(ctx, &event.UserAccountDeleted{
 		UserID:     id,
 		OccurredAt: time.Now().UTC(),
 	}); err != nil {
