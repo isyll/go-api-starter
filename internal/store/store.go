@@ -11,8 +11,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/isyll/go-grpc-starter/gen/db"
-	"github.com/isyll/go-grpc-starter/internal/authz"
 	"github.com/isyll/go-grpc-starter/internal/persistence"
+	"github.com/isyll/go-grpc-starter/internal/reqctx"
 )
 
 // Store wraps a pgx pool and the sqlc queries.
@@ -98,12 +98,12 @@ func SetChangeReason(ctx context.Context, reason string) error {
 // applyRLS sets the per-request GUCs the schema reads: app.current_user_id
 // (recorded as changed_by by audit triggers) and app.current_role.
 func applyRLS(ctx context.Context, tx pgx.Tx) error {
-	s := authz.From(ctx)
+	s := reqctx.SubjectFrom(ctx)
 	userID := "0"
-	role := string(authz.RoleAnonymous)
+	role := string(reqctx.RoleAnonymous)
 	switch {
 	case s.IsAdmin:
-		role = string(authz.RoleAdmin)
+		role = string(reqctx.RoleAdmin)
 	case s.UserID > 0:
 		userID = strconv.FormatInt(s.UserID, 10)
 		if s.Role != "" {

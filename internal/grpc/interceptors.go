@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/isyll/go-grpc-starter/internal/auth"
-	"github.com/isyll/go-grpc-starter/internal/authz"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/internal/users"
 	"github.com/isyll/go-grpc-starter/pkg/config"
@@ -108,9 +107,9 @@ func (i *interceptors) authUnary(
 
 	ctx = withUser(ctx, user)
 	ctx = withSessionID(ctx, session.ID)
-	ctx = authz.WithSubject(ctx, authz.Subject{
+	ctx = reqctx.WithSubject(ctx, reqctx.Subject{
 		UserID:    user.ID,
-		Role:      authz.Role(user.Role),
+		Role:      reqctx.Role(user.Role),
 		SessionID: session.ID,
 		DeviceID:  session.DeviceID,
 		IsAdmin:   user.IsAdmin(),
