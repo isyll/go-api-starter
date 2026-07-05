@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/isyll/go-grpc-starter/internal/auth"
+	"github.com/isyll/go-grpc-starter/internal/metrics"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 	"github.com/isyll/go-grpc-starter/internal/users"
 	"github.com/isyll/go-grpc-starter/pkg/config"
@@ -64,12 +65,35 @@ func New(c Config) *Set {
 func (i *Set) Unary() []grpc.UnaryServerInterceptor {
 	return []grpc.UnaryServerInterceptor{
 		i.recoveryUnary,
+		i.metricsUnary,
 		i.requestIDUnary,
 		i.loggingUnary,
 		i.localeUnary,
 		i.errorUnary,
 		i.authUnary,
 	}
+}
+
+// metricsUnary records RPC counts, latency, and in-flight gauge. It sits just
+// inside recovery so panics are counted as Internal like any other failure.
+func (i *Set) metricsUnary(
+	ctx context.Context,
+	req any,
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (any, error) {
+	metrics.GRPCRequestsInFlight.Inc()
+	start := time.Now()
+	resp, err := handler(ctx, req)
+	metrics.GRPCRequestsInFlight.Dec()
+
+	metrics.GRPCRequestsTotal.
+		WithLabelValues(info.FullMethod, status.Code(err).String()).
+		Inc()
+	metrics.GRPCRequestDurationSeconds.
+		WithLabelValues(info.FullMethod).
+		Observe(time.Since(start).Seconds())
+	return resp, err
 }
 
 var publicMethods = map[string]bool{

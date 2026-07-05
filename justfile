@@ -2,6 +2,7 @@ set dotenv-load
 set dotenv-filename := ".env"
 
 build_dir := "bin"
+module := "github.com/isyll/go-grpc-starter"
 
 # List available recipes.
 default:
@@ -45,10 +46,14 @@ test-cover:
     @go test ./... -race -coverprofile=coverage.out -covermode=atomic
     @go tool cover -func=coverage.out
 
-# Build all binaries.
+# Build all binaries with version metadata stamped in.
 build:
     @mkdir -p {{ build_dir }}
-    @go build -trimpath -ldflags="-s -w" -o {{ build_dir }}/ ./cmd/...
+    @go build -trimpath -ldflags="-s -w \
+      -X {{ module }}/pkg/version.version=$(git describe --tags --always 2>/dev/null || echo dev) \
+      -X {{ module }}/pkg/version.commit=$(git rev-parse --short HEAD 2>/dev/null || echo none) \
+      -X {{ module }}/pkg/version.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      -o {{ build_dir }}/ ./cmd/...
 
 # Apply all migrations.
 migrate:

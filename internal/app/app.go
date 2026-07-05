@@ -16,6 +16,7 @@ import (
 
 	"github.com/isyll/go-grpc-starter/internal/event"
 	grpcserver "github.com/isyll/go-grpc-starter/internal/grpcsvc"
+	"github.com/isyll/go-grpc-starter/internal/metrics"
 	"github.com/isyll/go-grpc-starter/internal/monitor"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	database "github.com/isyll/go-grpc-starter/internal/platform/db"
@@ -29,6 +30,7 @@ import (
 	"github.com/isyll/go-grpc-starter/pkg/idenc"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
+	"github.com/isyll/go-grpc-starter/pkg/version"
 )
 
 type App struct {
@@ -56,7 +58,13 @@ func (a *App) Initialize() error {
 
 	envName := appenv.InitApp()
 	logx := logger.New(envName)
-	logx.Info("initializing "+cfgs.App.Info.Name, "version", cfgs.App.Info.Version, "env", envName)
+	logx.Info(
+		"initializing "+cfgs.App.Info.Name,
+		"version", cfgs.App.Info.Version,
+		"build", version.Version(),
+		"commit", version.Commit(),
+		"env", envName,
+	)
 
 	pool, err := database.InitPool(cfgs.Database, database.RoleApp, logx)
 	if err != nil {
@@ -68,6 +76,9 @@ func (a *App) Initialize() error {
 	if err != nil {
 		return fmt.Errorf("redis init: %w", err)
 	}
+
+	metrics.RegisterPoolCollectors(pool, rdb)
+	metrics.BuildInfo.WithLabelValues(version.Version(), version.Commit()).Set(1)
 
 	idCfg := cfgs.Security.IDObfuscation
 	idEncoder := idenc.NewSqidsEncoder(idCfg.Alphabet, idCfg.MinLength)

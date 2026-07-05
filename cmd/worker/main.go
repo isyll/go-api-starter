@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -16,8 +17,10 @@ import (
 
 	"github.com/isyll/go-grpc-starter/internal/app"
 	"github.com/isyll/go-grpc-starter/internal/event"
+	"github.com/isyll/go-grpc-starter/internal/metrics"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	database "github.com/isyll/go-grpc-starter/internal/platform/db"
+	"github.com/isyll/go-grpc-starter/internal/platform/obs"
 	"github.com/isyll/go-grpc-starter/internal/store"
 	emailworker "github.com/isyll/go-grpc-starter/internal/worker/emails"
 	notifworker "github.com/isyll/go-grpc-starter/internal/worker/notifications"
@@ -26,6 +29,7 @@ import (
 	"github.com/isyll/go-grpc-starter/pkg/firebase"
 	"github.com/isyll/go-grpc-starter/pkg/locale"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
+	"github.com/isyll/go-grpc-starter/pkg/version"
 )
 
 type startStopper interface {
@@ -57,6 +61,23 @@ func main() {
 	}
 	defer func() { _ = rdb.Close() }()
 	cm := cache.NewCacheManager(rdb, cfg.Redis.Cache.Prefix)
+
+	metrics.RegisterPoolCollectors(pool, rdb)
+	metrics.BuildInfo.WithLabelValues(version.Version(), version.Commit()).Set(1)
+
+	obsPort := os.Getenv("WORKER_METRICS_PORT")
+	if obsPort == "" {
+		obsPort = "9091"
+	}
+	obsSrv := obs.StartServer(obsPort, map[string]obs.Check{
+		"database": func(ctx context.Context) error { return pool.Ping(ctx) },
+		"cache":    func(ctx context.Context) error { return rdb.Ping(ctx).Err() },
+	}, logx)
+	defer func() {
+		shutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = obsSrv.Shutdown(shutCtx)
+	}()
 
 	redisAddr, redisPassword := cfg.Redis.Credentials()
 
