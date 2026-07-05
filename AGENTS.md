@@ -77,5 +77,15 @@ infra/          docker, postgres init, prometheus
 - No em dashes in docs or code; use plain punctuation.
 - Commit messages: short, plain, imperative subject lines, no trailers.
 
+## AI assistance
+
+Reusable agent workflows ship with the repo:
+
+- Claude skills in `.claude/skills/`: bootstrap-project, add-domain,
+  add-rpc, add-event, add-email-template.
+- Claude commands in `.claude/commands/`: `/verify-all`, `/regen`.
+- The same flows as Copilot prompt files in `.github/prompts/`.
+
 > [!NOTE]
-> `CLAUDE.md` is a symlink to this file, so both stay in sync.
+> `CLAUDE.md` and `.github/copilot-instructions.md` are symlinks to this
+> file, so all three stay in sync.
