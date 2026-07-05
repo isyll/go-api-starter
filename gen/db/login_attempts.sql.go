@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createLoginAttempt = `-- name: CreateLoginAttempt :exec
@@ -41,4 +43,16 @@ func (q *Queries) CreateLoginAttempt(ctx context.Context, arg CreateLoginAttempt
 		arg.RequestID,
 	)
 	return err
+}
+
+const deleteLoginAttemptsBefore = `-- name: DeleteLoginAttemptsBefore :execrows
+DELETE FROM auth.login_attempts WHERE created_at < $1
+`
+
+func (q *Queries) DeleteLoginAttemptsBefore(ctx context.Context, createdAt pgtype.Timestamptz) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteLoginAttemptsBefore, createdAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

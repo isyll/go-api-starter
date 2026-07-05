@@ -25,3 +25,8 @@ WHERE token_family = $1 AND revoked_at IS NULL;
 -- name: DeleteExpiredRefreshTokens :execrows
 DELETE FROM auth.refresh_tokens
 WHERE expires_at < now() AND revoked_at IS NULL;
+
+-- name: DeleteStaleRefreshTokens :execrows
+DELETE FROM auth.refresh_tokens
+WHERE expires_at < $1
+   OR (revoked_at IS NOT NULL AND revoked_at < $1);

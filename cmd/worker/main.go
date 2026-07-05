@@ -17,6 +17,7 @@ import (
 
 	"github.com/isyll/go-grpc-starter/internal/app"
 	"github.com/isyll/go-grpc-starter/internal/event"
+	"github.com/isyll/go-grpc-starter/internal/maintenance"
 	"github.com/isyll/go-grpc-starter/internal/metrics"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	database "github.com/isyll/go-grpc-starter/internal/platform/db"
@@ -129,6 +130,7 @@ func main() {
 	}
 	go bus.DrainOutbox(rootCtx, drainInterval)
 	go runOutboxMetrics(rootCtx, outboxRepo, cfg.Events.Outbox.MetricsInterval, logx)
+	go maintenance.NewSweeper(st, cfg.Maintenance, logx).Run(rootCtx)
 
 	logx.Info("worker ready", "redis", redisAddr)
 	<-rootCtx.Done()

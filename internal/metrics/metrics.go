@@ -196,6 +196,17 @@ var (
 		},
 	)
 
+	MaintenanceRowsDeletedTotal = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: metricsNamespace,
+			Subsystem: "maintenance",
+			Name:      "rows_deleted_total",
+			Help: "Rows removed by the worker's periodic " +
+				"retention sweeps, by job.",
+		},
+		[]string{"job"},
+	)
+
 	AuditLogWriteFailuresTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: metricsNamespace,

@@ -17,6 +17,7 @@ type Configs struct {
 	Storage       *StorageConfig
 	Firebase      *FirebaseConfig
 	Gateway       *GatewayConfig
+	Maintenance   *MaintenanceConfig
 }
 
 // LoadAllConfigs is the single entrypoint: it loads every config file from
@@ -66,6 +67,11 @@ func LoadAllConfigs() (*Configs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("gateway config: %w", err)
 	}
+	maintenance, err := LoadConfig[MaintenanceConfig]("configs/maintenance.yaml")
+	if err != nil {
+		return nil, fmt.Errorf("maintenance config: %w", err)
+	}
+	maintenance.applyDefaults()
 
 	cfg := &Configs{
 		App:           app,
@@ -78,6 +84,7 @@ func LoadAllConfigs() (*Configs, error) {
 		Storage:       storage,
 		Firebase:      firebase,
 		Gateway:       gateway,
+		Maintenance:   maintenance,
 	}
 	if err := cfg.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid config: %w", err)

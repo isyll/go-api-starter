@@ -1,0 +1,12 @@
+retention:
+  # How often the worker sweeps.
+  interval: ${RETENTION_SWEEP_INTERVAL:-1h}
+
+  # Expired or revoked refresh tokens older than this are deleted.
+  refresh_tokens: ${RETENTION_REFRESH_TOKENS:-720h}
+
+  # Processed outbox rows older than this are deleted.
+  processed_outbox: ${RETENTION_PROCESSED_OUTBOX:-168h}
+
+  # Login attempt rows older than this are deleted.
+  login_attempts: ${RETENTION_LOGIN_ATTEMPTS:-2160h}

@@ -6,6 +6,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
@@ -25,6 +27,9 @@ type Querier interface {
 	DeactivateFCMToken(ctx context.Context, id int64) error
 	DeleteExpiredRefreshTokens(ctx context.Context) (int64, error)
 	DeleteFCMTokenByDevice(ctx context.Context, arg DeleteFCMTokenByDeviceParams) error
+	DeleteLoginAttemptsBefore(ctx context.Context, createdAt pgtype.Timestamptz) (int64, error)
+	DeleteProcessedOutboxBefore(ctx context.Context, processedAt pgtype.Timestamptz) (int64, error)
+	DeleteStaleRefreshTokens(ctx context.Context, expiresAt pgtype.Timestamptz) (int64, error)
 	ExistsUserByEmail(ctx context.Context, email string) (bool, error)
 	GetActiveDeviceSessionByUserAndDevice(ctx context.Context, arg GetActiveDeviceSessionByUserAndDeviceParams) (AuthDeviceSession, error)
 	GetActiveSuspensionByUserID(ctx context.Context, userID int64) (AuthAccountSuspension, error)

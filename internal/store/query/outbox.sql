@@ -41,3 +41,7 @@ FROM events.outbox;
 
 -- name: CountOutboxDeadLetters :one
 SELECT count(*) FROM events.outbox_dead_letter;
+
+-- name: DeleteProcessedOutboxBefore :execrows
+DELETE FROM events.outbox
+WHERE processed_at IS NOT NULL AND processed_at < $1;

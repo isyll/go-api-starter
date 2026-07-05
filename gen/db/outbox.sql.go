@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const countOutboxDeadLetters = `-- name: CountOutboxDeadLetters :one
@@ -18,6 +20,19 @@ func (q *Queries) CountOutboxDeadLetters(ctx context.Context) (int64, error) {
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const deleteProcessedOutboxBefore = `-- name: DeleteProcessedOutboxBefore :execrows
+DELETE FROM events.outbox
+WHERE processed_at IS NOT NULL AND processed_at < $1
+`
+
+func (q *Queries) DeleteProcessedOutboxBefore(ctx context.Context, processedAt pgtype.Timestamptz) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteProcessedOutboxBefore, processedAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const insertOutbox = `-- name: InsertOutbox :one

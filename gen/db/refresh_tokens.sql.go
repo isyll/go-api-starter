@@ -63,6 +63,20 @@ func (q *Queries) DeleteExpiredRefreshTokens(ctx context.Context) (int64, error)
 	return result.RowsAffected(), nil
 }
 
+const deleteStaleRefreshTokens = `-- name: DeleteStaleRefreshTokens :execrows
+DELETE FROM auth.refresh_tokens
+WHERE expires_at < $1
+   OR (revoked_at IS NOT NULL AND revoked_at < $1)
+`
+
+func (q *Queries) DeleteStaleRefreshTokens(ctx context.Context, expiresAt pgtype.Timestamptz) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteStaleRefreshTokens, expiresAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const listRefreshTokensByPrefix = `-- name: ListRefreshTokensByPrefix :many
 SELECT id, session_id, token_hash, token_prefix, token_family, expires_at, revoked_at, revoked_reason, created_at, updated_at FROM auth.refresh_tokens WHERE token_prefix = $1
 `
