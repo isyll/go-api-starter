@@ -1,2 +1,2 @@
-// Package monitor tracks dead-letter and queue health for the async workers.
+// Package monitor polls Asynq queue statistics into Prometheus gauges.
 package monitor

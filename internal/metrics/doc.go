@@ -1,2 +1,2 @@
-// Package metrics exposes Prometheus counters and histograms used across the API.
+// Package metrics defines the Prometheus instruments shared by all processes.
 package metrics

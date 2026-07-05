@@ -1,2 +1,2 @@
-// Package persistence provides the transactional unit-of-work manager.
+// Package persistence holds small request-scoped persistence helpers.
 package persistence

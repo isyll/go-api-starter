@@ -10,8 +10,7 @@ import (
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
-// testEvent is a sync-only event with no factory; we
-// register the type on the bus by Subscribe[*testEvent].
+// testEvent is registered on the bus via Subscribe[*testEvent].
 type testEvent struct {
 	CommonFields
 	Token string
@@ -19,12 +18,7 @@ type testEvent struct {
 
 func (*testEvent) EventType() string { return "test.unit" }
 
-// TestPublishCriticalSurfacesError verifies that a sync
-// handler registered with WithCritical() returns its
-// error through Publish - the only seam any future
-// "must succeed or abort" handler depends on. Without
-// this test the seam silently rots: today's handlers all
-// log-and-swallow.
+// A sync handler registered with WithCritical() must surface its error.
 func TestPublishCriticalSurfacesError(t *testing.T) {
 	logx := logger.New("test")
 	bus := New(nil, logx)
@@ -50,11 +44,7 @@ func TestPublishCriticalSurfacesError(t *testing.T) {
 	}
 }
 
-// TestPublishNonCriticalSwallowsError verifies the inverse
-// invariant: a non-critical sync handler's failure must
-// NEVER surface to the publisher (cache invalidation is
-// the canonical example; Redis being unreachable cannot
-// fail the originating request).
+// A non-critical sync handler failure must never reach the publisher.
 func TestPublishNonCriticalSwallowsError(t *testing.T) {
 	logx := logger.New("test")
 	bus := New(nil, logx)
@@ -77,10 +67,7 @@ func TestPublishNonCriticalSwallowsError(t *testing.T) {
 	}
 }
 
-// TestPublishHandlerPanicIsRecovered verifies that a
-// panicking sync handler does not propagate; the bus
-// recovers, logs, and returns a non-nil error when the
-// handler was registered WithCritical.
+// A panicking critical handler is recovered and surfaced as an error.
 func TestPublishHandlerPanicIsRecovered(t *testing.T) {
 	logx := logger.New("test")
 	bus := New(nil, logx)
@@ -114,9 +101,7 @@ func (d *stubDispatcher) Enqueue(context.Context, Event, []asynq.Option) error {
 	return d.err
 }
 
-// TestPublishDuplicateEnqueueIsSuccess verifies at-least-once glue: a
-// redelivered event whose task already exists must not count as a failure,
-// otherwise outbox retries dead-letter events that were already handled.
+// A redelivered event whose task already exists must not count as failure.
 func TestPublishDuplicateEnqueueIsSuccess(t *testing.T) {
 	logx := logger.New("test")
 
@@ -139,8 +124,7 @@ func TestPublishDuplicateEnqueueIsSuccess(t *testing.T) {
 	}
 }
 
-// TestPublishEnqueueFailureSurfaces verifies real enqueue failures still
-// bubble up so the outbox marks the row failed and retries it.
+// Real enqueue failures surface so the outbox marks the row for retry.
 func TestPublishEnqueueFailureSurfaces(t *testing.T) {
 	logx := logger.New("test")
 	disp := &stubDispatcher{err: errors.New("redis down")}
