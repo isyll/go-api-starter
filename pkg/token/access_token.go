@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	accessTokenPrefix  = "vg_at_"
-	refreshTokenPrefix = "vg_rt_"
+	accessTokenPrefix  = "at_"
+	refreshTokenPrefix = "rt_"
 	tokenByteLen       = 32
 )
 

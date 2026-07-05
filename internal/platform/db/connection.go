@@ -41,13 +41,7 @@ func InitPool(
 		stmtTimeout = 5000
 	}
 
-	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		quoteDSN(creds.Host), quoteDSN(creds.Port), quoteDSN(creds.User),
-		quoteDSN(creds.Password), quoteDSN(creds.DBName), quoteDSN(creds.SSLMode),
-	)
-
-	poolCfg, err := pgxpool.ParseConfig(dsn)
+	poolCfg, err := pgxpool.ParseConfig(BuildDSN(creds))
 	if err != nil {
 		return nil, fmt.Errorf("parse db config: %w", err)
 	}
@@ -128,6 +122,20 @@ func applyPoolConfig(poolCfg *pgxpool.Config, pc config.ConnectionPoolConfig) {
 	if d, err := time.ParseDuration(pc.HealthCheckPeriod); err == nil {
 		poolCfg.HealthCheckPeriod = d
 	}
+}
+
+// BuildDSN renders credentials as a key=value connection string with every
+// value quoted, so passwords with spaces or special characters stay intact.
+func BuildDSN(creds config.DBCredentials, extra ...string) string {
+	dsn := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		quoteDSN(creds.Host), quoteDSN(creds.Port), quoteDSN(creds.User),
+		quoteDSN(creds.Password), quoteDSN(creds.DBName), quoteDSN(creds.SSLMode),
+	)
+	if len(extra) > 0 {
+		dsn += " " + strings.Join(extra, " ")
+	}
+	return dsn
 }
 
 // quoteDSN escapes a value for a libpq key=value connection string: the value

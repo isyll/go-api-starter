@@ -10,7 +10,9 @@ auth:
 
 id_obfuscation:
   min_length: 10
-  alphabet: "vortexqabcfghijkmnpuwydz986731254s"
+  # Set a project-specific shuffled alphabet so obfuscated IDs are unique
+  # to your deployment.
+  alphabet: ${ID_OBFUSCATION_ALPHABET:-m2xz7cqp4kv9djw3nfge8yb5uh6ta1r0s}
 
 # argon2id password hashing cost. Defaults (OWASP-ish) are applied when unset.
 password_hash:

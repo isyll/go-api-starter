@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	database "github.com/isyll/go-grpc-starter/internal/platform/db"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	appenv "github.com/isyll/go-grpc-starter/pkg/env"
 
@@ -23,7 +24,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/uuid"
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 const (
@@ -84,17 +85,9 @@ func main() {
 		log.Fatal("Failed to load config:", err)
 	}
 
-	searchPath := "public,auth,notifications,audit"
-
-	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s search_path=%s",
-		cfg.Database.Credentials.Host,
-		cfg.Database.Credentials.Port,
-		cfg.Database.Credentials.User,
-		cfg.Database.Credentials.Password,
-		cfg.Database.Credentials.DBName,
-		cfg.Database.Credentials.SSLMode,
-		searchPath,
+	dsn := database.BuildDSN(
+		cfg.Database.Credentials,
+		"search_path='public,auth,notifications,audit'",
 	)
 
 	tracker := &MigrationTracker{dsn: dsn}
@@ -150,7 +143,7 @@ func main() {
 }
 
 func (mt *MigrationTracker) init() error {
-	db, err := sql.Open("postgres", mt.dsn)
+	db, err := sql.Open("pgx", mt.dsn)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -410,7 +403,7 @@ func moveSchemamigrationsToPublic(db *sql.DB) error {
 }
 
 func getMigrate(dsn string) (*migrate.Migrate, error) {
-	db, err := sql.Open("postgres", dsn)
+	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"failed to connect to database: %w", err,

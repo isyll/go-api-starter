@@ -28,7 +28,7 @@ func New(env string) *Logger {
 			FlushInterval: time.Second,
 		}
 
-		core = zapcore.NewCore(encoder, buf, zapcore.InfoLevel)
+		core = zapcore.NewCore(encoder, buf, levelFromEnv(zapcore.InfoLevel))
 	} else {
 		encoderCfg := zap.NewDevelopmentEncoderConfig()
 		encoderCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
@@ -41,7 +41,7 @@ func New(env string) *Logger {
 		core = zapcore.NewCore(
 			encoder,
 			zapcore.AddSync(os.Stdout),
-			zapcore.DebugLevel,
+			levelFromEnv(zapcore.DebugLevel),
 		)
 	}
 
@@ -51,6 +51,18 @@ func New(env string) *Logger {
 	)
 
 	return &Logger{appLogger: logger.Sugar(), buf: buf}
+}
+
+// levelFromEnv reads LOG_LEVEL (debug, info, warn, error); anything else
+// keeps the environment default.
+func levelFromEnv(def zapcore.Level) zapcore.Level {
+	if raw := os.Getenv("LOG_LEVEL"); raw != "" {
+		var lvl zapcore.Level
+		if err := lvl.UnmarshalText([]byte(raw)); err == nil {
+			return lvl
+		}
+	}
+	return def
 }
 
 func (l *Logger) Info(msg string, keysAndValues ...any) {
