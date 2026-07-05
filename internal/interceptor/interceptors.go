@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"buf.build/go/protovalidate"
+
 	"github.com/isyll/go-grpc-starter/internal/auth"
 	"github.com/isyll/go-grpc-starter/internal/metrics"
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
@@ -41,6 +43,7 @@ type Set struct {
 	logger        *logger.Logger
 	locale        translator
 	localeDefLang string
+	validator     protovalidate.Validator
 }
 
 // New builds the interceptor set. i18n is optional: without it, error message
@@ -57,6 +60,13 @@ func New(c Config) *Set {
 		s.locale = c.Locale
 		s.localeDefLang = c.Locale.DefaultLanguage()
 	}
+	v, err := protovalidate.New()
+	if err != nil {
+		// Only misconfigured custom options can fail here; refuse to serve
+		// without request validation.
+		c.Logger.Fatal("protovalidate init failed", "error", err)
+	}
+	s.validator = v
 	return s
 }
 
@@ -71,6 +81,7 @@ func (i *Set) Unary() []grpc.UnaryServerInterceptor {
 		i.localeUnary,
 		i.errorUnary,
 		i.authUnary,
+		i.validationUnary,
 	}
 }
 

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "common/v1/common.proto";
@@ -42,23 +43,23 @@ message ListUsersResponse {
 }
 
 message AdminGetUserRequest {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
 }
 
 message SuspendUserRequest {
-  string id = 1;
-  string reason = 2;
-  string details = 3;
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
+  string reason = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 200];
+  string details = 3 [(buf.validate.field).string.max_len = 2000];
   bool permanent = 4;
   // Days is the suspension length when not permanent.
-  int32 days = 5;
+  int32 days = 5 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 3650];
 }
 
 message UnsuspendUserRequest {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
 }
 
 message SetUserRoleRequest {
-  string id = 1;
-  string role = 2;
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
+  string role = 2 [(buf.validate.field).string.in = "user", (buf.validate.field).string.in = "admin"];
 }

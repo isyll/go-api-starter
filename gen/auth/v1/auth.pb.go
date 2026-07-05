@@ -7,6 +7,7 @@
 package authv1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -488,34 +489,46 @@ var File_auth_v1_auth_proto protoreflect.FileDescriptor
 
 const file_auth_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x12auth/v1/auth.proto\x12\aauth.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"\xae\x01\n" +
-	"\x0fRegisterRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1d\n" +
+	"\x12auth/v1/auth.proto\x12\aauth.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"\xdc\x01\n" +
+	"\x0fRegisterRequest\x12 \n" +
+	"\x05email\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x18\xfe\x01`\x01R\x05email\x12&\n" +
+	"\bpassword\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\b\x18\x80\x01R\bpassword\x12(\n" +
 	"\n" +
-	"first_name\x18\x03 \x01(\tR\tfirstName\x12\x1b\n" +
-	"\tlast_name\x18\x04 \x01(\tR\blastName\x12-\n" +
-	"\x06device\x18\x05 \x01(\v2\x15.common.v1.DeviceInfoR\x06device\"o\n" +
-	"\fLoginRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12-\n" +
-	"\x06device\x18\x03 \x01(\v2\x15.common.v1.DeviceInfoR\x06device\":\n" +
-	"\x13RefreshTokenRequest\x12#\n" +
-	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"*\n" +
-	"\x12VerifyEmailRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"3\n" +
-	"\x1bRequestPasswordResetRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\"O\n" +
-	"\x14ResetPasswordRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12!\n" +
-	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"e\n" +
-	"\x15ChangePasswordRequest\x12)\n" +
-	"\x10current_password\x18\x01 \x01(\tR\x0fcurrentPassword\x12!\n" +
-	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"B\n" +
+	"first_name\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\tfirstName\x12&\n" +
+	"\tlast_name\x18\x04 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\blastName\x12-\n" +
+	"\x06device\x18\x05 \x01(\v2\x15.common.v1.DeviceInfoR\x06device\"\x87\x01\n" +
+	"\fLoginRequest\x12 \n" +
+	"\x05email\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x18\xfe\x01`\x01R\x05email\x12&\n" +
+	"\bpassword\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\bpassword\x12-\n" +
+	"\x06device\x18\x03 \x01(\v2\x15.common.v1.DeviceInfoR\x06device\"F\n" +
+	"\x13RefreshTokenRequest\x12/\n" +
+	"\rrefresh_token\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x04R\frefreshToken\"6\n" +
+	"\x12VerifyEmailRequest\x12 \n" +
+	"\x05token\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x05token\"?\n" +
+	"\x1bRequestPasswordResetRequest\x12 \n" +
+	"\x05email\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x18\xfe\x01`\x01R\x05email\"g\n" +
+	"\x14ResetPasswordRequest\x12 \n" +
+	"\x05token\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x05token\x12-\n" +
+	"\fnew_password\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\b\x18\x80\x01R\vnewPassword\"}\n" +
+	"\x15ChangePasswordRequest\x125\n" +
+	"\x10current_password\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x0fcurrentPassword\x12-\n" +
+	"\fnew_password\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\b\x18\x80\x01R\vnewPassword\"B\n" +
 	"\x13ListDevicesResponse\x12+\n" +
-	"\adevices\x18\x01 \x03(\v2\x11.common.v1.DeviceR\adevices\"2\n" +
-	"\x13RevokeDeviceRequest\x12\x1b\n" +
-	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId2\xe6\b\n" +
+	"\adevices\x18\x01 \x03(\v2\x11.common.v1.DeviceR\adevices\">\n" +
+	"\x13RevokeDeviceRequest\x12'\n" +
+	"\tdevice_id\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\bdeviceId2\xe6\b\n" +
 	"\vAuthService\x12X\n" +
 	"\bRegister\x12\x18.auth.v1.RegisterRequest\x1a\x14.common.v1.TokenPair\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/register\x12O\n" +
 	"\x05Login\x12\x15.auth.v1.LoginRequest\x1a\x14.common.v1.TokenPair\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12e\n" +

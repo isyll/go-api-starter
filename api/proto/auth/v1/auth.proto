@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package auth.v1;
 
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "common/v1/common.proto";
@@ -65,39 +66,39 @@ service AuthService {
 }
 
 message RegisterRequest {
-  string email = 1;
-  string password = 2;
-  string first_name = 3;
-  string last_name = 4;
+  string email = 1 [(buf.validate.field).string.email = true, (buf.validate.field).string.max_len = 254];
+  string password = 2 [(buf.validate.field).string.min_len = 8, (buf.validate.field).string.max_len = 128];
+  string first_name = 3 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 100];
+  string last_name = 4 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 100];
   common.v1.DeviceInfo device = 5;
 }
 
 message LoginRequest {
-  string email = 1;
-  string password = 2;
+  string email = 1 [(buf.validate.field).string.email = true, (buf.validate.field).string.max_len = 254];
+  string password = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 128];
   common.v1.DeviceInfo device = 3;
 }
 
 message RefreshTokenRequest {
-  string refresh_token = 1;
+  string refresh_token = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 512];
 }
 
 message VerifyEmailRequest {
-  string token = 1;
+  string token = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 128];
 }
 
 message RequestPasswordResetRequest {
-  string email = 1;
+  string email = 1 [(buf.validate.field).string.email = true, (buf.validate.field).string.max_len = 254];
 }
 
 message ResetPasswordRequest {
-  string token = 1;
-  string new_password = 2;
+  string token = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 128];
+  string new_password = 2 [(buf.validate.field).string.min_len = 8, (buf.validate.field).string.max_len = 128];
 }
 
 message ChangePasswordRequest {
-  string current_password = 1;
-  string new_password = 2;
+  string current_password = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 128];
+  string new_password = 2 [(buf.validate.field).string.min_len = 8, (buf.validate.field).string.max_len = 128];
 }
 
 message ListDevicesResponse {
@@ -105,5 +106,5 @@ message ListDevicesResponse {
 }
 
 message RevokeDeviceRequest {
-  string device_id = 1;
+  string device_id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 128];
 }

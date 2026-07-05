@@ -7,6 +7,7 @@
 package userv1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -426,32 +427,34 @@ var File_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/v1/user.proto\x12\auser.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"\xbb\x01\n" +
-	"\x0fUpdateMeRequest\x12\"\n" +
+	"\x12user/v1/user.proto\x12\auser.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"\xe1\x01\n" +
+	"\x0fUpdateMeRequest\x12+\n" +
 	"\n" +
-	"first_name\x18\x01 \x01(\tH\x00R\tfirstName\x88\x01\x01\x12 \n" +
-	"\tlast_name\x18\x02 \x01(\tH\x01R\blastName\x88\x01\x01\x12\x15\n" +
-	"\x03bio\x18\x03 \x01(\tH\x02R\x03bio\x88\x01\x01\x12\x1b\n" +
-	"\x06avatar\x18\x04 \x01(\tH\x03R\x06avatar\x88\x01\x01B\r\n" +
+	"first_name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x18dH\x00R\tfirstName\x88\x01\x01\x12)\n" +
+	"\tlast_name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x18dH\x01R\blastName\x88\x01\x01\x12\x1f\n" +
+	"\x03bio\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xe8\aH\x02R\x03bio\x88\x01\x01\x12%\n" +
+	"\x06avatar\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x10H\x03R\x06avatar\x88\x01\x01B\r\n" +
 	"\v_first_nameB\f\n" +
 	"\n" +
 	"_last_nameB\x06\n" +
 	"\x04_bioB\t\n" +
-	"\a_avatar\" \n" +
-	"\x0eGetUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"Z\n" +
-	"\x13UploadAvatarRequest\x12#\n" +
-	"\fcontent_type\x18\x01 \x01(\tH\x00R\vcontentType\x12\x16\n" +
-	"\x05chunk\x18\x02 \x01(\fH\x00R\x05chunkB\x06\n" +
+	"\a_avatar\"+\n" +
+	"\x0eGetUserRequest\x12\x19\n" +
+	"\x02id\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18@R\x02id\"n\n" +
+	"\x13UploadAvatarRequest\x12,\n" +
+	"\fcontent_type\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x18dH\x00R\vcontentType\x12!\n" +
+	"\x05chunk\x18\x02 \x01(\fB\t\xbaH\x06z\x04\x18\x80\x80@H\x00R\x05chunkB\x06\n" +
 	"\x04data\"5\n" +
 	"\x14UploadAvatarResponse\x12\x1d\n" +
 	"\n" +
-	"avatar_url\x18\x01 \x01(\tR\tavatarUrl\"\x8a\x01\n" +
-	"\x18RegisterPushTokenRequest\x12\x1b\n" +
-	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId\x12\x14\n" +
-	"\x05token\x18\x02 \x01(\tR\x05token\x12\x1a\n" +
-	"\bplatform\x18\x03 \x01(\tR\bplatform\x12\x1f\n" +
-	"\vapp_version\x18\x04 \x01(\tR\n" +
+	"avatar_url\x18\x01 \x01(\tR\tavatarUrl\"\xb4\x01\n" +
+	"\x18RegisterPushTokenRequest\x12'\n" +
+	"\tdevice_id\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\bdeviceId\x12 \n" +
+	"\x05token\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x04R\x05token\x12#\n" +
+	"\bplatform\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18 R\bplatform\x12(\n" +
+	"\vapp_version\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x18 R\n" +
 	"appVersion\"\x81\x02\n" +
 	"\x17NotificationPreferences\x12\x12\n" +
 	"\x04push\x18\x01 \x01(\bR\x04push\x12\x14\n" +

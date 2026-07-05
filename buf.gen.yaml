@@ -2,9 +2,11 @@ version: v2
 managed:
   enabled: true
   disable:
-    # Keep the vendored google.api annotations pointing at genproto rather than
-    # rewriting their import path under our local gen/ prefix.
+    # Keep vendored modules (google.api annotations, buf.validate) pointing at
+    # their canonical Go packages rather than our local gen/ prefix.
     - module: buf.build/googleapis/googleapis
+      file_option: go_package
+    - module: buf.build/bufbuild/protovalidate
       file_option: go_package
   override:
     - file_option: go_package_prefix

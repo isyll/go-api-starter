@@ -52,6 +52,7 @@ func New(d Deps) *Server {
 	opts := append(
 		serverOptions(d.Config),
 		grpc.ChainUnaryInterceptor(ic.Unary()...),
+		grpc.ChainStreamInterceptor(ic.Stream()...),
 	)
 	srv := grpc.NewServer(opts...)
 

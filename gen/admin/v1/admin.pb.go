@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v1 "github.com/isyll/go-grpc-starter/gen/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -341,25 +342,27 @@ var File_admin_v1_admin_proto protoreflect.FileDescriptor
 
 const file_admin_v1_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x14admin/v1/admin.proto\x12\badmin.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"7\n" +
+	"\x14admin/v1/admin.proto\x12\badmin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16common/v1/common.proto\"7\n" +
 	"\x10ListUsersRequest\x12#\n" +
 	"\x04page\x18\x01 \x01(\v2\x0f.common.v1.PageR\x04page\"P\n" +
 	"\x11ListUsersResponse\x12%\n" +
 	"\x05users\x18\x01 \x03(\v2\x0f.common.v1.UserR\x05users\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"%\n" +
-	"\x13AdminGetUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x88\x01\n" +
-	"\x12SuspendUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
-	"\x06reason\x18\x02 \x01(\tR\x06reason\x12\x18\n" +
-	"\adetails\x18\x03 \x01(\tR\adetails\x12\x1c\n" +
-	"\tpermanent\x18\x04 \x01(\bR\tpermanent\x12\x12\n" +
-	"\x04days\x18\x05 \x01(\x05R\x04days\"&\n" +
-	"\x14UnsuspendUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"8\n" +
-	"\x12SetUserRoleRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04role\x18\x02 \x01(\tR\x04role2\x90\x04\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"0\n" +
+	"\x13AdminGetUserRequest\x12\x19\n" +
+	"\x02id\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18@R\x02id\"\xb5\x01\n" +
+	"\x12SuspendUserRequest\x12\x19\n" +
+	"\x02id\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18@R\x02id\x12\"\n" +
+	"\x06reason\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\xc8\x01R\x06reason\x12\"\n" +
+	"\adetails\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xd0\x0fR\adetails\x12\x1c\n" +
+	"\tpermanent\x18\x04 \x01(\bR\tpermanent\x12\x1e\n" +
+	"\x04days\x18\x05 \x01(\x05B\n" +
+	"\xbaH\a\x1a\x05\x18\xc2\x1c(\x00R\x04days\"1\n" +
+	"\x14UnsuspendUserRequest\x12\x19\n" +
+	"\x02id\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18@R\x02id\"W\n" +
+	"\x12SetUserRoleRequest\x12\x19\n" +
+	"\x02id\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18@R\x02id\x12&\n" +
+	"\x04role\x18\x02 \x01(\tB\x12\xbaH\x0fr\rR\x04userR\x05adminR\x04role2\x90\x04\n" +
 	"\fAdminService\x12]\n" +
 	"\tListUsers\x12\x1a.admin.v1.ListUsersRequest\x1a\x1b.admin.v1.ListUsersResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/admin/users\x12W\n" +
 	"\aGetUser\x12\x1d.admin.v1.AdminGetUserRequest\x1a\x0f.common.v1.User\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/admin/users/{id}\x12l\n" +

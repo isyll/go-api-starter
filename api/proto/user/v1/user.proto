@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package user.v1;
 
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "common/v1/common.proto";
@@ -59,20 +60,20 @@ service UserService {
 }
 
 message UpdateMeRequest {
-  optional string first_name = 1;
-  optional string last_name = 2;
-  optional string bio = 3;
-  optional string avatar = 4;
+  optional string first_name = 1 [(buf.validate.field).string.max_len = 100];
+  optional string last_name = 2 [(buf.validate.field).string.max_len = 100];
+  optional string bio = 3 [(buf.validate.field).string.max_len = 1000];
+  optional string avatar = 4 [(buf.validate.field).string.max_len = 2048];
 }
 
 message GetUserRequest {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
 }
 
 message UploadAvatarRequest {
   oneof data {
-    string content_type = 1;
-    bytes chunk = 2;
+    string content_type = 1 [(buf.validate.field).string.max_len = 100];
+    bytes chunk = 2 [(buf.validate.field).bytes.max_len = 1048576];
   }
 }
 
@@ -81,10 +82,10 @@ message UploadAvatarResponse {
 }
 
 message RegisterPushTokenRequest {
-  string device_id = 1;
-  string token = 2;
-  string platform = 3;
-  string app_version = 4;
+  string device_id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 128];
+  string token = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 512];
+  string platform = 3 [(buf.validate.field).string.max_len = 32];
+  string app_version = 4 [(buf.validate.field).string.max_len = 32];
 }
 
 message NotificationPreferences {
