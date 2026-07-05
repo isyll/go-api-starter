@@ -35,6 +35,8 @@ internal/
   errs/         typed gRPC-native errors
   reqctx/       per-request context (language, request id, auth subject)
 gen/            generated code, do not edit: <domain>/v1, db, openapiv2
+emails/         React Email sources: design tokens, components, templates
+templates/      generated email HTML, do not edit (run `just emails`)
 migrations/     SQL migrations (golang-migrate)
 configs/        YAML config, read with env substitution
 locales/        i18n message catalogs (go-i18n)
@@ -51,6 +53,8 @@ infra/          docker, postgres init, prometheus
 | `just test` | run tests |
 | `just proto` | regenerate protobuf code (buf) |
 | `just sqlc` | regenerate sqlc code |
+| `just emails` | regenerate email HTML from React Email sources |
+| `just emails-dev` | preview email templates with hot reload |
 | `just migrate` | apply migrations |
 | `just up` | start postgres + redis + minio (docker) |
 | `just lint` | golangci-lint |
@@ -62,13 +66,16 @@ infra/          docker, postgres init, prometheus
   interceptor is the only place that builds a `status.Status` with
   details. Don't build status errors in services, and keep `net/http`
   out of domain and error code.
-- Never edit files under `gen`. Change the `.proto` and run `just proto`,
-  or the queries under `internal/store/query` and run `just sqlc`.
+- Never edit files under `gen` or `templates/emails`. Change the source
+  (`.proto` + `just proto`, `internal/store/query` + `just sqlc`,
+  `emails/src` + `just emails`) and regenerate.
 - New API: add the RPC to a `.proto` under `api/proto/<domain>/v1` with
   `buf.validate` rules on request fields, run `just proto`, implement
   the method in `internal/grpcsvc`, and call a domain service. See
   [docs/grpc.md](docs/grpc.md).
 - Keep comments short. Explain why, not what.
+- No em dashes in docs or code; use plain punctuation.
+- Commit messages: short, plain, imperative subject lines, no trailers.
 
 > [!NOTE]
 > `CLAUDE.md` is a symlink to this file, so both stay in sync.

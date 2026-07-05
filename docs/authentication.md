@@ -53,7 +53,8 @@ reveal whether an address is registered.
 
 Verification and reset tokens live in Redis with a TTL and are consumed
 atomically (`GETDEL`), so each token works exactly once. The email
-worker delivers the message; on use, the token maps back to the user.
+worker delivers the message using the generated
+[email templates](emails.md); on use, the token maps back to the user.
 Resetting a password revokes every session; changing it keeps only the
 session that made the change.
 

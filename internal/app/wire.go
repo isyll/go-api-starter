@@ -27,12 +27,12 @@ func (a *App) buildGRPCDeps() grpcserver.Deps {
 	if webURL == "" {
 		webURL = "http://localhost:3000"
 	}
-	sender := newEmailSender(infra.Emails, webURL)
 
 	localeBundle, err := locale.New(infra.Config.App)
 	if err != nil {
 		infra.Logger.Warn("i18n disabled (untranslated error keys)", "error", err)
 	}
+	sender := newEmailSender(infra.Emails, webURL, localeBundle)
 
 	authSvc := auth.NewService(
 		infra.Config,

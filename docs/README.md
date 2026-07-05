@@ -11,6 +11,7 @@ Guides for working with the template, roughly in reading order.
 | [Authentication](authentication.md) | tokens, sessions, verification |
 | [Database & migrations](database.md) | schemas, roles, RLS, migrations |
 | [Events & workers](events.md) | outbox, dispatch, handlers |
+| [Email templates](emails.md) | React Email sources, tokens, variables |
 
 > [!TIP]
 > New here? Start with [Getting started](getting-started.md), then read

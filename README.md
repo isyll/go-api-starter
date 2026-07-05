@@ -20,6 +20,8 @@ workers, and clean extension seams) designed for gRPC from day one.
 - **Transactional outbox**: reliable events with Asynq background workers,
   dead-lettering, and retention sweeps.
 - **Typed, localized errors**: mapped to gRPC status in exactly one place.
+- **React Email templates**: token-driven design system compiled to static
+  HTML per locale, sent through Resend with variable substitution.
 - **Observability**: Prometheus metrics for RPCs, pools, outbox, and cache;
   health/readiness endpoints on API and worker; optional pprof.
 - **Hardened auth**: argon2id, rotating refresh-token families with reuse

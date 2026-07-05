@@ -10,6 +10,7 @@
 | Docker | Postgres, Redis, and MinIO |
 | [just](https://github.com/casey/just) | task runner |
 | [buf](https://buf.build) | protobuf generation |
+| Node 24+ and [pnpm](https://pnpm.io) | only for editing email templates |
 
 ## Setup
 
