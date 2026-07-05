@@ -483,13 +483,14 @@ func executeMigrationWithTracking(
 	var targetVersion uint
 	var migrationName string
 
-	if direction == directionUp && newVersion > currentVersion {
+	switch {
+	case direction == directionUp && newVersion > currentVersion:
 		targetVersion = newVersion
 		migrationName = getMigrationName(newVersion)
-	} else if direction == directionDown && currentVersion > newVersion {
+	case direction == directionDown && currentVersion > newVersion:
 		targetVersion = currentVersion
 		migrationName = getMigrationName(currentVersion)
-	} else {
+	default:
 		return err
 	}
 

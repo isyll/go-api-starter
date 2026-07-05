@@ -48,14 +48,12 @@ version: 2
 	require.NoError(t, err)
 
 	// Test fallback
-	os.Unsetenv("APP_NAME")
 	cfg1, err := config.LoadConfig[DummyConfig](filePath)
 	require.NoError(t, err)
 	assert.Equal(t, "DefaultName", cfg1.Name)
 
 	// Test env override
-	os.Setenv("APP_NAME", "EnvName")
-	defer os.Unsetenv("APP_NAME")
+	t.Setenv("APP_NAME", "EnvName")
 	cfg2, err := config.LoadConfig[DummyConfig](filePath)
 	require.NoError(t, err)
 	assert.Equal(t, "EnvName", cfg2.Name)
@@ -93,12 +91,11 @@ func TestLoadEnvFile(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	os.Setenv("ENV_FILE", envPath)
-	defer os.Unsetenv("ENV_FILE")
+	t.Setenv("ENV_FILE", envPath)
+	t.Cleanup(func() { _ = os.Unsetenv("TEST_ENV_KEY") })
 
 	config.LoadEnvFile()
 
 	val := os.Getenv("TEST_ENV_KEY")
 	assert.Equal(t, "test_value", val)
-	os.Unsetenv("TEST_ENV_KEY")
 }

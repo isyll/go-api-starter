@@ -1,4 +1,4 @@
-// Package events implements the in-process event bus and outbox.
+// Package event implements the in-process event bus and outbox.
 package event
 
 import "context"

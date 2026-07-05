@@ -47,7 +47,7 @@ func NewDispatcher(
 	}
 }
 
-func (d *dispatcher) Send(ctx context.Context, event Event) error {
+func (d *dispatcher) Send(_ context.Context, event Event) error {
 	if event.Priority == "" {
 		event.Priority = PriorityNormal
 	}
@@ -90,7 +90,7 @@ func (d *dispatcher) Send(ctx context.Context, event Event) error {
 }
 
 func (d *dispatcher) Schedule(
-	ctx context.Context,
+	_ context.Context,
 	event Event,
 	at time.Time,
 ) error {

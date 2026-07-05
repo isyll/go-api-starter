@@ -43,7 +43,7 @@ func NewWorker(
 				string(PriorityLow):    1,
 			},
 			ErrorHandler: asynq.ErrorHandlerFunc(
-				func(ctx context.Context, task *asynq.Task, err error) {
+				func(_ context.Context, task *asynq.Task, err error) {
 					logx.Error("Email task failed",
 						"task", task.Type(),
 						"error", err,

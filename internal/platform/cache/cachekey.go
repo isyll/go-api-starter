@@ -3,8 +3,8 @@ package cache
 import "fmt"
 
 const (
-	KeyVerificationToken = "auth:verify:%s"
-	KeyPasswordReset     = "auth:reset:%s"
+	KeyVerificationToken = "auth:verify:%s" //nolint:gosec // cache key format, not a credential
+	KeyPasswordReset     = "auth:reset:%s"  //nolint:gosec // cache key format, not a credential
 	KeyRateLimit         = "rate:%s:%s"
 	keySessionData       = "session:%d"
 	keyAdminInvalidated  = "admin:invalidated:%s"

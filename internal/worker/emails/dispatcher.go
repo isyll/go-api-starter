@@ -49,7 +49,7 @@ func NewDispatcher(
 	}
 }
 
-func (d *dispatcher) Send(ctx context.Context, email *Email) error {
+func (d *dispatcher) Send(_ context.Context, email *Email) error {
 	if email.Priority == "" {
 		email.Priority = PriorityNormal
 	}
@@ -96,7 +96,7 @@ func (d *dispatcher) Send(ctx context.Context, email *Email) error {
 }
 
 func (d *dispatcher) SendBulk(
-	ctx context.Context,
+	_ context.Context,
 	emails []*Email,
 ) error {
 	if len(emails) == 0 {
@@ -143,7 +143,7 @@ func (d *dispatcher) SendBulk(
 }
 
 func (d *dispatcher) Schedule(
-	ctx context.Context,
+	_ context.Context,
 	email *Email,
 	at time.Time,
 ) error {

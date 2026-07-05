@@ -113,7 +113,7 @@ func poolFor(cfg *config.DatabaseConfig, role Role) config.ConnectionPoolConfig 
 
 func applyPoolConfig(poolCfg *pgxpool.Config, pc config.ConnectionPoolConfig) {
 	if pc.MaxOpenConnections > 0 {
-		poolCfg.MaxConns = int32(pc.MaxOpenConnections)
+		poolCfg.MaxConns = int32(pc.MaxOpenConnections) //nolint:gosec // operator-supplied config value, not user input
 	}
 	if d, err := time.ParseDuration(pc.ConnectionMaxLifetime); err == nil {
 		poolCfg.MaxConnLifetime = d

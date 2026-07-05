@@ -80,7 +80,7 @@ func verifyPassword(encoded, plain string) bool {
 	if err != nil {
 		return false
 	}
-	got := argon2.IDKey([]byte(plain), salt, iterations, memory, parallelism, uint32(len(want)))
+	got := argon2.IDKey([]byte(plain), salt, iterations, memory, parallelism, uint32(len(want))) //nolint:gosec // decoded hash length, never near uint32 range
 	return subtle.ConstantTimeCompare(got, want) == 1
 }
 

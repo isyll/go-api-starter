@@ -109,14 +109,14 @@ func (s *Service) GetDeviceSession(
 }
 
 func (s *Service) evictOldestIfOverLimit(ctx context.Context, userID int64) {
-	max := s.cfg.Security.Auth.MaxDevicesPerUser
-	if max <= 0 {
+	maxDevices := s.cfg.Security.Auth.MaxDevicesPerUser
+	if maxDevices <= 0 {
 		return
 	}
 	sessions := s.sessions.FindActiveDevicesByUser(
 		ctx, userID, s.cfg.Security.Auth.MaxInactivityTimeout,
 	)
-	for len(sessions) >= max {
+	for len(sessions) >= maxDevices {
 		oldest := &sessions[len(sessions)-1]
 		if err := s.revokeSessionAndTokens(ctx, oldest, "device_limit"); err != nil {
 			s.logger.Error("evict oldest session failed", "error", err)

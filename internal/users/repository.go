@@ -182,7 +182,7 @@ func (r *repository) List(ctx context.Context, offset, limit int) ([]User, int64
 		if err != nil {
 			return fmt.Errorf("count users: %w", err)
 		}
-		rows, err := q.ListUsers(ctx, db.ListUsersParams{Limit: int32(limit), Offset: int32(offset)})
+		rows, err := q.ListUsers(ctx, db.ListUsersParams{Limit: int32(limit), Offset: int32(offset)}) //nolint:gosec // page/size are bounds-checked by callers before reaching here
 		if err != nil {
 			return fmt.Errorf("list users: %w", err)
 		}

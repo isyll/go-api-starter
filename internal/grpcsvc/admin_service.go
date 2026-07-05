@@ -1,3 +1,4 @@
+// Package grpcsvc implements the gRPC handlers that map protobuf requests to domain services.
 package grpcsvc
 
 import (
@@ -127,7 +128,7 @@ func (s *AdminServer) audit(ctx context.Context, action, resourceID string) {
 func pageParams(p *commonv1.Page) (page, size int) {
 	page, size = 1, 20
 	if p != nil {
-		if p.GetPage() > 0 {
+		if p.GetPage() > 0 && p.GetPage() <= maxPage {
 			page = int(p.GetPage())
 		}
 		if p.GetPageSize() > 0 && p.GetPageSize() <= 100 {
@@ -136,3 +137,6 @@ func pageParams(p *commonv1.Page) (page, size int) {
 	}
 	return page, size
 }
+
+// maxPage keeps (page-1)*size well within int32 range once cast for the DB query.
+const maxPage = 1_000_000

@@ -85,7 +85,7 @@ func (p *Processor) loadTemplates() error {
 }
 
 func (p *Processor) ProcessTask(
-	ctx context.Context,
+	_ context.Context,
 	t *asynq.Task,
 ) (err error) {
 	defer func() {

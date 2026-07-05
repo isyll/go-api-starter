@@ -157,7 +157,7 @@ func (r *OutboxRepository) PendingBatch(ctx context.Context, limit int) ([]*Outb
 	err := r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		rows, err := q.PendingOutboxBatch(ctx, db.PendingOutboxBatchParams{
 			RetryCount: outboxMaxRetry,
-			Limit:      int32(limit),
+			Limit:      int32(limit), //nolint:gosec // called with a small hardcoded batch size
 		})
 		if err != nil {
 			return err

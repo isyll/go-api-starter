@@ -21,6 +21,9 @@ linters:
         linters:
           - gosec
           - unparam
+      - linters:
+          - revive
+        text: "^exported:"
 
 formatters:
   enable:

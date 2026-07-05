@@ -30,7 +30,7 @@ func (h *AuthAttemptHandler) OnAuthAttemptRecorded(
 		userID = &evt.UserID
 	}
 
-	remaining := int32(evt.Remaining)
+	remaining := int32(evt.Remaining) //nolint:gosec // bounded login-attempt counter
 
 	err := h.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		return q.CreateLoginAttempt(ctx, db.CreateLoginAttemptParams{
