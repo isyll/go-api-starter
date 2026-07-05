@@ -36,6 +36,16 @@ vuln:
 sqlc:
     @sqlc generate
 
+# Build email templates from the React Email sources in emails/.
+emails:
+    @pnpm -C emails install --frozen-lockfile
+    @pnpm -C emails build
+
+# Preview email templates in the browser (hot reload).
+emails-dev:
+    @pnpm -C emails install --frozen-lockfile
+    @pnpm -C emails dev
+
 # Format Go code.
 fmt:
     @gofmt -w cmd internal pkg

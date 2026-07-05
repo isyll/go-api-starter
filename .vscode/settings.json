@@ -16,5 +16,6 @@
   },
   "search.exclude": { "gen/**": true },
   "yaml.schemas": {},
-  "cSpell.enabled": false
+  "cSpell.enabled": false,
+  "js/ts.experimental.useTsgo": false
 }

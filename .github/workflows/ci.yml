@@ -56,6 +56,26 @@ jobs:
           buf generate
           git diff --exit-code
 
+  emails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: emails/pnpm-lock.yaml
+      - name: Build templates
+        run: |
+          pnpm -C emails install --frozen-lockfile
+          pnpm -C emails typecheck
+          pnpm -C emails build
+      - name: Check generated templates are committed
+        run: git diff --exit-code templates/emails
+
   vuln:
     runs-on: ubuntu-latest
     steps:
