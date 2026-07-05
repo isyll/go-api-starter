@@ -1,10 +1,15 @@
 # Getting started
 
+> Run the stack locally and make your first call.
+
 ## Prerequisites
 
-- Go 1.26+
-- Docker (for Postgres and Redis)
-- [just](https://github.com/casey/just) and [buf](https://buf.build)
+| Tool | Purpose |
+| --- | --- |
+| Go 1.26+ | build and run the services |
+| Docker | Postgres, Redis, and MinIO |
+| [just](https://github.com/casey/just) | task runner |
+| [buf](https://buf.build) | protobuf generation |
 
 ## Setup
 
@@ -15,16 +20,34 @@ just migrate     # apply migrations
 just run         # start the gRPC server on :8080
 ```
 
-Metrics and health are on `:9090` (`/metrics`, `/healthz`, `/readyz`).
+The running system is three processes over shared infrastructure; the
+worker and gateway are separate binaries:
 
-## Calling the API
+```mermaid
+flowchart LR
+    SV["server · :8080"]
+    WK["worker"]
+    GW["gateway · :8081<br/>(opt-in)"]
 
-The server enables gRPC reflection, so grpcurl can explore it:
+    SV --> PG[("Postgres")]
+    SV --> RD[("Redis")]
+    WK --> PG
+    WK --> RD
+    GW -->|gRPC| SV
+```
+
+Run the worker with `just worker`, and the optional gateway with
+`GATEWAY_ENABLED=true just gateway`.
+
+## Call the API
+
+The server enables gRPC reflection, so `grpcurl` can explore it:
 
 ```sh
 grpcurl -plaintext localhost:8080 list
 
-grpcurl -plaintext -d '{"email":"a@b.com","password":"password123","first_name":"A","last_name":"B"}' \
+grpcurl -plaintext \
+  -d '{"email":"a@b.com","password":"password123","first_name":"A","last_name":"B"}' \
   localhost:8080 auth.v1.AuthService/Register
 ```
 
@@ -35,5 +58,20 @@ grpcurl -plaintext -H "authorization: Bearer <token>" \
   localhost:8080 user.v1.UserService/GetMe
 ```
 
-To reach the API over HTTP/JSON instead, enable the optional
-[gateway](gateway.md).
+> [!TIP]
+> Prefer REST? Enable the [HTTP/JSON gateway](gateway.md) and call the
+> same RPCs over `curl`.
+
+## Observability
+
+Metrics and health are served on `:9090`:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `/metrics` | Prometheus metrics |
+| `/healthz` | liveness |
+| `/readyz` | readiness (checks Postgres + Redis) |
+
+---
+
+**See also:** [Architecture](architecture.md) · [gRPC API](grpc.md)

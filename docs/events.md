@@ -1,27 +1,53 @@
-# Events and workers
+# Events & workers
 
-Domain changes publish events on an in-process bus. Async handlers run
-through a transactional outbox so no event is lost if the process
-crashes after commit.
+> Domain changes publish events through a transactional outbox, so no
+> event is lost if the process crashes after commit.
 
 ## Outbox
 
-`Bus.Publish` writes the event to `events.events_outbox` in the same
-transaction as the domain change. The event-dispatcher worker drains
-pending rows (`FOR UPDATE SKIP LOCKED`, safe across replicas) and
-re-publishes them, which enqueues Asynq tasks for async handlers.
+`Bus.Publish` writes the event to `events.events_outbox` in the **same
+transaction** as the domain change. The event-dispatcher worker drains
+pending rows and re-publishes them, enqueuing Asynq tasks for async
+handlers.
+
+```mermaid
+sequenceDiagram
+    participant Svc as Domain service
+    participant OB as events.events_outbox
+    participant W as event-dispatcher
+    participant Q as Asynq
+    participant H as Async handler
+
+    rect rgb(240, 240, 240)
+        Svc->>OB: Publish (same tx as the write)
+    end
+    W->>OB: drain pending (FOR UPDATE SKIP LOCKED)
+    W->>Q: enqueue task
+    Q->>H: deliver
+```
+
+`FOR UPDATE SKIP LOCKED` makes the drain safe to run across multiple
+replicas.
 
 ## Workers
 
+All workers run in one process (`cmd/worker`); Asynq isolates them by
+queue.
+
 | Worker | Queue | Job |
-| ------ | ----- | --- |
-| `event_dispatcher` | outbox | drain outbox, run async handlers |
-| `email_sender` | emails | send transactional email (Resend) |
+| --- | --- | --- |
+| `event_dispatcher` | outbox | drain the outbox, run async handlers |
+| `email_sender` | emails | send transactional email |
 | `push_notifications` | notifications | send FCM push |
 
-## Adding a handler
+## Add a handler
 
 1. Define the event type in `internal/event/types_*.go` and register it.
 2. Publish it from a domain service with `bus.Publish`.
-3. Subscribe a handler in `internal/app/wire_events.go`
-   (`Subscribe` for sync, `SubscribeAsync` for outbox-backed async).
+3. Subscribe in [`internal/app/wire_events.go`](../internal/app/wire_events.go):
+   `Subscribe` for synchronous handlers, `SubscribeAsync` for
+   outbox-backed asynchronous ones.
+
+---
+
+**See also:** [Architecture](architecture.md) · [Database](database.md)

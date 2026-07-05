@@ -1,31 +1,54 @@
 # Authentication
 
-Email and password auth with opaque access tokens and rotating refresh
-tokens, scoped to device sessions.
+> Email/password auth with opaque access tokens and rotating refresh
+> tokens, scoped to device sessions.
 
 ## Flow
 
-1. `Register` or `Login` returns an access token, a refresh token, and
-   the user.
-2. The client sends `authorization: Bearer <access_token>` on each call.
-3. When the access token expires, call `RefreshToken` to rotate it.
+```mermaid
+sequenceDiagram
+    actor U as Client
+    participant A as AuthService
+    participant R as Redis
+    participant DB as Postgres
+
+    U->>A: Register / Login
+    A->>DB: verify credentials, open device session
+    A->>R: store opaque access token (TTL)
+    A-->>U: access token + refresh token
+
+    U->>A: RPC with Bearer access token
+    Note over A,R: interceptor validates via one Redis lookup
+
+    U->>A: RefreshToken(refresh)
+    A->>DB: rotate token family
+    A-->>U: new token pair
+```
 
 ## Tokens
 
-- **Access token**: random opaque string stored in Redis with a TTL. A
-  request validates it with a single Redis lookup. No JWT parsing.
-- **Refresh token**: only its SHA-256 hash is stored, in
-  `auth.refresh_tokens`. Rotation issues a new token in the same family;
-  reusing a revoked token revokes the whole family.
+| Token | Stored where | Notes |
+| --- | --- | --- |
+| Access | Redis, with TTL | random opaque string; validated by a single lookup, no JWT parsing |
+| Refresh | `auth.refresh_tokens` (SHA-256 hash only) | rotates within a family; reusing a revoked token revokes the whole family |
 
 ## Sessions
 
 Every login opens a row in `auth.device_sessions`. Revoking a session
-blocks the access token immediately. Users can list and revoke their
-devices. The oldest session is evicted when the per-user device limit is
-reached.
+blocks its access token immediately. Users can list and revoke their own
+devices, and the oldest session is evicted once the per-user device limit
+is reached.
 
-## Email verification and password reset
+## Email verification & password reset
 
-Verification and reset tokens are stored in Redis with a TTL. The email
-worker delivers the message; the token maps back to the user on use.
+Verification and reset tokens live in Redis with a TTL. The email worker
+delivers the message; on use, the token maps back to the user.
+
+> [!IMPORTANT]
+> This template ships email/password auth as a worked example. Swap in
+> whatever a downstream project needs — the interceptor only depends on
+> the opaque-token contract, not on how tokens are issued.
+
+---
+
+**See also:** [Architecture](architecture.md) · [Database](database.md)
