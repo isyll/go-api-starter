@@ -3,8 +3,8 @@
 # go-grpc-starter
 
 **A gRPC-native Go backend template.**
-Coherent, batteries-included foundations — PostgreSQL, Redis, background
-workers, and clean extension seams — designed for gRPC from day one.
+Coherent, batteries-included foundations (PostgreSQL, Redis, background
+workers, and clean extension seams) designed for gRPC from day one.
 
 </div>
 
@@ -12,12 +12,12 @@ workers, and clean extension seams — designed for gRPC from day one.
 
 ## Highlights
 
-- **gRPC-first** — protobuf API, one package per domain, generated with buf.
-- **PostgreSQL** — pgx + sqlc, every write in a row-level-security transaction.
-- **Redis** — caching and opaque access tokens.
-- **Transactional outbox** — reliable events with Asynq background workers.
-- **Typed, localized errors** — mapped to gRPC status in exactly one place.
-- **Optional HTTP/JSON gateway** — grpc-gateway transcoding, off by default.
+- **gRPC-first**: protobuf API, one package per domain, generated with buf.
+- **PostgreSQL**: pgx + sqlc, every write in a row-level-security transaction.
+- **Redis**: caching and opaque access tokens.
+- **Transactional outbox**: reliable events with Asynq background workers.
+- **Typed, localized errors**: mapped to gRPC status in exactly one place.
+- **Optional HTTP/JSON gateway**: grpc-gateway transcoding, off by default.
 
 ## Stack
 

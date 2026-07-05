@@ -15,7 +15,7 @@ flowchart LR
 ## How it works
 
 Routes come entirely from the `google.api.http` annotations on the proto
-RPCs — nothing is hand-maintained. `just proto` regenerates both the
+RPCs; nothing is hand-maintained. `just proto` regenerates both the
 gateway stubs and a per-service OpenAPI v2 document.
 
 ```mermaid
@@ -46,7 +46,7 @@ Configure `configs/gateway.yaml` (values are env-substituted):
 GATEWAY_ENABLED=true just gateway
 ```
 
-When disabled, the binary logs and exits — safe to leave wired into a
+When disabled, the binary logs and exits, safe to leave wired into a
 process manager you have not opted into yet.
 
 <details>

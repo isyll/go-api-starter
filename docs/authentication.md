@@ -46,7 +46,7 @@ delivers the message; on use, the token maps back to the user.
 
 > [!IMPORTANT]
 > This template ships email/password auth as a worked example. Swap in
-> whatever a downstream project needs — the interceptor only depends on
+> whatever a downstream project needs; the interceptor only depends on
 > the opaque-token contract, not on how tokens are issued.
 
 ---

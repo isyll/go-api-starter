@@ -55,7 +55,7 @@ flowchart LR
 
 ## Errors
 
-Domain code returns typed errors from `internal/errs` — a gRPC
+Domain code returns typed errors from `internal/errs`: a gRPC
 `codes.Code`, a machine-readable app code, and an i18n message key. The
 `error-map` interceptor is the **only** place that turns these into a
 `status.Status` with details.

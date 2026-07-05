@@ -41,7 +41,7 @@ just proto   # buf lint && buf generate
 2. Run `just proto`.
 3. Implement the method on the matching server in `internal/grpcsvc`,
    mapping protobuf ↔ domain, and call a domain service for the work.
-4. Return errors from `internal/errs` — never a `status.Status`.
+4. Return errors from `internal/errs`, never a `status.Status`.
 
 ## Add a service
 
