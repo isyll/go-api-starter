@@ -10,7 +10,7 @@
 
 ```sh
 cp .env.example .env
-just up          # start postgres + redis
+just up          # start postgres + redis + minio
 just migrate     # apply migrations
 just run         # start the gRPC server on :8080
 ```
@@ -25,12 +25,15 @@ The server enables gRPC reflection, so grpcurl can explore it:
 grpcurl -plaintext localhost:8080 list
 
 grpcurl -plaintext -d '{"email":"a@b.com","password":"password123","first_name":"A","last_name":"B"}' \
-  localhost:8080 api.v1.AuthService/Register
+  localhost:8080 auth.v1.AuthService/Register
 ```
 
 Authenticated calls pass the access token as metadata:
 
 ```sh
 grpcurl -plaintext -H "authorization: Bearer <token>" \
-  localhost:8080 api.v1.UserService/GetMe
+  localhost:8080 user.v1.UserService/GetMe
 ```
+
+To reach the API over HTTP/JSON instead, enable the optional
+[gateway](gateway.md).

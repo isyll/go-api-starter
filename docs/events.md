@@ -21,7 +21,7 @@ re-publishes them, which enqueues Asynq tasks for async handlers.
 
 ## Adding a handler
 
-1. Define the event type in `internal/events/types_*.go` and register it.
+1. Define the event type in `internal/event/types_*.go` and register it.
 2. Publish it from a domain service with `bus.Publish`.
 3. Subscribe a handler in `internal/app/wire_events.go`
    (`Subscribe` for sync, `SubscribeAsync` for outbox-backed async).
