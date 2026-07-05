@@ -3,6 +3,7 @@ package emails
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -49,7 +50,7 @@ func NewDispatcher(
 	}
 }
 
-func (d *dispatcher) Send(_ context.Context, email *Email) error {
+func (d *dispatcher) Send(ctx context.Context, email *Email) error {
 	if email.Priority == "" {
 		email.Priority = PriorityNormal
 	}
@@ -64,7 +65,7 @@ func (d *dispatcher) Send(_ context.Context, email *Email) error {
 	}
 
 	opts := []asynq.Option{
-		asynq.Queue(string(email.Priority)),
+		asynq.Queue(queueName(email.Priority)),
 		asynq.MaxRetry(d.cfg.Email.Worker.RetryMax),
 		asynq.Timeout(60 * time.Second),
 	}
@@ -75,8 +76,15 @@ func (d *dispatcher) Send(_ context.Context, email *Email) error {
 
 	task := asynq.NewTask(TaskSendEmail, payload, opts...)
 
-	info, err := d.client.Enqueue(task)
+	info, err := d.client.EnqueueContext(ctx, task)
 	if err != nil {
+		if isDuplicateEnqueue(err) {
+			d.logger.Debug("Email already enqueued; deduplicated",
+				"type", email.Type,
+				"idempotency_key", email.IdempotencyKey,
+			)
+			return nil
+		}
 		d.logger.Error("Failed to enqueue email",
 			"type", email.Type,
 			"to", email.To,
@@ -96,7 +104,7 @@ func (d *dispatcher) Send(_ context.Context, email *Email) error {
 }
 
 func (d *dispatcher) SendBulk(
-	_ context.Context,
+	ctx context.Context,
 	emails []*Email,
 ) error {
 	if len(emails) == 0 {
@@ -117,14 +125,14 @@ func (d *dispatcher) SendBulk(
 		}
 
 		opts := []asynq.Option{
-			asynq.Queue(string(PriorityLow)),
+			asynq.Queue(queueName(PriorityLow)),
 			asynq.MaxRetry(d.cfg.Email.Worker.RetryMax),
 			asynq.Timeout(5 * time.Minute),
 		}
 
 		task := asynq.NewTask(TaskBulkEmail, payload, opts...)
 
-		info, err := d.client.Enqueue(task)
+		info, err := d.client.EnqueueContext(ctx, task)
 		if err != nil {
 			d.logger.Error("Failed to enqueue bulk email",
 				"batch_size", len(batch),
@@ -143,7 +151,7 @@ func (d *dispatcher) SendBulk(
 }
 
 func (d *dispatcher) Schedule(
-	_ context.Context,
+	ctx context.Context,
 	email *Email,
 	at time.Time,
 ) error {
@@ -162,7 +170,7 @@ func (d *dispatcher) Schedule(
 	}
 
 	opts := []asynq.Option{
-		asynq.Queue(string(email.Priority)),
+		asynq.Queue(queueName(email.Priority)),
 		asynq.MaxRetry(d.cfg.Email.Worker.RetryMax),
 		asynq.ProcessAt(at),
 		asynq.Timeout(60 * time.Second),
@@ -174,8 +182,15 @@ func (d *dispatcher) Schedule(
 
 	task := asynq.NewTask(TaskScheduledEmail, payload, opts...)
 
-	info, err := d.client.Enqueue(task)
+	info, err := d.client.EnqueueContext(ctx, task)
 	if err != nil {
+		if isDuplicateEnqueue(err) {
+			d.logger.Debug("Email already scheduled; deduplicated",
+				"type", email.Type,
+				"idempotency_key", email.IdempotencyKey,
+			)
+			return nil
+		}
 		d.logger.Error("Failed to schedule email",
 			"type", email.Type,
 			"to", email.To,
@@ -196,4 +211,9 @@ func (d *dispatcher) Schedule(
 
 func (d *dispatcher) Close() error {
 	return d.client.Close()
+}
+
+func isDuplicateEnqueue(err error) bool {
+	return errors.Is(err, asynq.ErrDuplicateTask) ||
+		errors.Is(err, asynq.ErrTaskIDConflict)
 }

@@ -3,6 +3,10 @@ outbox:
   # Drain also fires immediately on Bus.Publish writes.
   interval: ${EVENTS_OUTBOX_INTERVAL:-5s}
 
+  # Rows claimed per drain transaction. The drain keeps looping while
+  # full batches come back, so this bounds lock hold time, not throughput.
+  batch_size: ${EVENTS_OUTBOX_BATCH_SIZE:-100}
+
   # Refresh cadence for Prometheus gauges:
   # pending_rows, exhausted_rows, drain_lag_seconds.
   metrics_interval: ${EVENTS_OUTBOX_METRICS_INTERVAL:-15s}
@@ -10,5 +14,10 @@ outbox:
   # Also run the drain loop in the API process.
   # Default false: canonical drain runs in event-dispatcher.
   # Enable only as a kill switch if the worker is down.
-  # Multiple drainers are safe via FOR UPDATE SKIP LOCKED.
+  # Multiple drainers are safe: each batch is claimed and processed
+  # inside one transaction with FOR UPDATE SKIP LOCKED.
   drain_on_api: ${EVENTS_OUTBOX_DRAIN_ON_API:-false}
+
+worker:
+  # Concurrent event handlers in the event-dispatcher worker.
+  concurrency: ${EVENTS_WORKER_CONCURRENCY:-10}

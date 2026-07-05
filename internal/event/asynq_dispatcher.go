@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/hibiken/asynq"
 
@@ -12,6 +13,14 @@ import (
 )
 
 const TaskTypeDispatch = "events:dispatch"
+
+// Defaults applied to every dispatch task; per-subscription options override
+// them. The timeout keeps a hung handler from pinning a worker slot, and the
+// bounded retry keeps poison events from cycling for days.
+const (
+	defaultTaskMaxRetry = 10
+	defaultTaskTimeout  = 30 * time.Second
+)
 
 type envelope struct {
 	Type      string          `json:"type"`
@@ -48,6 +57,12 @@ func (d *AsynqDispatcher) Enqueue(
 	if err != nil {
 		return fmt.Errorf("events: marshal envelope: %w", err)
 	}
+
+	opts = append([]asynq.Option{
+		asynq.Queue(QueueNormal),
+		asynq.MaxRetry(defaultTaskMaxRetry),
+		asynq.Timeout(defaultTaskTimeout),
+	}, opts...)
 
 	task := asynq.NewTask(TaskTypeDispatch, body, opts...)
 	info, err := d.client.EnqueueContext(ctx, task)

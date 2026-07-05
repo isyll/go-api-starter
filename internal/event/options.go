@@ -41,3 +41,15 @@ func WithUniqueWindow(d time.Duration) SubscribeOption {
 func WithTaskIDFn(fn func(Event) string) SubscribeOption {
 	return func(c *subConfig) { c.taskIDFn = fn }
 }
+
+func WithMaxRetry(n int) SubscribeOption {
+	return func(c *subConfig) {
+		c.asyncOpts = append(c.asyncOpts, asynq.MaxRetry(n))
+	}
+}
+
+func WithTimeout(d time.Duration) SubscribeOption {
+	return func(c *subConfig) {
+		c.asyncOpts = append(c.asyncOpts, asynq.Timeout(d))
+	}
+}

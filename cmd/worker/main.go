@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/event"
 	"github.com/isyll/go-grpc-starter/internal/maintenance"
 	"github.com/isyll/go-grpc-starter/internal/metrics"
+	"github.com/isyll/go-grpc-starter/internal/monitor"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	database "github.com/isyll/go-grpc-starter/internal/platform/db"
 	"github.com/isyll/go-grpc-starter/internal/platform/obs"
@@ -116,7 +118,11 @@ func main() {
 	outboxRepo := event.NewOutboxRepository(st, logx)
 	bus := event.NewWithOutbox(dispatcher, outboxRepo, logx)
 	app.WireEventSubscriptions(bus, &app.EventHandlerDeps{Store: st, CacheManager: cm, Logger: logx})
-	workers = append(workers, event.NewWorker(redisAddr, redisPassword, bus, event.DefaultWorkerConfig(), logx))
+	eventWorkerCfg := event.DefaultWorkerConfig()
+	if cfg.Events.Worker.Concurrency > 0 {
+		eventWorkerCfg.Concurrency = cfg.Events.Worker.Concurrency
+	}
+	workers = append(workers, event.NewWorker(redisAddr, redisPassword, bus, eventWorkerCfg, logx))
 
 	for _, w := range workers {
 		if err := w.Start(); err != nil {
@@ -128,9 +134,16 @@ func main() {
 	if drainInterval <= 0 {
 		drainInterval = 5 * time.Second
 	}
-	go bus.DrainOutbox(rootCtx, drainInterval)
+	go bus.DrainOutbox(rootCtx, drainInterval, cfg.Events.Outbox.BatchSize)
 	go runOutboxMetrics(rootCtx, outboxRepo, cfg.Events.Outbox.MetricsInterval, logx)
 	go maintenance.NewSweeper(st, cfg.Maintenance, logx).Run(rootCtx)
+
+	queueMon := monitor.NewQueueMonitor(
+		redisAddr, redisPassword, time.Minute,
+		slices.Concat(event.QueueNames(), emailworker.QueueNames(), notifworker.QueueNames()),
+		logx,
+	)
+	go queueMon.Run(rootCtx)
 
 	logx.Info("worker ready", "redis", redisAddr)
 	<-rootCtx.Done()

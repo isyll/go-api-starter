@@ -13,6 +13,19 @@ const (
 	PriorityLow    Priority = "low"
 )
 
+// queueName namespaces push queues so only this server consumes them.
+func queueName(p Priority) string {
+	return "notifications:" + string(p)
+}
+
+func QueueNames() []string {
+	return []string{
+		queueName(PriorityHigh),
+		queueName(PriorityNormal),
+		queueName(PriorityLow),
+	}
+}
+
 type Event struct {
 	Type           string            `json:"type"`
 	UserID         int64             `json:"user_id"`

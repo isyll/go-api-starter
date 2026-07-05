@@ -74,7 +74,7 @@ func (p *Processor) ProcessTask(
 
 	var event Event
 	if err := json.Unmarshal(t.Payload(), &event); err != nil {
-		return fmt.Errorf("failed to unmarshal payload: %w", err)
+		return fmt.Errorf("failed to unmarshal payload: %w: %w", err, asynq.SkipRetry)
 	}
 
 	return p.processNotification(ctx, &event)

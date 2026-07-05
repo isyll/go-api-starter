@@ -15,7 +15,7 @@ func WireEventSubscriptions(bus *event.Bus, deps *EventHandlerDeps) {
 	audit := handlers.NewAuditLogHandler(deps.Store, deps.Logger)
 	event.SubscribeAsync(
 		bus, audit.OnAuditLogWritten,
-		event.WithQueue("high"),
+		event.WithQueue(event.QueueHigh),
 		event.WithUniqueWindow(5*time.Minute),
 		event.WithTaskIDFn(func(e event.Event) string {
 			if evt, ok := e.(*event.AuditLogWritten); ok {
@@ -28,7 +28,7 @@ func WireEventSubscriptions(bus *event.Bus, deps *EventHandlerDeps) {
 	attempts := handlers.NewAuthAttemptHandler(deps.Store, deps.Logger)
 	event.SubscribeAsync(
 		bus, attempts.OnAuthAttemptRecorded,
-		event.WithQueue("normal"),
+		event.WithQueue(event.QueueNormal),
 		event.WithUniqueWindow(5*time.Minute),
 		event.WithTaskIDFn(func(e event.Event) string {
 			if evt, ok := e.(*event.AuthAttemptRecorded); ok {

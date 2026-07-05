@@ -3,6 +3,7 @@ package notifications
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -47,7 +48,7 @@ func NewDispatcher(
 	}
 }
 
-func (d *dispatcher) Send(_ context.Context, event Event) error {
+func (d *dispatcher) Send(ctx context.Context, event Event) error {
 	if event.Priority == "" {
 		event.Priority = PriorityNormal
 	}
@@ -58,7 +59,7 @@ func (d *dispatcher) Send(_ context.Context, event Event) error {
 	}
 
 	opts := []asynq.Option{
-		asynq.Queue(string(event.Priority)),
+		asynq.Queue(queueName(event.Priority)),
 		asynq.MaxRetry(d.cfg.Worker.RetryMax),
 		asynq.Timeout(30 * time.Second),
 	}
@@ -69,8 +70,15 @@ func (d *dispatcher) Send(_ context.Context, event Event) error {
 
 	task := asynq.NewTask(TaskSendNotification, payload, opts...)
 
-	info, err := d.client.Enqueue(task)
+	info, err := d.client.EnqueueContext(ctx, task)
 	if err != nil {
+		if isDuplicateEnqueue(err) {
+			d.logger.Debug("Notification already enqueued; deduplicated",
+				"event_type", event.Type,
+				"idempotency_key", event.IdempotencyKey,
+			)
+			return nil
+		}
 		d.logger.Error("Failed to enqueue notification",
 			"event_type", event.Type,
 			"user_id", event.UserID,
@@ -90,7 +98,7 @@ func (d *dispatcher) Send(_ context.Context, event Event) error {
 }
 
 func (d *dispatcher) Schedule(
-	_ context.Context,
+	ctx context.Context,
 	event Event,
 	at time.Time,
 ) error {
@@ -105,7 +113,7 @@ func (d *dispatcher) Schedule(
 	}
 
 	opts := []asynq.Option{
-		asynq.Queue(string(event.Priority)),
+		asynq.Queue(queueName(event.Priority)),
 		asynq.MaxRetry(d.cfg.Worker.RetryMax),
 		asynq.ProcessAt(at),
 		asynq.Timeout(30 * time.Second),
@@ -117,8 +125,15 @@ func (d *dispatcher) Schedule(
 
 	task := asynq.NewTask(TaskScheduleNotification, payload, opts...)
 
-	info, err := d.client.Enqueue(task)
+	info, err := d.client.EnqueueContext(ctx, task)
 	if err != nil {
+		if isDuplicateEnqueue(err) {
+			d.logger.Debug("Notification already scheduled; deduplicated",
+				"event_type", event.Type,
+				"idempotency_key", event.IdempotencyKey,
+			)
+			return nil
+		}
 		d.logger.Error("Failed to schedule notification",
 			"event_type", event.Type,
 			"user_id", event.UserID,
@@ -141,4 +156,9 @@ func (d *dispatcher) Schedule(
 
 func (d *dispatcher) Close() error {
 	return d.client.Close()
+}
+
+func isDuplicateEnqueue(err error) bool {
+	return errors.Is(err, asynq.ErrDuplicateTask) ||
+		errors.Is(err, asynq.ErrTaskIDConflict)
 }

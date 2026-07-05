@@ -43,7 +43,9 @@ func (p *Processor) ProcessTask(
 
 	var env envelope
 	if err := json.Unmarshal(t.Payload(), &env); err != nil {
-		return fmt.Errorf("events: decode envelope: %w", err)
+		return fmt.Errorf(
+			"events: decode envelope: %w: %w", err, asynq.SkipRetry,
+		)
 	}
 
 	if env.RequestID != "" {
@@ -68,8 +70,8 @@ func (p *Processor) ProcessTask(
 	evt := factory()
 	if err := json.Unmarshal(env.Payload, evt); err != nil {
 		return fmt.Errorf(
-			"events: decode payload for %s: %w",
-			env.Type, err,
+			"events: decode payload for %s: %w: %w",
+			env.Type, err, asynq.SkipRetry,
 		)
 	}
 

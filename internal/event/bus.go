@@ -38,6 +38,7 @@ type Bus struct {
 	logger    *logger.Logger
 	drainKick chan struct{}
 
+	drainBatchSize       int
 	drainBreakerFailures int
 	drainBreakerOpenedAt time.Time
 }
@@ -244,6 +245,19 @@ func (b *Bus) dispatch(
 			if err := b.asynq.Enqueue(
 				ctx, evt, opts,
 			); err != nil {
+				// A duplicate means an earlier delivery already enqueued this
+				// task; at-least-once redelivery must not count as failure.
+				if isDuplicateEnqueue(err) {
+					metrics.EventsEnqueueDedupedTotal.
+						WithLabelValues(evt.EventType()).
+						Inc()
+					b.logger.Debug(
+						"event already enqueued; deduplicated",
+						"event", evt.EventType(),
+						"handler", s.name,
+					)
+					continue
+				}
 				b.logger.Error(
 					"event async enqueue failed",
 					"event", evt.EventType(),
@@ -277,13 +291,24 @@ func (b *Bus) dispatch(
 	return firstCritErr
 }
 
+// DrainOutbox pumps pending outbox rows until ctx ends. Each batch is claimed
+// and processed inside one transaction, so FOR UPDATE SKIP LOCKED keeps the
+// rows locked for the whole batch and any number of replicas can drain
+// concurrently without double-dispatching. When a full batch is fetched the
+// loop keeps going, so throughput is bounded by the database, not the tick.
 func (b *Bus) DrainOutbox(
 	ctx context.Context,
 	interval time.Duration,
+	batchSize int,
 ) {
 	if b.outbox == nil {
 		return
 	}
+	if batchSize <= 0 {
+		batchSize = defaultDrainBatchSize
+	}
+	b.drainBatchSize = batchSize
+
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 	for {
@@ -312,135 +337,128 @@ func (b *Bus) drainOnce(ctx context.Context) {
 		}
 	}()
 
-	if b.drainBreakerFailures >= drainBreakerThreshold {
-		if time.Since(b.drainBreakerOpenedAt) < drainBreakerCooldown {
+	for {
+		if !b.breakerAllows() {
 			return
 		}
-		b.logger.Info(
-			"outbox drain: breaker cooldown elapsed; retrying",
-			"consecutive_failures", b.drainBreakerFailures,
-		)
+		fetched, ok := b.drainBatch(ctx)
+		if !ok || fetched < b.drainBatchSize || ctx.Err() != nil {
+			return
+		}
 	}
+}
 
-	rows, err := b.outbox.PendingBatch(ctx, 100)
-	if err != nil {
-		b.logger.Error(
-			"outbox drain: fetch pending failed",
-			"error", err,
-		)
-		return
-	}
-	if len(rows) == 0 {
-		return
-	}
-
+// drainBatch claims and processes one batch in a single transaction. A mark or
+// dead-letter failure aborts the batch: the transaction is poisoned anyway and
+// the rollback releases the rows for a later attempt.
+func (b *Bus) drainBatch(ctx context.Context) (fetched int, ok bool) {
 	var publishFailures, publishAttempts int
 
-	drainCtx := context.WithValue(ctx, drainKey{}, true)
-	for _, row := range rows {
-		if row.RetryCount >= outboxMaxRetry {
-			lastErr := ""
-			if row.LastError != nil {
-				lastErr = *row.LastError
-			}
-			if dlErr := b.outbox.DeadLetter(
-				ctx, row, "retry_exhausted", lastErr,
-			); dlErr != nil {
-				b.logger.Error(
-					"outbox drain: dead-letter failed",
-					"id", row.ID, "error", dlErr,
-				)
-			}
-			if mpErr := b.outbox.MarkProcessed(
-				ctx, row.ID,
-			); mpErr != nil {
-				b.logger.Error(
-					"outbox drain: mark processed failed",
-					"id", row.ID, "error", mpErr,
-				)
-			}
-			continue
+	err := b.outbox.InTx(ctx, func(ctx context.Context) error {
+		rows, err := b.outbox.PendingBatch(ctx, b.drainBatchSize)
+		if err != nil {
+			return fmt.Errorf("fetch pending: %w", err)
 		}
+		fetched = len(rows)
 
-		factory := FactoryFor(row.EventType)
-		if factory == nil {
-			b.logger.Warn(
-				"outbox drain: unknown event type",
-				"type", row.EventType,
-				"id", row.ID,
-			)
-			if dlErr := b.outbox.DeadLetter(
-				ctx, row, "unknown_event_type", "",
-			); dlErr != nil {
-				b.logger.Error(
-					"outbox drain: dead-letter failed",
-					"id", row.ID, "error", dlErr,
-				)
+		drainCtx := context.WithValue(ctx, drainKey{}, true)
+		for _, row := range rows {
+			if row.RetryCount >= outboxMaxRetry {
+				lastErr := ""
+				if row.LastError != nil {
+					lastErr = *row.LastError
+				}
+				if err := b.outbox.DeadLetter(
+					ctx, row, "retry_exhausted", lastErr,
+				); err != nil {
+					return err
+				}
+				if err := b.outbox.MarkProcessed(ctx, row.ID); err != nil {
+					return err
+				}
+				continue
 			}
-			if mpErr := b.outbox.MarkProcessed(
-				ctx, row.ID,
-			); mpErr != nil {
-				b.logger.Error(
-					"outbox drain: mark processed failed",
-					"id", row.ID, "error", mpErr,
-				)
-			}
-			continue
-		}
 
-		evt := factory()
-		if err := json.Unmarshal(row.Payload, evt); err != nil {
-			b.logger.Error(
-				"outbox drain: unmarshal failed",
-				"type", row.EventType,
-				"id", row.ID,
-				"error", err,
-			)
-			if dlErr := b.outbox.DeadLetter(
-				ctx, row, "unmarshal_failed", err.Error(),
-			); dlErr != nil {
-				b.logger.Error(
-					"outbox drain: dead-letter failed",
-					"id", row.ID, "error", dlErr,
+			factory := FactoryFor(row.EventType)
+			if factory == nil {
+				b.logger.Warn(
+					"outbox drain: unknown event type",
+					"type", row.EventType,
+					"id", row.ID,
 				)
+				if err := b.outbox.DeadLetter(
+					ctx, row, "unknown_event_type", "",
+				); err != nil {
+					return err
+				}
+				if err := b.outbox.MarkProcessed(ctx, row.ID); err != nil {
+					return err
+				}
+				continue
 			}
-			if mpErr := b.outbox.MarkProcessed(
-				ctx, row.ID,
-			); mpErr != nil {
-				b.logger.Error(
-					"outbox drain: mark processed failed",
-					"id", row.ID, "error", mpErr,
-				)
-			}
-			continue
-		}
 
-		publishAttempts++
-		if err := b.Publish(drainCtx, evt); err != nil {
-			publishFailures++
-			if mfErr := b.outbox.MarkFailed(
-				ctx, row.ID, err.Error(),
-			); mfErr != nil {
+			evt := factory()
+			if err := json.Unmarshal(row.Payload, evt); err != nil {
 				b.logger.Error(
-					"outbox drain: mark failed failed",
-					"id", row.ID, "error", mfErr,
+					"outbox drain: unmarshal failed",
+					"type", row.EventType,
+					"id", row.ID,
+					"error", err,
 				)
+				if dlErr := b.outbox.DeadLetter(
+					ctx, row, "unmarshal_failed", err.Error(),
+				); dlErr != nil {
+					return dlErr
+				}
+				if err := b.outbox.MarkProcessed(ctx, row.ID); err != nil {
+					return err
+				}
+				continue
 			}
-		} else {
-			if mpErr := b.outbox.MarkProcessed(
-				ctx, row.ID,
-			); mpErr != nil {
-				b.logger.Error(
-					"outbox drain: mark processed failed",
-					"id", row.ID, "error", mpErr,
-				)
+
+			publishAttempts++
+			if err := b.Publish(drainCtx, evt); err != nil {
+				publishFailures++
+				if mfErr := b.outbox.MarkFailed(
+					ctx, row.ID, err.Error(),
+				); mfErr != nil {
+					return mfErr
+				}
+				continue
+			}
+			if err := b.outbox.MarkProcessed(ctx, row.ID); err != nil {
+				return err
 			}
 		}
+		return nil
+	})
+	if err != nil {
+		b.logger.Error("outbox drain: batch failed", "error", err)
+		return fetched, false
 	}
 
+	b.recordBreaker(publishAttempts, publishFailures)
+	return fetched, b.drainBreakerFailures < drainBreakerThreshold
+}
+
+func (b *Bus) breakerAllows() bool {
+	if b.drainBreakerFailures < drainBreakerThreshold {
+		return true
+	}
+	if time.Since(b.drainBreakerOpenedAt) < drainBreakerCooldown {
+		return false
+	}
+	b.logger.Info(
+		"outbox drain: breaker cooldown elapsed; retrying",
+		"consecutive_failures", b.drainBreakerFailures,
+	)
+	return true
+}
+
+func (b *Bus) recordBreaker(attempts, failures int) {
 	switch {
-	case publishAttempts == 0:
-	case publishFailures == publishAttempts:
+	case attempts == 0:
+	case failures == attempts:
 		b.drainBreakerFailures++
 		if b.drainBreakerFailures == drainBreakerThreshold {
 			b.drainBreakerOpenedAt = time.Now()
@@ -533,6 +551,11 @@ func (b *Bus) runSync(
 	}()
 
 	return s.invoke(ctx, evt)
+}
+
+func isDuplicateEnqueue(err error) bool {
+	return errors.Is(err, asynq.ErrDuplicateTask) ||
+		errors.Is(err, asynq.ErrTaskIDConflict)
 }
 
 func handlerName(h any) string {

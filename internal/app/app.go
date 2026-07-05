@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 	"time"
 
@@ -188,7 +189,11 @@ func (a *App) Bootstrap() error {
 
 func (a *App) startBackground() {
 	if a.Infra.Config.Events.Outbox.DrainOnAPI {
-		go a.Infra.EventBus.DrainOutbox(a.bgCtx, a.Infra.Config.Events.Outbox.Interval)
+		go a.Infra.EventBus.DrainOutbox(
+			a.bgCtx,
+			a.Infra.Config.Events.Outbox.Interval,
+			a.Infra.Config.Events.Outbox.BatchSize,
+		)
 	}
 
 	go func(ctx context.Context) {
@@ -207,12 +212,12 @@ func (a *App) startBackground() {
 	}(a.bgCtx)
 
 	addr, password := a.Infra.Config.Redis.Credentials()
-	deadMon := monitor.NewDeadQueueMonitor(
-		addr, password, 5*time.Minute,
-		[]string{"high", "normal", "low", "events:dispatch"},
+	queueMon := monitor.NewQueueMonitor(
+		addr, password, time.Minute,
+		slices.Concat(event.QueueNames(), emails.QueueNames(), notifications.QueueNames()),
 		a.Infra.Logger,
 	)
-	go deadMon.Run(a.bgCtx)
+	go queueMon.Run(a.bgCtx)
 }
 
 func (a *App) Start() {

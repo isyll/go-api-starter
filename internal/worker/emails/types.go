@@ -14,6 +14,19 @@ const (
 	PriorityLow    Priority = "low"
 )
 
+// queueName namespaces email queues so only the email server consumes them.
+func queueName(p Priority) string {
+	return "emails:" + string(p)
+}
+
+func QueueNames() []string {
+	return []string{
+		queueName(PriorityHigh),
+		queueName(PriorityNormal),
+		queueName(PriorityLow),
+	}
+}
+
 type EmailType string
 
 const (

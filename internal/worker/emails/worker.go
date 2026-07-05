@@ -38,9 +38,9 @@ func NewWorker(
 			Concurrency:     cfg.Email.Worker.Concurrency,
 			ShutdownTimeout: 30 * time.Second,
 			Queues: map[string]int{
-				string(PriorityHigh):   6,
-				string(PriorityNormal): 3,
-				string(PriorityLow):    1,
+				queueName(PriorityHigh):   6,
+				queueName(PriorityNormal): 3,
+				queueName(PriorityLow):    1,
 			},
 			ErrorHandler: asynq.ErrorHandlerFunc(
 				func(_ context.Context, task *asynq.Task, err error) {

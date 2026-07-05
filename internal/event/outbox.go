@@ -55,6 +55,15 @@ func toOutboxEvent(r db.EventsOutbox) *OutboxEvent {
 	}
 }
 
+// InTx runs fn inside one database transaction. The drain uses it so the
+// SKIP LOCKED row locks stay held while the batch is processed.
+func (r *OutboxRepository) InTx(
+	ctx context.Context,
+	fn func(ctx context.Context) error,
+) error {
+	return r.store.WithTx(ctx, fn)
+}
+
 // Write inserts an outbox row. When called inside a service transaction it
 // joins that transaction, so the row commits atomically with the domain write.
 func (r *OutboxRepository) Write(ctx context.Context, evt Event) (int64, error) {
@@ -177,6 +186,7 @@ func (r *OutboxRepository) PendingBatch(ctx context.Context, limit int) ([]*Outb
 const outboxMaxRetry = 10
 
 const (
+	defaultDrainBatchSize = 100
 	drainBreakerThreshold = 3
 	drainBreakerCooldown  = 60 * time.Second
 )

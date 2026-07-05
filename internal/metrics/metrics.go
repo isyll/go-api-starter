@@ -40,6 +40,17 @@ var (
 		[]string{labelEventType},
 	)
 
+	EventsEnqueueDedupedTotal = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: metricsNamespace,
+			Subsystem: subsystemEvents,
+			Name:      "enqueue_deduped_total",
+			Help: "Redeliveries skipped because the task " +
+				"was already enqueued (unique or task id match).",
+		},
+		[]string{labelEventType},
+	)
+
 	EventsHandlerDurationSeconds = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Namespace: metricsNamespace,
@@ -123,13 +134,24 @@ var (
 		[]string{"key_kind"},
 	)
 
-	AsynqDeadQueueSize = promauto.NewGaugeVec(
+	AsynqQueueDepth = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: metricsNamespace,
 			Subsystem: "asynq",
-			Name:      "dead_queue_size",
-			Help: "Current number of tasks in each " +
-				"Asynq dead queue.",
+			Name:      "queue_depth",
+			Help: "Tasks per queue and state (pending, active, " +
+				"scheduled, retry, archived).",
+		},
+		[]string{"queue", "state"},
+	)
+
+	AsynqQueueLatencySeconds = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: metricsNamespace,
+			Subsystem: "asynq",
+			Name:      "queue_latency_seconds",
+			Help: "Age of the oldest pending task per queue; " +
+				"sustained growth means the queue is falling behind.",
 		},
 		[]string{"queue"},
 	)

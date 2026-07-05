@@ -109,7 +109,7 @@ func (p *Processor) ProcessTask(
 	case TaskSendEmail, TaskScheduledEmail:
 		var email Email
 		if err := json.Unmarshal(t.Payload(), &email); err != nil {
-			return fmt.Errorf("failed to unmarshal email: %w", err)
+			return fmt.Errorf("failed to unmarshal email: %w: %w", err, asynq.SkipRetry)
 		}
 		return p.processEmail(&email)
 
@@ -117,14 +117,14 @@ func (p *Processor) ProcessTask(
 		var emails []*Email
 		if err := json.Unmarshal(t.Payload(), &emails); err != nil {
 			return fmt.Errorf(
-				"failed to unmarshal bulk emails: %w",
-				err,
+				"failed to unmarshal bulk emails: %w: %w",
+				err, asynq.SkipRetry,
 			)
 		}
 		return p.processBulkEmail(emails)
 
 	default:
-		return fmt.Errorf("unknown task type: %s", t.Type())
+		return fmt.Errorf("unknown task type: %s: %w", t.Type(), asynq.SkipRetry)
 	}
 }
 
