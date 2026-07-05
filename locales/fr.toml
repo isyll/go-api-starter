@@ -16,6 +16,9 @@ other = "Email ou mot de passe invalide."
 [auth.email_exists]
 other = "Un compte avec cet email existe deja."
 
+[auth.too_many_attempts]
+other = "Trop de tentatives échouées. Réessayez plus tard."
+
 [auth.email_not_verified]
 other = "Veuillez d'abord verifier votre email."
 

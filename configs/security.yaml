@@ -4,6 +4,9 @@ auth:
   oat:
     access_token_expiry: ${OAT_ACCESS_TOKEN_EXPIRY:-30m}
     refresh_token_expiry: ${OAT_REFRESH_TOKEN_EXPIRY:-720h}
+  lockout:
+    max_attempts: ${LOGIN_LOCKOUT_MAX_ATTEMPTS:-10}
+    window: ${LOGIN_LOCKOUT_WINDOW:-15m}
 
 id_obfuscation:
   min_length: 10

@@ -42,4 +42,7 @@ var (
 	ErrWeakPassword = errs.BadRequest(
 		codes.WeakPassword, "auth.weak_password",
 	)
+	ErrTooManyAttempts = errs.TooManyRequests(
+		codes.TooManyAttempts, "auth.too_many_attempts",
+	)
 )

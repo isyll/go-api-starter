@@ -24,4 +24,6 @@ var (
 	IncorrectPassword = register("INCORRECT_PASSWORD")
 
 	WeakPassword = register("WEAK_PASSWORD")
+
+	TooManyAttempts = register("TOO_MANY_ATTEMPTS")
 )

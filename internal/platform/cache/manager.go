@@ -151,6 +151,32 @@ func (c *CacheManager) Delete(ctx context.Context, key string) error {
 	return c.client.Del(ctx, fullKey).Err()
 }
 
+// IncrementWithTTL bumps a plain counter and starts its expiry window on the
+// first increment. Used for rate limiting and login lockout.
+func (c *CacheManager) IncrementWithTTL(
+	ctx context.Context,
+	key string,
+	ttl time.Duration,
+) (int64, error) {
+	fullKey := c.buildKey(key)
+	pipe := c.client.Pipeline()
+	incr := pipe.Incr(ctx, fullKey)
+	pipe.ExpireNX(ctx, fullKey, ttl)
+	if _, err := pipe.Exec(ctx); err != nil {
+		return 0, err
+	}
+	return incr.Val(), nil
+}
+
+// Counter reads a counter written by IncrementWithTTL; missing keys are 0.
+func (c *CacheManager) Counter(ctx context.Context, key string) (int64, error) {
+	n, err := c.client.Get(ctx, c.buildKey(key)).Int64()
+	if errors.Is(err, redis.Nil) {
+		return 0, nil
+	}
+	return n, err
+}
+
 // GetDel atomically reads and deletes a key. Use it for single-use tokens
 // (email verification, password reset) so two concurrent requests cannot both
 // consume the same token.

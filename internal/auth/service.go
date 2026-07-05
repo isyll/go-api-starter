@@ -33,6 +33,11 @@ type Service struct {
 	email        EmailSender
 	bus          *event.Bus
 	hasher       passwordHasher
+	lockout      loginLimiter
+
+	// dummyHash keeps the not-found path as slow as a real verification so
+	// response timing does not reveal whether an email is registered.
+	dummyHash string
 }
 
 func NewService(
@@ -49,6 +54,14 @@ func NewService(
 	bus *event.Bus,
 ) *Service {
 	ph := cfg.Security.PasswordHash
+	hasher := newPasswordHasher(
+		ph.Memory, ph.Iterations, ph.Parallelism, ph.SaltLength, ph.KeyLength,
+	)
+	dummyHash, err := hasher.hash(id.NewUUIDNoDash())
+	if err != nil {
+		logx.Warn("timing-equalizer hash generation failed", "error", err)
+	}
+	lk := cfg.Security.Auth.Lockout
 	return &Service{
 		cfg:          cfg,
 		logger:       logx,
@@ -61,9 +74,9 @@ func NewService(
 		refresh:      refresh,
 		email:        email,
 		bus:          bus,
-		hasher: newPasswordHasher(
-			ph.Memory, ph.Iterations, ph.Parallelism, ph.SaltLength, ph.KeyLength,
-		),
+		hasher:       hasher,
+		lockout:      newLoginLimiter(cacheManager, logx, lk.MaxAttempts, lk.Window),
+		dummyHash:    dummyHash,
 	}
 }
 
@@ -119,12 +132,19 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (*TokenPair, e
 
 func (s *Service) Login(ctx context.Context, in LoginInput) (*TokenPair, error) {
 	email := normalizeEmail(in.Email)
+	if s.lockout.blocked(ctx, email) {
+		s.recordAttempt(ctx, email, 0, "login", "locked")
+		return nil, ErrTooManyAttempts
+	}
 	user, err := s.users.FindByEmail(ctx, email)
 	if err != nil {
+		verifyPassword(s.dummyHash, in.Password)
+		s.lockout.recordFailure(ctx, email)
 		s.recordAttempt(ctx, email, 0, "login", "not_found")
 		return nil, ErrInvalidCredentials
 	}
 	if !verifyPassword(user.PasswordHash, in.Password) {
+		s.lockout.recordFailure(ctx, email)
 		s.recordAttempt(ctx, email, user.ID, "login", "wrong_password")
 		return nil, ErrInvalidCredentials
 	}
@@ -132,6 +152,7 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (*TokenPair, error) 
 		s.recordAttempt(ctx, email, user.ID, "login", "blocked")
 		return nil, ErrAccountInactive
 	}
+	s.lockout.reset(ctx, email)
 
 	settings, _ := s.settings.GetByUserID(ctx, user.ID)
 	tokens, err := s.createSessionAndTokens(ctx, user, in.Device, settings)
@@ -208,7 +229,9 @@ func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) 
 	return nil
 }
 
-func (s *Service) ChangePassword(ctx context.Context, userID int64, current, next string) error {
+func (s *Service) ChangePassword(
+	ctx context.Context, userID, currentSessionID int64, current, next string,
+) error {
 	user, err := s.users.FindByID(ctx, userID)
 	if err != nil {
 		return err
@@ -223,7 +246,14 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, current, nex
 	if err != nil {
 		return err
 	}
-	return s.users.UpdatePasswordHash(ctx, userID, hash)
+	if err := s.users.UpdatePasswordHash(ctx, userID, hash); err != nil {
+		return err
+	}
+	// Other devices must re-authenticate with the new password.
+	if err := s.RevokeOtherSessions(ctx, userID, currentSessionID, "password_change"); err != nil {
+		s.logger.Warn("revoke other sessions after password change failed", "error", err, "user_id", userID)
+	}
+	return nil
 }
 
 func (s *Service) sendVerification(ctx context.Context, user *users.User) {

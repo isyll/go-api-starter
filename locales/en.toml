@@ -16,6 +16,9 @@ other = "Invalid email or password."
 [auth.email_exists]
 other = "An account with this email already exists."
 
+[auth.too_many_attempts]
+other = "Too many failed attempts. Try again later."
+
 [auth.email_not_verified]
 other = "Please verify your email first."
 

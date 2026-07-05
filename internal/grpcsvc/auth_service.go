@@ -94,7 +94,8 @@ func (s *AuthServer) ResetPassword(ctx context.Context, req *authv1.ResetPasswor
 }
 
 func (s *AuthServer) ChangePassword(ctx context.Context, req *authv1.ChangePasswordRequest) (*emptypb.Empty, error) {
-	if err := s.svc.ChangePassword(ctx, reqctx.SubjectFrom(ctx).UserID, req.GetCurrentPassword(), req.GetNewPassword()); err != nil {
+	sub := reqctx.SubjectFrom(ctx)
+	if err := s.svc.ChangePassword(ctx, sub.UserID, sub.SessionID, req.GetCurrentPassword(), req.GetNewPassword()); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
