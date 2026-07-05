@@ -24,17 +24,23 @@ admin_credentials:
 
 connection_pool:
   max_open_connections: 50
+  min_open_connections: 2
   connection_max_lifetime: "1h"
   connection_max_idle_time: "15m"
+  health_check_period: "1m"
 
 app_pool:
   max_open_connections: 50
+  min_open_connections: 2
   connection_max_lifetime: "1h"
   connection_max_idle_time: "15m"
+  health_check_period: "1m"
 
 admin_pool:
   max_open_connections: 80
+  min_open_connections: 2
   connection_max_lifetime: "1h"
   connection_max_idle_time: "15m"
+  health_check_period: "1m"
 
 statement_timeout_ms: ${DB_STATEMENT_TIMEOUT_MS:-5000}

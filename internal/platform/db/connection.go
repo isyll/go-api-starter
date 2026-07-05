@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -42,8 +43,8 @@ func InitPool(
 
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		creds.Host, creds.Port, creds.User, creds.Password,
-		creds.DBName, creds.SSLMode,
+		quoteDSN(creds.Host), quoteDSN(creds.Port), quoteDSN(creds.User),
+		quoteDSN(creds.Password), quoteDSN(creds.DBName), quoteDSN(creds.SSLMode),
 	)
 
 	poolCfg, err := pgxpool.ParseConfig(dsn)
@@ -115,10 +116,24 @@ func applyPoolConfig(poolCfg *pgxpool.Config, pc config.ConnectionPoolConfig) {
 	if pc.MaxOpenConnections > 0 {
 		poolCfg.MaxConns = int32(pc.MaxOpenConnections) //nolint:gosec // operator-supplied config value, not user input
 	}
+	if pc.MinOpenConnections > 0 {
+		poolCfg.MinConns = int32(pc.MinOpenConnections) //nolint:gosec // operator-supplied config value, not user input
+	}
 	if d, err := time.ParseDuration(pc.ConnectionMaxLifetime); err == nil {
 		poolCfg.MaxConnLifetime = d
 	}
 	if d, err := time.ParseDuration(pc.ConnectionMaxIdleTime); err == nil {
 		poolCfg.MaxConnIdleTime = d
 	}
+	if d, err := time.ParseDuration(pc.HealthCheckPeriod); err == nil {
+		poolCfg.HealthCheckPeriod = d
+	}
+}
+
+// quoteDSN escapes a value for a libpq key=value connection string: the value
+// is single-quoted so passwords with spaces or special characters stay intact.
+func quoteDSN(v string) string {
+	v = strings.ReplaceAll(v, `\`, `\\`)
+	v = strings.ReplaceAll(v, `'`, `\'`)
+	return "'" + v + "'"
 }

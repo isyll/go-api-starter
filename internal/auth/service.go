@@ -146,16 +146,14 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (*TokenPair, error) 
 }
 
 func (s *Service) VerifyEmail(ctx context.Context, token string) error {
+	// GetDel makes the token single-use: concurrent requests cannot both
+	// consume it. If the update below fails the user just requests a new one.
 	var data tokenData
-	found, err := s.cacheManager.Get(ctx, cache.VerificationTokenKey(token), &data)
+	found, err := s.cacheManager.GetDel(ctx, cache.VerificationTokenKey(token), &data)
 	if err != nil || !found {
 		return ErrInvalidVerificationToken
 	}
-	if err := s.users.MarkEmailVerified(ctx, data.UserID); err != nil {
-		return err
-	}
-	_ = s.cacheManager.Delete(ctx, cache.VerificationTokenKey(token))
-	return nil
+	return s.users.MarkEmailVerified(ctx, data.UserID)
 }
 
 func (s *Service) ResendVerification(ctx context.Context, userID int64) error {
@@ -193,7 +191,7 @@ func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) 
 		return err
 	}
 	var data tokenData
-	found, err := s.cacheManager.Get(ctx, cache.PasswordResetKey(token), &data)
+	found, err := s.cacheManager.GetDel(ctx, cache.PasswordResetKey(token), &data)
 	if err != nil || !found {
 		return ErrInvalidResetToken
 	}
@@ -204,7 +202,6 @@ func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) 
 	if err := s.users.UpdatePasswordHash(ctx, data.UserID, hash); err != nil {
 		return err
 	}
-	_ = s.cacheManager.Delete(ctx, cache.PasswordResetKey(token))
 	if err := s.sessions.RevokeAllByUserID(ctx, data.UserID, "password_reset"); err != nil {
 		s.logger.Warn("revoke sessions after reset failed", "error", err)
 	}

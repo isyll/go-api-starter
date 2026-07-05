@@ -8,15 +8,13 @@ import (
 const (
 	metricsNamespace = "app"
 
-	subsystemAdmin     = "admin"
-	subsystemEvents    = "events"
-	subsystemWorker    = "worker"
-	subsystemCache     = "cache"
-	subsystemHTTPCache = "http_cache"
-	subsystemOutbox    = "outbox"
+	subsystemAdmin  = "admin"
+	subsystemEvents = "events"
+	subsystemWorker = "worker"
+	subsystemCache  = "cache"
+	subsystemOutbox = "outbox"
 
 	labelEventType = "event_type"
-	labelRoute     = "route"
 )
 
 var (
@@ -91,26 +89,6 @@ var (
 		[]string{subsystemWorker},
 	)
 
-	CacheHitsTotal = promauto.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: metricsNamespace,
-			Subsystem: subsystemCache,
-			Name:      "hits_total",
-			Help:      "Total number of cache hits.",
-		},
-		[]string{"operation"},
-	)
-
-	CacheMissesTotal = promauto.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: metricsNamespace,
-			Subsystem: subsystemCache,
-			Name:      "misses_total",
-			Help:      "Total number of cache misses.",
-		},
-		[]string{"operation"},
-	)
-
 	CacheInvalidationsTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: metricsNamespace,
@@ -131,54 +109,6 @@ var (
 				"that returned an error.",
 		},
 		[]string{"event_type", "tags"},
-	)
-
-	HTTPCacheHitsTotal = promauto.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: metricsNamespace,
-			Subsystem: subsystemHTTPCache,
-			Name:      "hits_total",
-			Help:      "Total HTTP cache hits per route.",
-		},
-		[]string{labelRoute},
-	)
-
-	HTTPCacheMissesTotal = promauto.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: metricsNamespace,
-			Subsystem: subsystemHTTPCache,
-			Name:      "misses_total",
-			Help:      "Total HTTP cache misses per route.",
-		},
-		[]string{labelRoute},
-	)
-
-	HTTPCacheGetDurationSeconds = promauto.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Namespace: metricsNamespace,
-			Subsystem: subsystemHTTPCache,
-			Name:      "get_duration_seconds",
-			Help:      "Duration of HTTPCache Get calls.",
-			Buckets: []float64{
-				0.0005, 0.001, 0.0025, 0.005, 0.01,
-				0.025, 0.05, 0.1, 0.25, 0.5,
-			},
-		},
-		[]string{"route", "outcome"},
-	)
-
-	HTTPCacheSetDurationSeconds = promauto.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Namespace: metricsNamespace,
-			Subsystem: subsystemHTTPCache,
-			Name:      "set_duration_seconds",
-			Help:      "Duration of HTTPCache Set calls.",
-			Buckets: []float64{
-				0.0005, 0.001, 0.0025, 0.005, 0.01,
-				0.025, 0.05, 0.1, 0.25, 0.5,
-			},
-		},
-		[]string{labelRoute},
 	)
 
 	CacheSingleflightCollapsedTotal = promauto.NewCounterVec(

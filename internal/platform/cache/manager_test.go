@@ -175,50 +175,19 @@ func TestCacheManager_Flush(t *testing.T) {
 	assert.False(t, found)
 }
 
-func TestCacheManager_StoreAndGetTokenData(t *testing.T) {
+func TestCacheManager_GetDel(t *testing.T) {
 	mgr, _ := setupCacheManager(t)
 	ctx := context.Background()
 
-	data := map[string]any{
-		"user_id": float64(42),
-		"scope":   "read_write",
-	}
+	_ = mgr.Set(ctx, "once", "value", CacheShort)
 
-	err := mgr.StoreTokenData(
-		ctx, "token:abc", data, 10*time.Minute,
-	)
-	require.NoError(t, err)
-
-	result, found, err := mgr.GetTokenData(ctx, "token:abc")
+	var got string
+	found, err := mgr.GetDel(ctx, "once", &got)
 	require.NoError(t, err)
 	assert.True(t, found)
-	assert.InDelta(t, float64(42), result["user_id"], 0.01)
-	assert.Equal(t, "read_write", result["scope"])
-}
+	assert.Equal(t, "value", got)
 
-func TestCacheManager_GetTokenData_Missing(t *testing.T) {
-	mgr, _ := setupCacheManager(t)
-	ctx := context.Background()
-
-	result, found, err := mgr.GetTokenData(ctx, "token:missing")
-	require.NoError(t, err)
-	assert.False(t, found)
-	assert.Nil(t, result)
-}
-
-func TestCacheManager_DeleteTokenData(t *testing.T) {
-	mgr, _ := setupCacheManager(t)
-	ctx := context.Background()
-
-	_ = mgr.StoreTokenData(
-		ctx, "token:del",
-		map[string]any{"x": "y"}, 10*time.Minute,
-	)
-
-	err := mgr.DeleteTokenData(ctx, "token:del")
-	require.NoError(t, err)
-
-	_, found, err := mgr.GetTokenData(ctx, "token:del")
+	found, err = mgr.GetDel(ctx, "once", &got)
 	require.NoError(t, err)
 	assert.False(t, found)
 }
