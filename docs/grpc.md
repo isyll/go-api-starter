@@ -37,7 +37,10 @@ just proto   # buf lint && buf generate
 ## Add an RPC
 
 1. Add the RPC and its messages to the domain `.proto`, reusing
-   `common.v1` messages where they fit.
+   `common.v1` messages where they fit. Declare validation rules on the
+   request fields with [`buf.validate`](https://buf.build/docs/protovalidate/overview/)
+   annotations; the validation interceptor enforces them before the
+   handler runs.
 2. Run `just proto`.
 3. Implement the method on the matching server in `internal/grpcsvc`,
    mapping protobuf ↔ domain, and call a domain service for the work.

@@ -40,6 +40,12 @@ queue.
 | `email_sender` | emails | send transactional email |
 | `push_notifications` | notifications | send FCM push |
 
+The worker also runs a retention sweeper
+([`internal/maintenance`](../internal/maintenance/sweeper.go)) that
+periodically deletes stale refresh tokens, processed outbox rows, and
+old login attempts per `configs/maintenance.yaml`, and serves metrics
+and health endpoints on `:9091`.
+
 ## Add a handler
 
 1. Define the event type in `internal/event/types_*.go` and register it.

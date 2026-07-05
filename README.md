@@ -13,10 +13,17 @@ workers, and clean extension seams) designed for gRPC from day one.
 ## Highlights
 
 - **gRPC-first**: protobuf API, one package per domain, generated with buf.
+- **Request validation**: buf.validate rules enforced by a protovalidate
+  interceptor on unary and streaming RPCs.
 - **PostgreSQL**: pgx + sqlc, every write in a row-level-security transaction.
-- **Redis**: caching and opaque access tokens.
-- **Transactional outbox**: reliable events with Asynq background workers.
+- **Redis**: caching, opaque access tokens, and login lockout.
+- **Transactional outbox**: reliable events with Asynq background workers,
+  dead-lettering, and retention sweeps.
 - **Typed, localized errors**: mapped to gRPC status in exactly one place.
+- **Observability**: Prometheus metrics for RPCs, pools, outbox, and cache;
+  health/readiness endpoints on API and worker; optional pprof.
+- **Hardened auth**: argon2id, rotating refresh-token families with reuse
+  detection, per-account lockout, session revocation on password change.
 - **Optional HTTP/JSON gateway**: grpc-gateway transcoding, off by default.
 
 ## Stack

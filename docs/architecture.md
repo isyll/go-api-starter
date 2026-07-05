@@ -30,24 +30,28 @@ live in the domain services, which are transport-agnostic.
 
 ## Interceptor chain
 
-Unary interceptors run outermost to innermost. Each wraps the next, so
-the order matters: recovery is outermost (it catches panics from
-everything inside), auth is innermost (it runs last, just before the
-handler).
+Interceptors run outermost to innermost. Each wraps the next, so the
+order matters: recovery is outermost (it catches panics from everything
+inside), validation is innermost (it runs last, just before the
+handler). Streaming RPCs run an equivalent chain declared in
+[`internal/interceptor/stream.go`](../internal/interceptor/stream.go),
+with validation applied to every received message.
 
 ```mermaid
 flowchart LR
-    r["recovery"] --> l["logging"] --> lc["locale"] --> em["error-map"] --> ri["request-id"] --> a["auth"] --> h["handler"]
+    r["recovery"] --> m["metrics"] --> ri["request-id"] --> l["logging"] --> lc["locale"] --> em["error-map"] --> a["auth"] --> v["validate"] --> h["handler"]
 ```
 
 | Interceptor | Role |
 | --- | --- |
 | `recovery` | converts panics into a safe `Internal` status |
-| `logging` | logs method, status code, and duration |
+| `metrics` | Prometheus counters, latency histogram, in-flight gauge |
+| `request-id` | attaches or propagates a request id |
+| `logging` | logs method, code, duration, request id, and peer |
 | `locale` | resolves the request language into the context |
 | `error-map` | maps domain errors to localized gRPC status |
-| `request-id` | attaches or propagates a request id |
 | `auth` | validates the token, loads the session, sets the subject |
+| `validate` | enforces the buf.validate rules from the .proto files |
 
 > [!NOTE]
 > Public methods (no token required) and the admin-only prefix are

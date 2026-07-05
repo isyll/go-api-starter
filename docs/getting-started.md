@@ -41,7 +41,9 @@ Run the worker with `just worker`, and the optional gateway with
 
 ## Call the API
 
-The server enables gRPC reflection, so `grpcurl` can explore it:
+The server enables gRPC reflection by default in development
+(`GRPC_REFLECTION`, disable it on internet-facing deployments), so
+`grpcurl` can explore it:
 
 ```sh
 grpcurl -plaintext localhost:8080 list
@@ -64,13 +66,15 @@ grpcurl -plaintext -H "authorization: Bearer <token>" \
 
 ## Observability
 
-Metrics and health are served on `:9090`:
+The API serves operational endpoints on `:9090` (`METRICS_PORT`) and
+the worker on `:9091` (`WORKER_METRICS_PORT`):
 
 | Endpoint | Purpose |
 | --- | --- |
-| `/metrics` | Prometheus metrics |
+| `/metrics` | Prometheus metrics (RPCs, outbox, cache, DB and Redis pools) |
 | `/healthz` | liveness |
 | `/readyz` | readiness (checks Postgres + Redis) |
+| `/debug/pprof/` | profiling, only when `PPROF_ENABLED=true` |
 
 ---
 

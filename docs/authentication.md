@@ -39,10 +39,23 @@ blocks its access token immediately. Users can list and revoke their own
 devices, and the oldest session is evicted once the per-user device limit
 is reached.
 
+## Brute-force protection
+
+Login failures increment a per-account Redis counter; once the
+configured limit is hit (`lockout` in `configs/security.yaml`, default
+10 failures in 15 minutes) further attempts return `TOO_MANY_ATTEMPTS`
+until the window expires. A successful login resets the counter, and a
+Redis outage fails open rather than locking everyone out. Unknown
+emails run a dummy argon2id verification so response timing does not
+reveal whether an address is registered.
+
 ## Email verification & password reset
 
-Verification and reset tokens live in Redis with a TTL. The email worker
-delivers the message; on use, the token maps back to the user.
+Verification and reset tokens live in Redis with a TTL and are consumed
+atomically (`GETDEL`), so each token works exactly once. The email
+worker delivers the message; on use, the token maps back to the user.
+Resetting a password revokes every session; changing it keeps only the
+session that made the change.
 
 > [!IMPORTANT]
 > This template ships email/password auth as a worked example. Swap in
