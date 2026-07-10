@@ -1,0 +1,46 @@
+meta {
+  name: 03 Refresh Rotates
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/token/refresh
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "refreshToken": "{{refresh_token}}"
+  }
+}
+
+script:pre-request {
+  bru.setVar("old_refresh_token", bru.getVar("refresh_token"));
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setVar("access_token", res.getBody().accessToken);
+    bru.setVar("refresh_token", res.getBody().refreshToken);
+  }
+}
+
+tests {
+  test("refresh succeeds", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("refresh token is rotated", function() {
+    expect(res.getBody().refreshToken).to.not.equal(bru.getVar("old_refresh_token"));
+  });
+}
+
+docs {
+  Rotation: a successful refresh must return a different refresh token.
+  The consumed token is kept in old_refresh_token for the reuse check.
+}

@@ -1,0 +1,32 @@
+meta {
+  name: List Devices
+  type: grpc
+  seq: 10
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /auth.v1.AuthService/ListDevices
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {}
+  '''
+}
+
+docs {
+  Lists the account's active device sessions.
+  
+  gRPC method: /auth.v1.AuthService/ListDevices
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

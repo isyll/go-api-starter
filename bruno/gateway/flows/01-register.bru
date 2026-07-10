@@ -1,0 +1,56 @@
+meta {
+  name: 01 Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "email": "{{flow_email}}",
+    "password": "{{flow_password}}",
+    "firstName": "Flow",
+    "lastName": "Tester",
+    "device": {
+      "deviceId": "bruno-flow-device",
+      "name": "Bruno Flow",
+      "platform": "web"
+    }
+  }
+}
+
+script:pre-request {
+  bru.setVar("flow_email", `flow-${Date.now()}@example.com`);
+  bru.setVar("flow_password", `pw-${Date.now()}-secret`);
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setVar("access_token", res.getBody().accessToken);
+    bru.setVar("refresh_token", res.getBody().refreshToken);
+  }
+}
+
+tests {
+  test("registers a fresh account", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("returns a token pair", function() {
+    expect(res.getBody().accessToken).to.be.a("string").and.not.empty;
+    expect(res.getBody().refreshToken).to.be.a("string").and.not.empty;
+  });
+}
+
+docs {
+  Starts the lifecycle flow with a unique account so every run is
+  independent. Stores flow credentials and tokens in the environment.
+}

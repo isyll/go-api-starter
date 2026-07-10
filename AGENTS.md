@@ -40,6 +40,7 @@ templates/      generated email HTML, do not edit (run `just emails`)
 migrations/     SQL migrations (golang-migrate)
 configs/        YAML config, read with env substitution
 locales/        i18n message catalogs (go-i18n)
+bruno/          Bruno API collections: gRPC + gateway requests, test flows
 infra/          docker, postgres init, prometheus
 ```
 
@@ -51,6 +52,7 @@ infra/          docker, postgres init, prometheus
 | `just gateway` | run the optional HTTP/JSON gateway (opt-in) |
 | `just worker` | run the background workers |
 | `just test` | run tests |
+| `just api-test` | run the Bruno API flows against a local stack |
 | `just proto` | regenerate protobuf code (buf) |
 | `just sqlc` | regenerate sqlc code |
 | `just emails` | regenerate email HTML from React Email sources |

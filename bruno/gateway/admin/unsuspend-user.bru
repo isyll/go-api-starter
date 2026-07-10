@@ -1,0 +1,39 @@
+meta {
+  name: Unsuspend User
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{gateway_url}}/v1/admin/users/{{user_id}}/unsuspend
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "id": "{{user_id}}"
+  }
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,401,403]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Lifts an active suspension. Admin only.
+  
+  gRPC method: /admin.v1.AdminService/UnsuspendUser
+  Expected statuses: 200, 401, 403
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

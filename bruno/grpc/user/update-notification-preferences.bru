@@ -1,0 +1,40 @@
+meta {
+  name: Update Notification Preferences
+  type: grpc
+  seq: 10
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /user.v1.UserService/UpdateNotificationPreferences
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "push": true,
+    "email": true,
+    "marketing": false,
+    "quietHoursEnabled": true,
+    "quietHoursStart": "22:00",
+    "quietHoursEnd": "07:00",
+    "timezone": "UTC"
+  }
+  '''
+}
+
+docs {
+  Replaces notification preferences, including quiet hours.
+  
+  gRPC method: /user.v1.UserService/UpdateNotificationPreferences
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

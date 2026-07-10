@@ -1,0 +1,52 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "email": "{{test_email}}",
+    "password": "{{test_password}}",
+    "firstName": "Ada",
+    "lastName": "Lovelace",
+    "device": {
+      "deviceId": "{{device_id}}",
+      "name": "Bruno",
+      "platform": "web"
+    }
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200 && res.getBody().accessToken) {
+    bru.setVar("access_token", res.getBody().accessToken);
+    bru.setVar("refresh_token", res.getBody().refreshToken);
+  }
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,409]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Creates an account and returns a token pair. 409 when the email already exists. Public.
+  
+  gRPC method: /auth.v1.AuthService/Register
+  Expected statuses: 200, 409
+}

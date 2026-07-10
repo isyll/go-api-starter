@@ -1,0 +1,33 @@
+meta {
+  name: Delete Me
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{gateway_url}}/v1/users/me
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,401]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Soft-deletes the account and revokes every session. Destructive.
+  
+  gRPC method: /user.v1.UserService/DeleteMe
+  Expected statuses: 200, 401
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

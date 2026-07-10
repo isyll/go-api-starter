@@ -1,0 +1,32 @@
+meta {
+  name: Delete Me
+  type: grpc
+  seq: 3
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /user.v1.UserService/DeleteMe
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {}
+  '''
+}
+
+docs {
+  Soft-deletes the account and revokes every session. Destructive.
+  
+  gRPC method: /user.v1.UserService/DeleteMe
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

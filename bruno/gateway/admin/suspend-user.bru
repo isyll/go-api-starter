@@ -1,0 +1,43 @@
+meta {
+  name: Suspend User
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{gateway_url}}/v1/admin/users/{{user_id}}/suspend
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "id": "{{user_id}}",
+    "reason": "abuse",
+    "details": "Suspended from Bruno",
+    "permanent": false,
+    "days": 7
+  }
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,400,401,403]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Suspends an account for N days or permanently. Admin only.
+  
+  gRPC method: /admin.v1.AdminService/SuspendUser
+  Expected statuses: 200, 400, 401, 403
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

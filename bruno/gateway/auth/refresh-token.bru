@@ -1,0 +1,44 @@
+meta {
+  name: Refresh Token
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/token/refresh
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "refreshToken": "{{refresh_token}}"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200 && res.getBody().accessToken) {
+    bru.setVar("access_token", res.getBody().accessToken);
+    bru.setVar("refresh_token", res.getBody().refreshToken);
+  }
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,401]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Rotates the refresh token. Reusing a consumed token returns 401 and revokes the whole family. Public.
+  
+  gRPC method: /auth.v1.AuthService/RefreshToken
+  Expected statuses: 200, 401
+}

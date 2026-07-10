@@ -1,0 +1,30 @@
+meta {
+  name: 09 Logout
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/logout
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("logout succeeds", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  Revokes the current session, refresh tokens, and access token.
+}

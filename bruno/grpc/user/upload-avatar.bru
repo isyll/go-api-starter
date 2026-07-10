@@ -1,0 +1,34 @@
+meta {
+  name: Upload Avatar
+  type: grpc
+  seq: 5
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /user.v1.UserService/UploadAvatar
+  body: grpc
+  auth: none
+  methodType: client-streaming
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "contentType": "image/png"
+  }
+  '''
+}
+
+docs {
+  Client-streaming upload: the first message carries contentType, following messages carry base64 chunk bytes. Add chunk messages in the Bruno message editor. gRPC only, no gateway route.
+  
+  gRPC method: /user.v1.UserService/UploadAvatar
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

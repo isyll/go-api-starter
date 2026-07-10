@@ -1,0 +1,38 @@
+meta {
+  name: Login
+  type: grpc
+  seq: 2
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /auth.v1.AuthService/Login
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "email": "{{test_email}}",
+    "password": "{{test_password}}",
+    "device": {
+      "deviceId": "{{device_id}}",
+      "name": "Bruno",
+      "platform": "web"
+    }
+  }
+  '''
+}
+
+docs {
+  Authenticates and returns a token pair. On success the post-response script stores access_token and refresh_token in the environment. 429 after repeated failures (lockout). Public.
+  
+  gRPC method: /auth.v1.AuthService/Login
+}

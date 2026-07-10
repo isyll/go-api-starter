@@ -1,0 +1,39 @@
+meta {
+  name: Update Settings
+  type: grpc
+  seq: 7
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /user.v1.UserService/UpdateSettings
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "locale": "en",
+    "timezone": "UTC",
+    "theme": "dark",
+    "emailNotifications": true,
+    "pushNotifications": true,
+    "marketingEmails": false
+  }
+  '''
+}
+
+docs {
+  Replaces the user's settings.
+  
+  gRPC method: /user.v1.UserService/UpdateSettings
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

@@ -1,0 +1,38 @@
+meta {
+  name: Suspend User
+  type: grpc
+  seq: 3
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /admin.v1.AdminService/SuspendUser
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "id": "{{user_id}}",
+    "reason": "abuse",
+    "details": "Suspended from Bruno",
+    "permanent": false,
+    "days": 7
+  }
+  '''
+}
+
+docs {
+  Suspends an account for N days or permanently. Admin only.
+  
+  gRPC method: /admin.v1.AdminService/SuspendUser
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

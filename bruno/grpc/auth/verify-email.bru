@@ -1,0 +1,32 @@
+meta {
+  name: Verify Email
+  type: grpc
+  seq: 5
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /auth.v1.AuthService/VerifyEmail
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "token": "{{verification_token}}"
+  }
+  '''
+}
+
+docs {
+  Consumes a single-use verification token from the email link. 400 when the token is invalid or already used. Public.
+  
+  gRPC method: /auth.v1.AuthService/VerifyEmail
+}

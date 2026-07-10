@@ -1,0 +1,32 @@
+meta {
+  name: Logout
+  type: grpc
+  seq: 4
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /auth.v1.AuthService/Logout
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {}
+  '''
+}
+
+docs {
+  Revokes the current session, its refresh tokens, and the access token.
+  
+  gRPC method: /auth.v1.AuthService/Logout
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

@@ -1,0 +1,38 @@
+meta {
+  name: 06 Validation Rejected
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "email": "not-an-email",
+    "password": "short",
+    "firstName": "",
+    "lastName": ""
+  }
+}
+
+tests {
+  test("invalid input is rejected with 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+  test("error carries details", function() {
+    expect(res.getBody().message).to.be.a("string").and.not.empty;
+  });
+}
+
+docs {
+  protovalidate rules reject the request before any handler runs; the
+  gateway maps InvalidArgument to 400 with field violations in details.
+}

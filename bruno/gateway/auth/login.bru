@@ -1,0 +1,50 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "email": "{{test_email}}",
+    "password": "{{test_password}}",
+    "device": {
+      "deviceId": "{{device_id}}",
+      "name": "Bruno",
+      "platform": "web"
+    }
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200 && res.getBody().accessToken) {
+    bru.setVar("access_token", res.getBody().accessToken);
+    bru.setVar("refresh_token", res.getBody().refreshToken);
+  }
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,401,429]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Authenticates and returns a token pair. On success the post-response script stores access_token and refresh_token in the environment. 429 after repeated failures (lockout). Public.
+  
+  gRPC method: /auth.v1.AuthService/Login
+  Expected statuses: 200, 401, 429
+}

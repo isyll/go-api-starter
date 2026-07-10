@@ -1,0 +1,32 @@
+meta {
+  name: Get Me
+  type: grpc
+  seq: 1
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /user.v1.UserService/GetMe
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {}
+  '''
+}
+
+docs {
+  Returns the authenticated user's profile.
+  
+  gRPC method: /user.v1.UserService/GetMe
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

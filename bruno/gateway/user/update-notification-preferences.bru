@@ -1,0 +1,45 @@
+meta {
+  name: Update Notification Preferences
+  type: http
+  seq: 9
+}
+
+put {
+  url: {{gateway_url}}/v1/users/me/notification-preferences
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "push": true,
+    "email": true,
+    "marketing": false,
+    "quietHoursEnabled": true,
+    "quietHoursStart": "22:00",
+    "quietHoursEnd": "07:00",
+    "timezone": "UTC"
+  }
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,400,401]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Replaces notification preferences, including quiet hours.
+  
+  gRPC method: /user.v1.UserService/UpdateNotificationPreferences
+  Expected statuses: 200, 400, 401
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

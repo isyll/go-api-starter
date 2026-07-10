@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "go-grpc-starter",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}

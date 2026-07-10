@@ -1,0 +1,30 @@
+meta {
+  name: Check
+  type: grpc
+  seq: 1
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /health.v1.HealthService/Check
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {}
+  '''
+}
+
+docs {
+  Liveness. Public.
+  
+  gRPC method: /health.v1.HealthService/Check
+}

@@ -1,0 +1,37 @@
+meta {
+  name: Verify Email
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/email/verify
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "token": "{{verification_token}}"
+  }
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,400]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Consumes a single-use verification token from the email link. 400 when the token is invalid or already used. Public.
+  
+  gRPC method: /auth.v1.AuthService/VerifyEmail
+  Expected statuses: 200, 400
+}

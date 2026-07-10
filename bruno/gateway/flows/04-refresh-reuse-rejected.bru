@@ -1,0 +1,32 @@
+meta {
+  name: 04 Refresh Reuse Rejected
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/token/refresh
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "refreshToken": "{{old_refresh_token}}"
+  }
+}
+
+tests {
+  test("replaying a consumed refresh token is rejected", function() {
+    expect(res.getStatus()).to.equal(401);
+  });
+}
+
+docs {
+  Reuse detection: replaying the consumed token must fail and revokes the
+  whole token family (the fresh token from step 03 dies too).
+}

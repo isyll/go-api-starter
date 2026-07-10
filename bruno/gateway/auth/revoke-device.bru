@@ -1,0 +1,33 @@
+meta {
+  name: Revoke Device
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{gateway_url}}/v1/auth/devices/{{device_id}}
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,400,401]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Revokes another device's session. 400 when targeting the current device.
+  
+  gRPC method: /auth.v1.AuthService/RevokeDevice
+  Expected statuses: 200, 400, 401
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

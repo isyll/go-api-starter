@@ -1,0 +1,37 @@
+meta {
+  name: Resend Verification
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/email/resend
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,401]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Sends a fresh verification email for the authenticated account.
+  
+  gRPC method: /auth.v1.AuthService/ResendVerification
+  Expected statuses: 200, 401
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

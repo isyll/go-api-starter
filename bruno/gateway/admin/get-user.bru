@@ -1,0 +1,33 @@
+meta {
+  name: Get User
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{gateway_url}}/v1/admin/users/{{user_id}}
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,401,403,404]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Full user record by obfuscated id. Admin only.
+  
+  gRPC method: /admin.v1.AdminService/GetUser
+  Expected statuses: 200, 401, 403, 404
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Ready
+  type: grpc
+  seq: 2
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /health.v1.HealthService/Ready
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {}
+  '''
+}
+
+docs {
+  Readiness: checks Postgres and Redis. Public.
+  
+  gRPC method: /health.v1.HealthService/Ready
+}

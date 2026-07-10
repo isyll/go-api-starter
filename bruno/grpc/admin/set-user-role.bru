@@ -1,0 +1,35 @@
+meta {
+  name: Set User Role
+  type: grpc
+  seq: 5
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /admin.v1.AdminService/SetUserRole
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "id": "{{user_id}}",
+    "role": "user"
+  }
+  '''
+}
+
+docs {
+  Sets the role to user or admin. Admin only.
+  
+  gRPC method: /admin.v1.AdminService/SetUserRole
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

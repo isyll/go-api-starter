@@ -1,0 +1,37 @@
+meta {
+  name: List Users
+  type: grpc
+  seq: 1
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /admin.v1.AdminService/ListUsers
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "page": {
+      "page": 1,
+      "pageSize": 20
+    }
+  }
+  '''
+}
+
+docs {
+  Paginated user list. Requires the admin role: 403 for regular users.
+  
+  gRPC method: /admin.v1.AdminService/ListUsers
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

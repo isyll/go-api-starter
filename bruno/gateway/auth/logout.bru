@@ -1,0 +1,37 @@
+meta {
+  name: Logout
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/logout
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,401]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Revokes the current session, its refresh tokens, and the access token.
+  
+  gRPC method: /auth.v1.AuthService/Logout
+  Expected statuses: 200, 401
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

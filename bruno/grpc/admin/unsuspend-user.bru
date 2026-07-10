@@ -1,0 +1,34 @@
+meta {
+  name: Unsuspend User
+  type: grpc
+  seq: 4
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /admin.v1.AdminService/UnsuspendUser
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "id": "{{user_id}}"
+  }
+  '''
+}
+
+docs {
+  Lifts an active suspension. Admin only.
+  
+  gRPC method: /admin.v1.AdminService/UnsuspendUser
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

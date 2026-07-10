@@ -1,0 +1,36 @@
+meta {
+  name: Update Me
+  type: grpc
+  seq: 2
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /user.v1.UserService/UpdateMe
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "firstName": "Ada",
+    "lastName": "Lovelace",
+    "bio": "Updated from Bruno"
+  }
+  '''
+}
+
+docs {
+  Partially updates the profile; omitted fields stay unchanged.
+  
+  gRPC method: /user.v1.UserService/UpdateMe
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

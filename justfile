@@ -59,6 +59,10 @@ lint:
 test:
     @go test ./... -race -shuffle=on -timeout 60s
 
+# Run the Bruno end-to-end API flows (needs server + gateway running).
+api-test:
+    @cd bruno && npx -y @usebruno/cli run gateway/flows --env dev -r
+
 # Tests with coverage.
 test-cover:
     @go test ./... -race -coverprofile=coverage.out -covermode=atomic

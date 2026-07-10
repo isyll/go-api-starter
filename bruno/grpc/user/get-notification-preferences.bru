@@ -1,0 +1,32 @@
+meta {
+  name: Get Notification Preferences
+  type: grpc
+  seq: 9
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /user.v1.UserService/GetNotificationPreferences
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {}
+  '''
+}
+
+docs {
+  Returns notification preferences.
+  
+  gRPC method: /user.v1.UserService/GetNotificationPreferences
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

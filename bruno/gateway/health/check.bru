@@ -1,0 +1,31 @@
+meta {
+  name: Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{gateway_url}}/v1/health
+  body: none
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+tests {
+  test("expected status", function() {
+    expect([200]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Liveness. Public.
+  
+  gRPC method: /health.v1.HealthService/Check
+  Expected statuses: 200
+}

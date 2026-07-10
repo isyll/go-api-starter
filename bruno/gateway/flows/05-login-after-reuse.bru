@@ -1,0 +1,44 @@
+meta {
+  name: 05 Login After Reuse
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{gateway_url}}/v1/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "email": "{{flow_email}}",
+    "password": "{{flow_password}}",
+    "device": {
+      "deviceId": "bruno-flow-device",
+      "name": "Bruno Flow",
+      "platform": "web"
+    }
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setVar("access_token", res.getBody().accessToken);
+    bru.setVar("refresh_token", res.getBody().refreshToken);
+  }
+}
+
+tests {
+  test("login recovers after family revocation", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  The reuse in step 04 revoked the session; a fresh login issues a new one.
+}

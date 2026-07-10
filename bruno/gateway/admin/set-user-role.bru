@@ -1,0 +1,40 @@
+meta {
+  name: Set User Role
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{gateway_url}}/v1/admin/users/{{user_id}}/role
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "id": "{{user_id}}",
+    "role": "user"
+  }
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,400,401,403]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Sets the role to user or admin. Admin only.
+  
+  gRPC method: /admin.v1.AdminService/SetUserRole
+  Expected statuses: 200, 400, 401, 403
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

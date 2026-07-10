@@ -1,0 +1,34 @@
+meta {
+  name: Revoke Device
+  type: grpc
+  seq: 11
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /auth.v1.AuthService/RevokeDevice
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "deviceId": "{{device_id}}"
+  }
+  '''
+}
+
+docs {
+  Revokes another device's session. 400 when targeting the current device.
+  
+  gRPC method: /auth.v1.AuthService/RevokeDevice
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

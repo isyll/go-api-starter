@@ -1,0 +1,37 @@
+meta {
+  name: Register Push Token
+  type: grpc
+  seq: 8
+}
+
+grpc {
+  url: {{grpc_url}}
+  method: /user.v1.UserService/RegisterPushToken
+  body: grpc
+  auth: none
+  methodType: unary
+}
+
+metadata {
+  authorization: Bearer {{access_token}}
+  accept-language: en
+}
+
+body:grpc {
+  name: message
+  content: '''
+  {
+    "deviceId": "{{device_id}}",
+    "token": "fcm-token-from-device",
+    "platform": "android",
+    "appVersion": "1.0.0"
+  }
+  '''
+}
+
+docs {
+  Registers an FCM push token for the current device.
+  
+  gRPC method: /user.v1.UserService/RegisterPushToken
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}

@@ -1,0 +1,41 @@
+meta {
+  name: Update Me
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{gateway_url}}/v1/users/me
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{access_token}}
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "firstName": "Ada",
+    "lastName": "Lovelace",
+    "bio": "Updated from Bruno"
+  }
+}
+
+tests {
+  test("expected status", function() {
+    expect([200,400,401]).to.include(res.getStatus());
+  });
+  test("no server error", function() {
+    expect(res.getStatus()).to.be.below(500);
+  });
+}
+
+docs {
+  Partially updates the profile; omitted fields stay unchanged.
+  
+  gRPC method: /user.v1.UserService/UpdateMe
+  Expected statuses: 200, 400, 401
+  Requires: authorization metadata/header with a bearer access token (run gateway/flows or Login first).
+}
