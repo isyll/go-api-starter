@@ -53,6 +53,7 @@ type Querier interface {
 	MarkUserEmailVerified(ctx context.Context, id int64) error
 	OutboxStats(ctx context.Context, retryCount int32) (OutboxStatsRow, error)
 	PendingOutboxBatch(ctx context.Context, arg PendingOutboxBatchParams) ([]EventsOutbox, error)
+	RevokeActiveDeviceSessionsByDeviceID(ctx context.Context, arg RevokeActiveDeviceSessionsByDeviceIDParams) error
 	RevokeAllDeviceSessionsByUser(ctx context.Context, arg RevokeAllDeviceSessionsByUserParams) error
 	RevokeDeviceSession(ctx context.Context, arg RevokeDeviceSessionParams) (AuthDeviceSession, error)
 	RevokeRefreshTokenByHash(ctx context.Context, arg RevokeRefreshTokenByHashParams) error

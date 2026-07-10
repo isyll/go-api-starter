@@ -10,6 +10,12 @@ import "common/v1/common.proto";
 // UserService handles the authenticated user's own profile, settings,
 // push tokens, and notification preferences.
 service UserService {
+  // GetUser is declared before the /v1/users/me routes on purpose: the
+  // grpc-gateway mux gives later registrations priority, so the literal
+  // "me" routes must come after the {id} wildcard to win the match.
+  rpc GetUser(GetUserRequest) returns (common.v1.PublicUser) {
+    option (google.api.http) = {get: "/v1/users/{id}"};
+  }
   rpc GetMe(google.protobuf.Empty) returns (common.v1.User) {
     option (google.api.http) = {get: "/v1/users/me"};
   }
@@ -21,9 +27,6 @@ service UserService {
   }
   rpc DeleteMe(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/users/me"};
-  }
-  rpc GetUser(GetUserRequest) returns (common.v1.PublicUser) {
-    option (google.api.http) = {get: "/v1/users/{id}"};
   }
 
   // UploadAvatar streams an avatar image to server-side object storage. The

@@ -193,6 +193,19 @@ func (f *fakeSessions) RevokeAllByUserID(ctx context.Context, userID int64, reas
 	return nil
 }
 
+func (f *fakeSessions) RevokeActiveByDeviceID(_ context.Context, deviceID, reason string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	for _, s := range f.byID {
+		if s.DeviceID == deviceID && s.RevokedAt == nil {
+			now := time.Now()
+			s.RevokedAt = &now
+			s.RevokedReason = reason
+		}
+	}
+	return nil
+}
+
 func (f *fakeSessions) activeCount(userID int64) int {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -623,4 +636,17 @@ func TestEvictOldestSessionOverDeviceLimit(t *testing.T) {
 		require.NoError(t, err)
 	}
 	assert.LessOrEqual(t, h.sessions.activeCount(tokens.User.ID), 5)
+}
+
+func TestReloginSameDeviceReplacesSession(t *testing.T) {
+	h := newHarness(t)
+	tokens := register(t, h, "ada@example.com")
+	ctx := context.Background()
+
+	_, err := h.svc.Login(ctx, LoginInput{
+		Email: "ada@example.com", Password: "correct horse battery", Device: device,
+	})
+	require.NoError(t, err)
+
+	assert.Equal(t, 1, h.sessions.activeCount(tokens.User.ID))
 }

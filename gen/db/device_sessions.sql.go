@@ -218,6 +218,22 @@ func (q *Queries) ListActiveDevicesByUser(ctx context.Context, arg ListActiveDev
 	return items, nil
 }
 
+const revokeActiveDeviceSessionsByDeviceID = `-- name: RevokeActiveDeviceSessionsByDeviceID :exec
+UPDATE auth.device_sessions
+SET revoked_at = now(), revoked_reason = $2
+WHERE device_id = $1 AND revoked_at IS NULL
+`
+
+type RevokeActiveDeviceSessionsByDeviceIDParams struct {
+	DeviceID      string
+	RevokedReason *string
+}
+
+func (q *Queries) RevokeActiveDeviceSessionsByDeviceID(ctx context.Context, arg RevokeActiveDeviceSessionsByDeviceIDParams) error {
+	_, err := q.db.Exec(ctx, revokeActiveDeviceSessionsByDeviceID, arg.DeviceID, arg.RevokedReason)
+	return err
+}
+
 const revokeAllDeviceSessionsByUser = `-- name: RevokeAllDeviceSessionsByUser :exec
 UPDATE auth.device_sessions
 SET revoked_at = now(), revoked_reason = $2

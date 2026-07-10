@@ -229,6 +229,7 @@
     },
     "/v1/users/{id}": {
       "get": {
+        "summary": "GetUser is declared before the /v1/users/me routes on purpose: the\ngrpc-gateway mux gives later registrations priority, so the literal\n\"me\" routes must come after the {id} wildcard to win the match.",
         "operationId": "UserService_GetUser",
         "responses": {
           "200": {

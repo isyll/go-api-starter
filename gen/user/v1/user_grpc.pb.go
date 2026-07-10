@@ -21,10 +21,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	UserService_GetUser_FullMethodName                       = "/user.v1.UserService/GetUser"
 	UserService_GetMe_FullMethodName                         = "/user.v1.UserService/GetMe"
 	UserService_UpdateMe_FullMethodName                      = "/user.v1.UserService/UpdateMe"
 	UserService_DeleteMe_FullMethodName                      = "/user.v1.UserService/DeleteMe"
-	UserService_GetUser_FullMethodName                       = "/user.v1.UserService/GetUser"
 	UserService_UploadAvatar_FullMethodName                  = "/user.v1.UserService/UploadAvatar"
 	UserService_GetSettings_FullMethodName                   = "/user.v1.UserService/GetSettings"
 	UserService_UpdateSettings_FullMethodName                = "/user.v1.UserService/UpdateSettings"
@@ -40,10 +40,13 @@ const (
 // UserService handles the authenticated user's own profile, settings,
 // push tokens, and notification preferences.
 type UserServiceClient interface {
+	// GetUser is declared before the /v1/users/me routes on purpose: the
+	// grpc-gateway mux gives later registrations priority, so the literal
+	// "me" routes must come after the {id} wildcard to win the match.
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*v1.PublicUser, error)
 	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.User, error)
 	UpdateMe(ctx context.Context, in *UpdateMeRequest, opts ...grpc.CallOption) (*v1.User, error)
 	DeleteMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*v1.PublicUser, error)
 	// UploadAvatar streams an avatar image to server-side object storage. The
 	// first message must carry content_type; subsequent messages carry file
 	// chunks. Size and content type are validated server-side. Client-streaming,
@@ -62,6 +65,16 @@ type userServiceClient struct {
 
 func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
+}
+
+func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*v1.PublicUser, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.PublicUser)
+	err := c.cc.Invoke(ctx, UserService_GetUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *userServiceClient) GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.User, error) {
@@ -88,16 +101,6 @@ func (c *userServiceClient) DeleteMe(ctx context.Context, in *emptypb.Empty, opt
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, UserService_DeleteMe_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*v1.PublicUser, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.PublicUser)
-	err := c.cc.Invoke(ctx, UserService_GetUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -174,10 +177,13 @@ func (c *userServiceClient) UpdateNotificationPreferences(ctx context.Context, i
 // UserService handles the authenticated user's own profile, settings,
 // push tokens, and notification preferences.
 type UserServiceServer interface {
+	// GetUser is declared before the /v1/users/me routes on purpose: the
+	// grpc-gateway mux gives later registrations priority, so the literal
+	// "me" routes must come after the {id} wildcard to win the match.
+	GetUser(context.Context, *GetUserRequest) (*v1.PublicUser, error)
 	GetMe(context.Context, *emptypb.Empty) (*v1.User, error)
 	UpdateMe(context.Context, *UpdateMeRequest) (*v1.User, error)
 	DeleteMe(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
-	GetUser(context.Context, *GetUserRequest) (*v1.PublicUser, error)
 	// UploadAvatar streams an avatar image to server-side object storage. The
 	// first message must carry content_type; subsequent messages carry file
 	// chunks. Size and content type are validated server-side. Client-streaming,
@@ -198,6 +204,9 @@ type UserServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserServiceServer struct{}
 
+func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*v1.PublicUser, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+}
 func (UnimplementedUserServiceServer) GetMe(context.Context, *emptypb.Empty) (*v1.User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
 }
@@ -206,9 +215,6 @@ func (UnimplementedUserServiceServer) UpdateMe(context.Context, *UpdateMeRequest
 }
 func (UnimplementedUserServiceServer) DeleteMe(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMe not implemented")
-}
-func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*v1.PublicUser, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 func (UnimplementedUserServiceServer) UploadAvatar(grpc.ClientStreamingServer[UploadAvatarRequest, UploadAvatarResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method UploadAvatar not implemented")
@@ -247,6 +253,24 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&UserService_ServiceDesc, srv)
+}
+
+func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetUser(ctx, req.(*GetUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _UserService_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -299,24 +323,6 @@ func _UserService_DeleteMe_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).DeleteMe(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).GetUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_GetUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUser(ctx, req.(*GetUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -426,6 +432,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetUser",
+			Handler:    _UserService_GetUser_Handler,
+		},
+		{
 			MethodName: "GetMe",
 			Handler:    _UserService_GetMe_Handler,
 		},
@@ -436,10 +446,6 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteMe",
 			Handler:    _UserService_DeleteMe_Handler,
-		},
-		{
-			MethodName: "GetUser",
-			Handler:    _UserService_GetUser_Handler,
 		},
 		{
 			MethodName: "GetSettings",

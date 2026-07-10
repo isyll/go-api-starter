@@ -77,6 +77,10 @@ func (s *stubSessions) RevokeAllByUserID(context.Context, int64, string) error {
 	return errors.New("not used")
 }
 
+func (s *stubSessions) RevokeActiveByDeviceID(context.Context, string, string) error {
+	return errors.New("not used")
+}
+
 func testSet(t *testing.T, tokens *stubTokens, sessions *stubSessions) *Set {
 	t.Helper()
 	cfg := &config.Configs{Security: &config.SecurityConfig{}}

@@ -21,6 +21,7 @@ type DeviceSessionRepository interface {
 	Revoke(ctx context.Context, reason string, id int64) (*DeviceSession, error)
 	FindActiveDevicesByUser(ctx context.Context, userID int64, inactivityTimeout time.Duration) ([]DeviceSession, error)
 	RevokeAllByUserID(ctx context.Context, userID int64, reason string) error
+	RevokeActiveByDeviceID(ctx context.Context, deviceID, reason string) error
 }
 
 type deviceSessionRepository struct {
@@ -200,6 +201,17 @@ func (r *deviceSessionRepository) RevokeAllByUserID(
 	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
 		return q.RevokeAllDeviceSessionsByUser(ctx, db.RevokeAllDeviceSessionsByUserParams{
 			UserID:        userID,
+			RevokedReason: store.Ptr(reason),
+		})
+	})
+}
+
+func (r *deviceSessionRepository) RevokeActiveByDeviceID(
+	ctx context.Context, deviceID, reason string,
+) error {
+	return r.store.Run(ctx, func(ctx context.Context, q *db.Queries) error {
+		return q.RevokeActiveDeviceSessionsByDeviceID(ctx, db.RevokeActiveDeviceSessionsByDeviceIDParams{
+			DeviceID:      deviceID,
 			RevokedReason: store.Ptr(reason),
 		})
 	})

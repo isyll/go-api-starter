@@ -23,6 +23,13 @@ func (s *Service) createSessionAndTokens(
 	session := device.toSession(user.ID)
 	var tokens *TokenPair
 	err := s.tx.WithTx(ctx, func(ctx context.Context) error {
+		// One active session per physical device: logging in again on a
+		// device replaces its previous session, whoever owned it.
+		if session.DeviceID != "" {
+			if err := s.sessions.RevokeActiveByDeviceID(ctx, session.DeviceID, "relogin"); err != nil {
+				return err
+			}
+		}
 		if err := s.sessions.Create(ctx, session); err != nil {
 			return err
 		}

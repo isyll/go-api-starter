@@ -25,6 +25,10 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	// Registers the google.rpc error-detail types so error statuses carrying
+	// ErrorInfo/BadRequest/LocalizedMessage marshal to JSON instead of 500.
+	_ "google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
 type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error

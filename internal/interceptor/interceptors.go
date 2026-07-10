@@ -108,29 +108,46 @@ func (i *Set) metricsUnary(
 }
 
 var publicMethods = map[string]bool{
-	"/health.v1.HealthService/Check":            true,
-	"/health.v1.HealthService/Ready":            true,
-	"/auth.v1.AuthService/Register":             true,
-	"/auth.v1.AuthService/Login":                true,
-	"/auth.v1.AuthService/RefreshToken":         true,
-	"/auth.v1.AuthService/VerifyEmail":          true,
-	"/auth.v1.AuthService/RequestPasswordReset": true,
-	"/auth.v1.AuthService/ResetPassword":        true,
+	"/health.v1.HealthService/Check": true,
+	"/health.v1.HealthService/Ready": true,
+	// Standard health and reflection services; reflection is only
+	// registered when enabled in config.
+	"/grpc.health.v1.Health/Check":                                   true,
+	"/grpc.health.v1.Health/Watch":                                   true,
+	"/grpc.reflection.v1.ServerReflection/ServerReflectionInfo":      true,
+	"/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo": true,
+	"/auth.v1.AuthService/Register":                                  true,
+	"/auth.v1.AuthService/Login":                                     true,
+	"/auth.v1.AuthService/RefreshToken":                              true,
+	"/auth.v1.AuthService/VerifyEmail":                               true,
+	"/auth.v1.AuthService/RequestPasswordReset":                      true,
+	"/auth.v1.AuthService/ResetPassword":                             true,
 }
 
 const adminServicePrefix = "/admin.v1.AdminService/"
 
 // errorUnary is the single error-mapping interceptor: it turns domain errors
 // returned by any handler into a localized gRPC status with rich details.
+// Unknown errors become an opaque Internal status, so their real cause is
+// logged here, the only place that still sees it.
 func (i *Set) errorUnary(
 	ctx context.Context,
 	req any,
-	_ *grpc.UnaryServerInfo,
+	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (any, error) {
 	resp, err := handler(ctx, req)
 	if err != nil {
-		return resp, mapError(ctx, err, i.locale)
+		mapped := mapError(ctx, err, i.locale)
+		if status.Code(mapped) == codes.Internal {
+			i.logger.Error(
+				"unhandled error",
+				"method", info.FullMethod,
+				"error", err.Error(),
+				"request_id", reqctx.RequestIDFromContext(ctx),
+			)
+		}
+		return resp, mapped
 	}
 	return resp, nil
 }
@@ -279,6 +296,9 @@ func (i *Set) loggingUnary(
 		"code", code.String(),
 		"duration", time.Since(start).String(),
 		"request_id", reqctx.RequestIDFromContext(ctx),
+	}
+	if err != nil {
+		fields = append(fields, "error", err.Error())
 	}
 	if p, ok := peer.FromContext(ctx); ok && p.Addr != nil {
 		fields = append(fields, "peer", p.Addr.String())

@@ -109,6 +109,9 @@ func (i *Set) loggingStream(
 		"duration", time.Since(start).String(),
 		"request_id", reqctx.RequestIDFromContext(ss.Context()),
 	}
+	if err != nil {
+		fields = append(fields, "error", err.Error())
+	}
 	if p, ok := peer.FromContext(ss.Context()); ok && p.Addr != nil {
 		fields = append(fields, "peer", p.Addr.String())
 	}
@@ -133,11 +136,20 @@ func (i *Set) localeStream(
 func (i *Set) errorStream(
 	srv any,
 	ss grpc.ServerStream,
-	_ *grpc.StreamServerInfo,
+	info *grpc.StreamServerInfo,
 	handler grpc.StreamHandler,
 ) error {
 	if err := handler(srv, ss); err != nil {
-		return mapError(ss.Context(), err, i.locale)
+		mapped := mapError(ss.Context(), err, i.locale)
+		if status.Code(mapped) == codes.Internal {
+			i.logger.Error(
+				"unhandled error",
+				"method", info.FullMethod,
+				"error", err.Error(),
+				"request_id", reqctx.RequestIDFromContext(ss.Context()),
+			)
+		}
+		return mapped
 	}
 	return nil
 }

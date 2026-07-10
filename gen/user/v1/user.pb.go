@@ -464,11 +464,11 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\x11quiet_hours_start\x18\x05 \x01(\tR\x0fquietHoursStart\x12&\n" +
 	"\x0fquiet_hours_end\x18\x06 \x01(\tR\rquietHoursEnd\x12\x1a\n" +
 	"\btimezone\x18\a \x01(\tR\btimezone2\xe7\a\n" +
-	"\vUserService\x12F\n" +
+	"\vUserService\x12Q\n" +
+	"\aGetUser\x12\x17.user.v1.GetUserRequest\x1a\x15.common.v1.PublicUser\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/{id}\x12F\n" +
 	"\x05GetMe\x12\x16.google.protobuf.Empty\x1a\x0f.common.v1.User\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/users/me\x12N\n" +
 	"\bUpdateMe\x12\x18.user.v1.UpdateMeRequest\x1a\x0f.common.v1.User\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*2\f/v1/users/me\x12P\n" +
-	"\bDeleteMe\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x14\x82\xd3\xe4\x93\x02\x0e*\f/v1/users/me\x12Q\n" +
-	"\aGetUser\x12\x17.user.v1.GetUserRequest\x1a\x15.common.v1.PublicUser\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/{id}\x12M\n" +
+	"\bDeleteMe\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x14\x82\xd3\xe4\x93\x02\x0e*\f/v1/users/me\x12M\n" +
 	"\fUploadAvatar\x12\x1c.user.v1.UploadAvatarRequest\x1a\x1d.user.v1.UploadAvatarResponse(\x01\x12Y\n" +
 	"\vGetSettings\x12\x16.google.protobuf.Empty\x1a\x13.common.v1.Settings\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/users/me/settings\x12\\\n" +
 	"\x0eUpdateSettings\x12\x13.common.v1.Settings\x1a\x13.common.v1.Settings\" \x82\xd3\xe4\x93\x02\x1a:\x01*\x1a\x15/v1/users/me/settings\x12s\n" +
@@ -499,24 +499,24 @@ var file_user_v1_user_proto_goTypes = []any{
 	(*NotificationPreferences)(nil),  // 5: user.v1.NotificationPreferences
 	(*emptypb.Empty)(nil),            // 6: google.protobuf.Empty
 	(*v1.Settings)(nil),              // 7: common.v1.Settings
-	(*v1.User)(nil),                  // 8: common.v1.User
-	(*v1.PublicUser)(nil),            // 9: common.v1.PublicUser
+	(*v1.PublicUser)(nil),            // 8: common.v1.PublicUser
+	(*v1.User)(nil),                  // 9: common.v1.User
 }
 var file_user_v1_user_proto_depIdxs = []int32{
-	6,  // 0: user.v1.UserService.GetMe:input_type -> google.protobuf.Empty
-	0,  // 1: user.v1.UserService.UpdateMe:input_type -> user.v1.UpdateMeRequest
-	6,  // 2: user.v1.UserService.DeleteMe:input_type -> google.protobuf.Empty
-	1,  // 3: user.v1.UserService.GetUser:input_type -> user.v1.GetUserRequest
+	1,  // 0: user.v1.UserService.GetUser:input_type -> user.v1.GetUserRequest
+	6,  // 1: user.v1.UserService.GetMe:input_type -> google.protobuf.Empty
+	0,  // 2: user.v1.UserService.UpdateMe:input_type -> user.v1.UpdateMeRequest
+	6,  // 3: user.v1.UserService.DeleteMe:input_type -> google.protobuf.Empty
 	2,  // 4: user.v1.UserService.UploadAvatar:input_type -> user.v1.UploadAvatarRequest
 	6,  // 5: user.v1.UserService.GetSettings:input_type -> google.protobuf.Empty
 	7,  // 6: user.v1.UserService.UpdateSettings:input_type -> common.v1.Settings
 	4,  // 7: user.v1.UserService.RegisterPushToken:input_type -> user.v1.RegisterPushTokenRequest
 	6,  // 8: user.v1.UserService.GetNotificationPreferences:input_type -> google.protobuf.Empty
 	5,  // 9: user.v1.UserService.UpdateNotificationPreferences:input_type -> user.v1.NotificationPreferences
-	8,  // 10: user.v1.UserService.GetMe:output_type -> common.v1.User
-	8,  // 11: user.v1.UserService.UpdateMe:output_type -> common.v1.User
-	6,  // 12: user.v1.UserService.DeleteMe:output_type -> google.protobuf.Empty
-	9,  // 13: user.v1.UserService.GetUser:output_type -> common.v1.PublicUser
+	8,  // 10: user.v1.UserService.GetUser:output_type -> common.v1.PublicUser
+	9,  // 11: user.v1.UserService.GetMe:output_type -> common.v1.User
+	9,  // 12: user.v1.UserService.UpdateMe:output_type -> common.v1.User
+	6,  // 13: user.v1.UserService.DeleteMe:output_type -> google.protobuf.Empty
 	3,  // 14: user.v1.UserService.UploadAvatar:output_type -> user.v1.UploadAvatarResponse
 	7,  // 15: user.v1.UserService.GetSettings:output_type -> common.v1.Settings
 	7,  // 16: user.v1.UserService.UpdateSettings:output_type -> common.v1.Settings

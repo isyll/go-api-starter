@@ -36,3 +36,8 @@ ORDER BY last_activity DESC;
 UPDATE auth.device_sessions
 SET revoked_at = now(), revoked_reason = $2
 WHERE user_id = $1 AND revoked_at IS NULL;
+
+-- name: RevokeActiveDeviceSessionsByDeviceID :exec
+UPDATE auth.device_sessions
+SET revoked_at = now(), revoked_reason = $2
+WHERE device_id = $1 AND revoked_at IS NULL;
