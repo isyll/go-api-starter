@@ -23,10 +23,7 @@ func (a *App) buildGRPCDeps() grpcserver.Deps {
 	tokenRepo := notifications.NewTokenRepository(infra.Store)
 	prefRepo := notifications.NewPreferencesRepository(infra.Store)
 
-	webURL := os.Getenv("APP_WEB_URL")
-	if webURL == "" {
-		webURL = "http://localhost:3000"
-	}
+	webURL := webBaseURL()
 
 	localeBundle, err := locale.New(infra.Config.App)
 	if err != nil {
@@ -67,4 +64,11 @@ func (a *App) buildGRPCDeps() grpcserver.Deps {
 
 func (a *App) version() string {
 	return a.Infra.Config.App.Info.Version
+}
+
+func webBaseURL() string {
+	if url := os.Getenv("APP_WEB_URL"); url != "" {
+		return url
+	}
+	return "http://localhost:3000"
 }

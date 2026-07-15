@@ -3,10 +3,10 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"os/signal"
 	"slices"
 	"syscall"
@@ -14,17 +14,21 @@ import (
 
 	"firebase.google.com/go/v4/messaging"
 	"github.com/hibiken/asynq"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/isyll/go-grpc-starter/internal/event"
 	grpcserver "github.com/isyll/go-grpc-starter/internal/grpcsvc"
+	"github.com/isyll/go-grpc-starter/internal/httpsvc"
 	"github.com/isyll/go-grpc-starter/internal/metrics"
 	"github.com/isyll/go-grpc-starter/internal/monitor"
 	"github.com/isyll/go-grpc-starter/internal/platform/cache"
 	database "github.com/isyll/go-grpc-starter/internal/platform/db"
 	"github.com/isyll/go-grpc-starter/internal/platform/storage"
 	"github.com/isyll/go-grpc-starter/internal/store"
+	"github.com/isyll/go-grpc-starter/internal/webhook"
 	"github.com/isyll/go-grpc-starter/internal/worker/emails"
 	"github.com/isyll/go-grpc-starter/internal/worker/notifications"
+	"github.com/isyll/go-grpc-starter/internal/worker/webhooks"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	appenv "github.com/isyll/go-grpc-starter/pkg/env"
 	"github.com/isyll/go-grpc-starter/pkg/firebase"
@@ -40,7 +44,11 @@ type App struct {
 
 	server   *grpcserver.Server
 	listener net.Listener
+	http     *httpsvc.Server
 	obs      *http.Server
+
+	grp    *errgroup.Group
+	grpCtx context.Context
 
 	bgCtx    context.Context
 	bgCancel context.CancelFunc
@@ -107,6 +115,7 @@ func (a *App) Initialize() error {
 		Storage:            objStore,
 		Notifications:      d.notif,
 		Emails:             d.email,
+		WebhookDispatcher:  d.webhook,
 		EventBus:           d.eventBus,
 		EventBusDispatcher: d.eventAsynq,
 		OutboxRepo:         d.outboxRepo,
@@ -144,6 +153,7 @@ func (a *App) initFCM(cfgs *config.Configs, logx *logger.Logger) *messaging.Clie
 type dispatcherBundle struct {
 	notif      notifications.Dispatcher
 	email      emails.Dispatcher
+	webhook    *webhooks.Dispatcher
 	eventAsynq *event.AsynqDispatcher
 	outboxRepo *event.OutboxRepository
 	eventBus   *event.Bus
@@ -159,6 +169,7 @@ func buildDispatchers(cfgs *config.Configs, st *store.Store, logx *logger.Logger
 	return dispatcherBundle{
 		notif:      notifications.NewDispatcher(addr, password, cfgs.Notifications, logx),
 		email:      emails.NewDispatcher(addr, password, cfgs.Email, logx),
+		webhook:    webhooks.NewDispatcher(addr, password, logx),
 		eventAsynq: eventDispatcher,
 		outboxRepo: outboxRepo,
 		eventBus:   event.NewWithOutbox(eventDispatcher, outboxRepo, logx),
@@ -184,7 +195,27 @@ func (a *App) Bootstrap() error {
 		return fmt.Errorf("listen on %s: %w", addr, err)
 	}
 	a.listener = lis
+
+	httpServer, err := a.buildHTTPServer()
+	if err != nil {
+		return fmt.Errorf("http server: %w", err)
+	}
+	a.http = httpServer
 	return nil
+}
+
+func (a *App) buildHTTPServer() (*httpsvc.Server, error) {
+	handler := webhook.NewHandler(
+		a.Infra.Config.HTTP.Webhooks,
+		a.Infra.WebhookDispatcher,
+		webBaseURL(),
+		a.Infra.Logger,
+	)
+	return httpsvc.New(httpsvc.Deps{
+		Config:  a.Infra.Config,
+		Logger:  a.Infra.Logger,
+		Webhook: handler,
+	})
 }
 
 func (a *App) startBackground() {
@@ -214,34 +245,64 @@ func (a *App) startBackground() {
 	addr, password := a.Infra.Config.Redis.Credentials()
 	queueMon := monitor.NewQueueMonitor(
 		addr, password, time.Minute,
-		slices.Concat(event.QueueNames(), emails.QueueNames(), notifications.QueueNames()),
+		slices.Concat(event.QueueNames(), emails.QueueNames(), notifications.QueueNames(), webhooks.QueueNames()),
 		a.Infra.Logger,
 	)
 	go queueMon.Run(a.bgCtx)
 }
 
 func (a *App) Start() {
-	a.Infra.Logger.Info(
-		"gRPC server starting",
-		"address", a.listener.Addr().String(),
-		"startup", time.Since(a.StartTime).String(),
-	)
 	a.obs = a.startObservability()
-	go func() {
+
+	g, gctx := errgroup.WithContext(context.Background())
+	a.grp = g
+	a.grpCtx = gctx
+
+	g.Go(func() error {
+		a.Infra.Logger.Info(
+			"gRPC server starting",
+			"address", a.listener.Addr().String(),
+			"startup", time.Since(a.StartTime).String(),
+		)
 		if err := a.server.Serve(a.listener); err != nil {
-			a.Infra.Logger.Fatal("gRPC serve failed", "error", err)
+			return fmt.Errorf("grpc serve: %w", err)
 		}
-	}()
+		return nil
+	})
+
+	g.Go(func() error {
+		a.Infra.Logger.Info("HTTP surface starting", "address", a.http.Addr())
+		if err := a.http.Serve(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return fmt.Errorf("http serve: %w", err)
+		}
+		return nil
+	})
 }
 
 func (a *App) AwaitShutdown() {
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	sig := <-sigChan
-	a.Infra.Logger.Info("shutdown signal received", "signal", sig.String())
+	sigCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	select {
+	case <-sigCtx.Done():
+		a.Infra.Logger.Info("shutdown signal received")
+	case <-a.grpCtx.Done():
+		a.Infra.Logger.Error("listener exited; shutting down")
+	}
 
 	a.bgCancel()
-	a.server.Shutdown(a.Infra.Config.App.Server.ShutdownGrace)
+
+	grace := a.Infra.Config.App.Server.ShutdownGrace
+	httpGrace := a.Infra.Config.HTTP.ShutdownGrace
+	if httpGrace <= 0 {
+		httpGrace = grace
+	}
+	a.http.Shutdown(httpGrace)
+	a.server.Shutdown(grace)
+
+	if err := a.grp.Wait(); err != nil {
+		a.Infra.Logger.Error("server group exited with error", "error", err)
+	}
 
 	if a.obs != nil {
 		shutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -249,6 +310,9 @@ func (a *App) AwaitShutdown() {
 		_ = a.obs.Shutdown(shutCtx)
 	}
 
+	if a.Infra.WebhookDispatcher != nil {
+		_ = a.Infra.WebhookDispatcher.Close()
+	}
 	if a.Infra.Store != nil {
 		a.Infra.Store.Pool().Close()
 	}

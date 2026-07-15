@@ -27,6 +27,7 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/store"
 	emailworker "github.com/isyll/go-grpc-starter/internal/worker/emails"
 	notifworker "github.com/isyll/go-grpc-starter/internal/worker/notifications"
+	webhookworker "github.com/isyll/go-grpc-starter/internal/worker/webhooks"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	appenv "github.com/isyll/go-grpc-starter/pkg/env"
 	"github.com/isyll/go-grpc-starter/pkg/firebase"
@@ -124,6 +125,8 @@ func main() {
 	}
 	workers = append(workers, event.NewWorker(redisAddr, redisPassword, bus, eventWorkerCfg, logx))
 
+	workers = append(workers, webhookworker.NewWorker(redisAddr, redisPassword, 0, logx))
+
 	for _, w := range workers {
 		if err := w.Start(); err != nil {
 			logx.Fatal("worker: start failed", "error", err)
@@ -140,7 +143,7 @@ func main() {
 
 	queueMon := monitor.NewQueueMonitor(
 		redisAddr, redisPassword, time.Minute,
-		slices.Concat(event.QueueNames(), emailworker.QueueNames(), notifworker.QueueNames()),
+		slices.Concat(event.QueueNames(), emailworker.QueueNames(), notifworker.QueueNames(), webhookworker.QueueNames()),
 		logx,
 	)
 	go queueMon.Run(rootCtx)

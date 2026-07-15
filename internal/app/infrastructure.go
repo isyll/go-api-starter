@@ -11,6 +11,7 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/store"
 	"github.com/isyll/go-grpc-starter/internal/worker/emails"
 	"github.com/isyll/go-grpc-starter/internal/worker/notifications"
+	"github.com/isyll/go-grpc-starter/internal/worker/webhooks"
 	"github.com/isyll/go-grpc-starter/pkg/config"
 	"github.com/isyll/go-grpc-starter/pkg/idenc"
 	"github.com/isyll/go-grpc-starter/pkg/logger"
@@ -34,8 +35,9 @@ type Infrastructure struct {
 
 	Storage storage.Storage
 
-	Notifications notifications.Dispatcher
-	Emails        emails.Dispatcher
+	Notifications     notifications.Dispatcher
+	Emails            emails.Dispatcher
+	WebhookDispatcher *webhooks.Dispatcher
 
 	EventBus           *event.Bus
 	EventBusDispatcher *event.AsynqDispatcher
