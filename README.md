@@ -26,7 +26,8 @@ workers, and clean extension seams) designed for gRPC from day one.
   health/readiness endpoints on API and worker; optional pprof.
 - **Hardened auth**: argon2id, rotating refresh-token families with reuse
   detection, per-account lockout, session revocation on password change.
-- **Optional HTTP/JSON gateway**: grpc-gateway transcoding, off by default.
+- **HTTP surface**: an always-on grpc-gateway REST/JSON mirror plus raw
+  webhook endpoints, on a second port, sharing one auth and error model.
 
 ## Stack
 
@@ -35,15 +36,17 @@ workers, and clean extension seams) designed for gRPC from day one.
 | API / transport | gRPC + Protobuf (buf) |
 | Persistence | PostgreSQL · pgx + sqlc · row-level security |
 | Cache / tokens | Redis |
-| Background work | Asynq (email, push, event dispatch) |
+| Background work | Asynq (email, push, event dispatch, webhooks) |
 | Migrations | golang-migrate |
-| REST (optional) | grpc-gateway transcoding |
+| REST + webhooks | grpc-gateway transcoding · raw net/http handlers |
 
 ## Architecture
 
 ```mermaid
 flowchart LR
     C(["Client"]) -->|gRPC| S["gRPC server"]
+    W(["Web / curl"]) -->|"REST :8081"| GW["gateway"]
+    GW -->|loopback gRPC| S
     S --> I["Interceptors"]
     I --> H["grpcsvc handler"]
     H --> D["Domain service"]
@@ -59,13 +62,13 @@ flowchart LR
 cp .env.example .env
 just up        # postgres + redis + minio
 just migrate   # apply migrations
-just run       # gRPC server on :8080
+just run       # gRPC on :8080, HTTP surface on :8081
 ```
 
 > [!TIP]
 > The server exposes gRPC reflection, so
-> `grpcurl -plaintext localhost:8080 list` works immediately. See
-> [Getting started](docs/getting-started.md).
+> `grpcurl -plaintext localhost:8080 list` works immediately, and the REST
+> mirror answers on `:8081`. See [Getting started](docs/getting-started.md).
 
 ## Documentation
 
@@ -74,7 +77,7 @@ just run       # gRPC server on :8080
 | [Getting started](docs/getting-started.md) | prerequisites, setup, calling the API |
 | [Architecture](docs/architecture.md) | layers, request lifecycle, interceptors, errors |
 | [gRPC API](docs/grpc.md) | proto layout, adding RPCs and services |
-| [HTTP/JSON gateway](docs/gateway.md) | optional REST transcoding |
+| [HTTP surface](docs/gateway.md) | REST transcoding, webhooks, CORS |
 | [Authentication](docs/authentication.md) | tokens, sessions, verification |
 | [Database & migrations](docs/database.md) | schemas, roles, RLS, migrations |
 | [Events & workers](docs/events.md) | outbox, dispatch, handlers |

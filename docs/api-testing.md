@@ -21,10 +21,10 @@ bruno/
 
 1. Install the Bruno app (2.10 or newer for gRPC) and open the `bruno/`
    folder as a collection, or use the CLI: `npx @usebruno/cli`.
-2. Start the stack: `just up`, `just migrate`, `just run`, and for the
-   gateway requests `GATEWAY_ENABLED=true just gateway`. The worker
-   (`just worker`) is only needed when a scenario exercises events or
-   emails.
+2. Start the stack: `just up`, `just migrate`, `just run`. The server
+   serves both gRPC (`:8080`) and the REST gateway (`:8081`), so no
+   separate process is needed. The worker (`just worker`) is only needed
+   when a scenario exercises events or emails.
 3. Select the `dev` environment.
 
 ## Native gRPC requests

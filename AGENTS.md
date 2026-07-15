@@ -11,24 +11,26 @@ the quick reference for working in the repo.
 - Go with gRPC (protobuf, generated with buf)
 - PostgreSQL via pgx + sqlc, with row-level security
 - Redis for caching and opaque access tokens
-- Asynq workers for email, push, and event dispatch
+- Asynq workers for email, push, event dispatch, and webhooks
 - golang-migrate for SQL migrations
-- Optional grpc-gateway HTTP/JSON transcoding (off by default)
+- Always-on HTTP surface: grpc-gateway REST/JSON plus raw webhook handlers
 
 ## Layout
 
 ```text
-cmd/            entrypoints: server, gateway (opt-in), migrate, worker
+cmd/            entrypoints: server, migrate, worker
 api/proto/      protobuf definitions, one package per domain
                 (common.v1, auth.v1, user.v1, admin.v1, health.v1)
 internal/
   grpcsvc/      thin gRPC handlers: protobuf <-> domain mapping
+  httpsvc/      HTTP surface: grpc-gateway mux, error envelope, CORS
+  webhook/      raw net/http provider callbacks + OAuth redirects
   interceptor/  unary + stream interceptors (recovery, metrics,
                 request-id, logging, locale, error-map, auth, validate)
   <domain>/     business logic per area; entities live here too
   store/        pgx + sqlc engine; RLS-scoped transactions
   event/        event bus + transactional outbox
-  worker/       Asynq worker processors (emails, notifications)
+  worker/       Asynq worker processors (emails, notifications, webhooks)
   maintenance/  periodic retention sweeps (runs in the worker)
   platform/     db (pgx pool + RLS), cache (redis), storage (minio),
                 obs (metrics/health HTTP server)
@@ -48,8 +50,7 @@ infra/          docker, postgres init, prometheus
 
 | Command | Action |
 | --- | --- |
-| `just run` | run the gRPC server |
-| `just gateway` | run the optional HTTP/JSON gateway (opt-in) |
+| `just run` | run the server (gRPC on :8080, HTTP surface on :8081) |
 | `just worker` | run the background workers |
 | `just test` | run tests |
 | `just api-test` | run the Bruno API flows against a local stack |

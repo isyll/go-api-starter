@@ -18,27 +18,25 @@
 cp .env.example .env
 just up          # start postgres + redis + minio
 just migrate     # apply migrations
-just run         # start the gRPC server on :8080
+just run         # gRPC on :8080, HTTP surface on :8081
 ```
 
-The running system is three processes over shared infrastructure; the
-worker and gateway are separate binaries:
+The server binary serves two listeners: native gRPC on `:8080` and the
+HTTP surface (REST gateway + webhooks) on `:8081`. The worker is a
+separate binary over the same infrastructure:
 
 ```mermaid
 flowchart LR
-    SV["server · :8080"]
+    SV["server · gRPC :8080 · HTTP :8081"]
     WK["worker"]
-    GW["gateway · :8081<br/>(opt-in)"]
 
     SV --> PG[("Postgres")]
     SV --> RD[("Redis")]
     WK --> PG
     WK --> RD
-    GW -->|gRPC| SV
 ```
 
-Run the worker with `just worker`, and the optional gateway with
-`GATEWAY_ENABLED=true just gateway`.
+Run the worker with `just worker`.
 
 ## Call the API
 
@@ -62,8 +60,8 @@ grpcurl -plaintext -H "authorization: Bearer <token>" \
 ```
 
 > [!TIP]
-> Prefer REST? Enable the [HTTP/JSON gateway](gateway.md) and call the
-> same RPCs over `curl`.
+> Prefer REST? The [HTTP surface](gateway.md) mirrors the same RPCs on
+> `:8081`, so `curl localhost:8081/v1/users/me` works out of the box.
 
 ## Observability
 
