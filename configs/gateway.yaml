@@ -1,8 +1,0 @@
-# Optional HTTP/JSON transcoding gateway. Off by default; the cmd/gateway
-# binary exits unless enabled is true. It is never started by `just run` or the
-# default compose services.
-enabled: ${GATEWAY_ENABLED:-false}
-# HTTP listen address; differs from the gRPC server port (default 8080).
-listen_addr: ${GATEWAY_LISTEN_ADDR:-:8081}
-# Upstream gRPC server. Empty defaults to the local server on its configured port.
-upstream_addr: ${GATEWAY_UPSTREAM_ADDR:-}

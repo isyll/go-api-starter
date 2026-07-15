@@ -8,17 +8,13 @@ module := "github.com/isyll/go-grpc-starter"
 default:
     @just --list
 
-# Run the gRPC server.
+# Run the server: gRPC on :8080 and the HTTP surface (gateway + webhooks) on :8081.
 run:
     @go run ./cmd/server
 
 # Run with hot reload (air).
 dev:
     @air
-
-# Run the optional HTTP/JSON gateway (opt-in; proxies to the gRPC server).
-gateway:
-    @go run ./cmd/gateway
 
 # Generate protobuf code (buf).
 proto:
@@ -59,7 +55,7 @@ lint:
 test:
     @go test ./... -race -shuffle=on -timeout 60s
 
-# Run the Bruno end-to-end API flows (needs server + gateway running).
+# Run the Bruno end-to-end API flows (needs the server running).
 api-test:
     @cd bruno && npx -y @usebruno/cli run gateway/flows --env dev -r
 

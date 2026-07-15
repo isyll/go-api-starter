@@ -16,7 +16,7 @@ type Configs struct {
 	Events        *EventsConfig
 	Storage       *StorageConfig
 	Firebase      *FirebaseConfig
-	Gateway       *GatewayConfig
+	HTTP          *HTTPConfig
 	Maintenance   *MaintenanceConfig
 }
 
@@ -63,9 +63,9 @@ func LoadAllConfigs() (*Configs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("firebase config: %w", err)
 	}
-	gateway, err := LoadConfig[GatewayConfig]("configs/gateway.yaml")
+	httpCfg, err := LoadConfig[HTTPConfig]("configs/http.yaml")
 	if err != nil {
-		return nil, fmt.Errorf("gateway config: %w", err)
+		return nil, fmt.Errorf("http config: %w", err)
 	}
 	maintenance, err := LoadConfig[MaintenanceConfig]("configs/maintenance.yaml")
 	if err != nil {
@@ -83,7 +83,7 @@ func LoadAllConfigs() (*Configs, error) {
 		Events:        events,
 		Storage:       storage,
 		Firebase:      firebase,
-		Gateway:       gateway,
+		HTTP:          httpCfg,
 		Maintenance:   maintenance,
 	}
 	if err := cfg.Validate(); err != nil {

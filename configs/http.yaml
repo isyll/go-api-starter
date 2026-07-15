@@ -1,0 +1,26 @@
+# HTTP surface served alongside the gRPC server (always on). It exposes the
+# grpc-gateway REST/JSON mirror and the raw webhook endpoints on a port
+# separate from gRPC. Values are env-substituted.
+listen_addr: ${HTTP_LISTEN_ADDR:-:8081}
+shutdown_grace: ${HTTP_SHUTDOWN_GRACE:-20s}
+
+# Browser CORS for the web admin panel. Restrict allowed_origins in production.
+cors:
+  allowed_origins: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+  allowed_methods: ${CORS_ALLOWED_METHODS:-GET,POST,PUT,PATCH,DELETE,OPTIONS}
+  allowed_headers: ${CORS_ALLOWED_HEADERS:-Authorization,Content-Type,Accept-Language,X-Request-Id}
+  allow_credentials: ${CORS_ALLOW_CREDENTIALS:-true}
+  max_age: ${CORS_MAX_AGE:-1h}
+
+# Payment provider signing secrets. Requests fail closed when a secret is unset.
+webhooks:
+  wave:
+    secret: ${WAVE_WEBHOOK_SECRET:-}
+  orange_money:
+    secret: ${ORANGE_MONEY_WEBHOOK_SECRET:-}
+    header: ${ORANGE_MONEY_WEBHOOK_HEADER:-X-Signature}
+  paydunya:
+    master_key: ${PAYDUNYA_MASTER_KEY:-}
+  stripe:
+    signing_secret: ${STRIPE_WEBHOOK_SECRET:-}
+    tolerance: ${STRIPE_WEBHOOK_TOLERANCE:-5m}
