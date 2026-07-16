@@ -13,7 +13,7 @@ const (
 	PriorityLow    Priority = "low"
 )
 
-// queueName namespaces push queues so only this server consumes them.
+// queueName namespaces queues so only this worker consumes them.
 func queueName(p Priority) string {
 	return "notifications:" + string(p)
 }

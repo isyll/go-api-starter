@@ -3,27 +3,20 @@ package codes
 
 import "fmt"
 
-// Code is the typed, machine-readable error code emitted in the
-// API error envelope. Code values exist only as constants in
-// this package; the unexported field guarantees no other
-// package can synthesize one.
+// Code is a machine-readable error code; the unexported field blocks outside construction.
 type Code struct {
 	value string
 }
 
-// String returns the UPPER_SNAKE_CASE wire format of the code.
+// String returns the UPPER_SNAKE_CASE wire format.
 func (c Code) String() string { return c.value }
 
-// IsZero reports whether the code is the zero Code. The
-// constructors panic when handed a zero Code so the wire never
-// carries an empty code field.
+// IsZero reports whether the code is the zero Code.
 func (c Code) IsZero() bool { return c.value == "" }
 
 var allCodes = map[string]struct{}{}
 
-// register is the package-private Code constructor. It enforces
-// the wire-format invariants (UPPER_SNAKE_CASE, ≤ 64 chars) and
-// the global uniqueness rule. Violations panic at init.
+// register enforces wire-format and uniqueness invariants; violations panic at init.
 func register(value string) Code {
 	if value == "" {
 		panic("codes: empty code value")
@@ -55,8 +48,7 @@ func register(value string) Code {
 	return Code{value: value}
 }
 
-// All returns a sorted snapshot of every registered code value.
-// Useful for documentation generators and audit scripts.
+// All returns a snapshot of every registered code value.
 func All() []string {
 	out := make([]string, 0, len(allCodes))
 	for k := range allCodes {

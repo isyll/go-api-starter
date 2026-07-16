@@ -21,8 +21,6 @@ import (
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
 )
 
-// ---- fakes -----------------------------------------------------------------
-
 type fakeUsers struct {
 	mu     sync.Mutex
 	nextID int64
@@ -247,7 +245,6 @@ func (f *fakeRefresh) FindByTokenHash(ctx context.Context, hash string) (*Refres
 	cp := *t
 	f.mu.Unlock()
 
-	// Mirror the real repository: the token carries its session and user.
 	session, err := f.sessions.FindByID(ctx, cp.SessionID)
 	if err != nil {
 		return nil, err
@@ -329,7 +326,7 @@ func (passthroughTx) WithTx(ctx context.Context, fn func(ctx context.Context) er
 type fakeTokens struct {
 	mu     sync.Mutex
 	n      int
-	tokens map[string]int64 // token -> session id
+	tokens map[string]int64
 }
 
 func newFakeTokens() *fakeTokens { return &fakeTokens{tokens: map[string]int64{}} }
@@ -360,8 +357,6 @@ func (f *fakeTokens) Revoke(_ context.Context, token string) error {
 	return nil
 }
 
-// ---- harness ---------------------------------------------------------------
-
 type harness struct {
 	svc      *Service
 	users    *fakeUsers
@@ -387,7 +382,6 @@ func newHarness(t *testing.T) *harness {
 	cfg.Security.Auth.OAT.RefreshTokenExpiry = 720 * time.Hour
 	cfg.Security.Auth.Lockout.MaxAttempts = 3
 	cfg.Security.Auth.Lockout.Window = time.Minute
-	// Cheap argon2 parameters keep the suite fast.
 	cfg.Security.PasswordHash.Memory = 8 * 1024
 	cfg.Security.PasswordHash.Iterations = 1
 	cfg.Security.PasswordHash.Parallelism = 1
@@ -408,8 +402,6 @@ func newHarness(t *testing.T) *harness {
 	)
 	return &harness{svc: svc, users: fu, sessions: fs, refresh: fr, email: fe, cache: cm, redis: mr}
 }
-
-// ---- tests -----------------------------------------------------------------
 
 var device = DeviceInfo{DeviceID: "dev-1", Name: "Test Phone", Platform: "android"}
 
@@ -455,7 +447,7 @@ func TestLoginSucceedsWithCorrectPassword(t *testing.T) {
 	register(t, h, "ada@example.com")
 
 	tokens, err := h.svc.Login(context.Background(), LoginInput{
-		Email:    "Ada@Example.com ", // normalization: case and whitespace
+		Email:    "Ada@Example.com ",
 		Password: "correct horse battery",
 		Device:   device,
 	})
@@ -490,13 +482,11 @@ func TestLoginLockoutBlocksAfterMaxFailures(t *testing.T) {
 		assert.ErrorIs(t, err, ErrInvalidCredentials)
 	}
 
-	// Even the correct password is rejected while locked.
 	_, err := h.svc.Login(ctx, LoginInput{
 		Email: "ada@example.com", Password: "correct horse battery", Device: device,
 	})
 	assert.ErrorIs(t, err, ErrTooManyAttempts)
 
-	// The window expiring unlocks the account.
 	h.redis.FastForward(2 * time.Minute)
 	_, err = h.svc.Login(ctx, LoginInput{
 		Email: "ada@example.com", Password: "correct horse battery", Device: device,
@@ -519,7 +509,6 @@ func TestLoginSuccessResetsLockoutCounter(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	// The counter restarted: two more failures stay under the limit.
 	for range 2 {
 		_, err = h.svc.Login(ctx, LoginInput{
 			Email: "ada@example.com", Password: "wrong", Device: device,
@@ -547,7 +536,6 @@ func TestRefreshReuseRevokesFamily(t *testing.T) {
 	rotated, err := h.svc.RefreshTokens(ctx, tokens.RefreshToken)
 	require.NoError(t, err)
 
-	// Replaying the consumed token is treated as theft: the whole family dies.
 	_, err = h.svc.RefreshTokens(ctx, tokens.RefreshToken)
 	assert.ErrorIs(t, err, ErrTokenRevoked)
 
@@ -601,7 +589,6 @@ func TestChangePasswordRevokesOtherSessions(t *testing.T) {
 	tokens := register(t, h, "ada@example.com")
 	ctx := context.Background()
 
-	// A second device logs in.
 	other, err := h.svc.Login(ctx, LoginInput{
 		Email: "ada@example.com", Password: "correct horse battery",
 		Device: DeviceInfo{DeviceID: "dev-2", Platform: "ios"},

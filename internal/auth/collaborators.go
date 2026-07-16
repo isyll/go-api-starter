@@ -7,8 +7,7 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/users"
 )
 
-// TxRunner runs fn inside a single database transaction. Repository calls made
-// with the ctx passed to fn join that transaction. *store.Store satisfies it.
+// TxRunner runs fn in one transaction; calls using the passed ctx join it.
 type TxRunner interface {
 	WithTx(ctx context.Context, fn func(ctx context.Context) error) error
 }

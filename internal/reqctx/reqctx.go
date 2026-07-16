@@ -21,12 +21,10 @@ func RequestIDFromContext(ctx context.Context) string {
 	return ""
 }
 
-// WithLanguage stores the request's resolved language tag (e.g. "en").
 func WithLanguage(ctx context.Context, lang string) context.Context {
 	return context.WithValue(ctx, languageKey, lang)
 }
 
-// LanguageFromContext returns the resolved language, or "" if unset.
 func LanguageFromContext(ctx context.Context) string {
 	if lang, ok := ctx.Value(languageKey).(string); ok {
 		return lang

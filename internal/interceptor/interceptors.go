@@ -1,5 +1,4 @@
-// Package interceptor holds the unary gRPC interceptors: recovery, logging,
-// locale resolution, domain-error mapping, request id, and authentication.
+// Package interceptor holds the gRPC interceptor chain.
 package interceptor
 
 import (
@@ -26,7 +25,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Config carries the dependencies the interceptors need.
 type Config struct {
 	Tokens   apptoken.AccessTokenManager
 	Sessions auth.DeviceSessionRepository
@@ -46,8 +44,7 @@ type Set struct {
 	validator     protovalidate.Validator
 }
 
-// New builds the interceptor set. i18n is optional: without it, error message
-// keys are emitted untranslated.
+// New builds the interceptor set; without i18n, message keys stay untranslated.
 func New(c Config) *Set {
 	s := &Set{
 		tokens:        c.Tokens,
@@ -62,16 +59,14 @@ func New(c Config) *Set {
 	}
 	v, err := protovalidate.New()
 	if err != nil {
-		// Only misconfigured custom options can fail here; refuse to serve
-		// without request validation.
+		// Only misconfigured options fail here; refuse to serve unvalidated.
 		c.Logger.Fatal("protovalidate init failed", "error", err)
 	}
 	s.validator = v
 	return s
 }
 
-// Unary returns the interceptor chain in outermost-to-innermost order. The
-// request id is resolved before logging so every log line can carry it.
+// Unary returns the chain outermost-to-innermost; request id precedes logging.
 func (i *Set) Unary() []grpc.UnaryServerInterceptor {
 	return []grpc.UnaryServerInterceptor{
 		i.recoveryUnary,
@@ -85,8 +80,7 @@ func (i *Set) Unary() []grpc.UnaryServerInterceptor {
 	}
 }
 
-// metricsUnary records RPC counts, latency, and in-flight gauge. It sits just
-// inside recovery so panics are counted as Internal like any other failure.
+// Sits just inside recovery so panics count as Internal failures.
 func (i *Set) metricsUnary(
 	ctx context.Context,
 	req any,
@@ -110,8 +104,7 @@ func (i *Set) metricsUnary(
 var publicMethods = map[string]bool{
 	"/health.v1.HealthService/Check": true,
 	"/health.v1.HealthService/Ready": true,
-	// Standard health and reflection services; reflection is only
-	// registered when enabled in config.
+	// Reflection entries only take effect when enabled in config.
 	"/grpc.health.v1.Health/Check":                                   true,
 	"/grpc.health.v1.Health/Watch":                                   true,
 	"/grpc.reflection.v1.ServerReflection/ServerReflectionInfo":      true,
@@ -126,10 +119,7 @@ var publicMethods = map[string]bool{
 
 const adminServicePrefix = "/admin.v1.AdminService/"
 
-// errorUnary is the single error-mapping interceptor: it turns domain errors
-// returned by any handler into a localized gRPC status with rich details.
-// Unknown errors become an opaque Internal status, so their real cause is
-// logged here, the only place that still sees it.
+// Only place that logs the real cause behind an opaque Internal status.
 func (i *Set) errorUnary(
 	ctx context.Context,
 	req any,
@@ -152,8 +142,6 @@ func (i *Set) errorUnary(
 	return resp, nil
 }
 
-// localeUnary resolves the request language from metadata (accept-language
-// style) once and stores it in the context for the error mapper and handlers.
 func (i *Set) localeUnary(
 	ctx context.Context,
 	req any,
@@ -174,8 +162,7 @@ func (i *Set) resolveLanguage(ctx context.Context) string {
 	return i.localeDefLang
 }
 
-// parseAcceptLanguage takes the highest-priority tag from an Accept-Language
-// value ("fr-CA,fr;q=0.9,en;q=0.8" -> "fr").
+// Takes the highest-priority tag: "fr-CA,fr;q=0.9,en" -> "fr".
 func parseAcceptLanguage(v string) string {
 	first, _, _ := strings.Cut(v, ",")
 	first, _, _ = strings.Cut(first, ";")
@@ -311,14 +298,12 @@ func (i *Set) loggingUnary(
 	return resp, err
 }
 
-// isHealthMethod filters liveness probes out of the request log.
 func isHealthMethod(fullMethod string) bool {
 	return strings.HasPrefix(fullMethod, "/grpc.health.v1.Health/") ||
 		strings.HasPrefix(fullMethod, "/health.v1.HealthService/")
 }
 
-// isServerFailure reports whether the code indicates a server-side fault
-// worth alerting on, as opposed to a client mistake.
+// Reports a server-side fault worth alerting on, not a client mistake.
 func isServerFailure(code codes.Code) bool {
 	switch code {
 	case codes.Internal, codes.Unknown, codes.DataLoss, codes.Unavailable:

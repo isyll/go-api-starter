@@ -53,8 +53,7 @@ func (s *Service) RefreshTokens(
 	if err != nil {
 		return nil, err
 	}
-	// Rotate atomically: the old token is revoked and the replacement created
-	// in one transaction, so a crash in between cannot strand the session.
+	// Rotate atomically so a crash cannot strand the session.
 	err = s.tx.WithTx(ctx, func(ctx context.Context) error {
 		if err := s.refresh.RevokeByTokenHash(ctx, tokenHash, "rotated"); err != nil {
 			return err

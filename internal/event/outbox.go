@@ -55,8 +55,7 @@ func toOutboxEvent(r db.EventsOutbox) *OutboxEvent {
 	}
 }
 
-// InTx runs fn inside one database transaction. The drain uses it so the
-// SKIP LOCKED row locks stay held while the batch is processed.
+// InTx runs fn in one tx; SKIP LOCKED locks stay held.
 func (r *OutboxRepository) InTx(
 	ctx context.Context,
 	fn func(ctx context.Context) error,
@@ -64,8 +63,7 @@ func (r *OutboxRepository) InTx(
 	return r.store.WithTx(ctx, fn)
 }
 
-// Write inserts an outbox row. When called inside a service transaction it
-// joins that transaction, so the row commits atomically with the domain write.
+// Write inserts an outbox row, joining any ambient tx for atomicity.
 func (r *OutboxRepository) Write(ctx context.Context, evt Event) (int64, error) {
 	payload, err := json.Marshal(evt)
 	if err != nil {

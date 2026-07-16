@@ -72,8 +72,7 @@ func New(d Deps) *Server {
 	return &Server{grpc: srv, health: hs, logger: d.Logger}
 }
 
-// serverOptions maps config onto grpc.ServerOptions. Zero config values keep
-// the grpc-go defaults.
+// serverOptions maps config to grpc options; zero values keep defaults.
 func serverOptions(cfg *config.Configs) []grpc.ServerOption {
 	sc := cfg.App.Server
 	var opts []grpc.ServerOption
@@ -112,9 +111,7 @@ func (s *Server) Serve(lis net.Listener) error {
 	return s.grpc.Serve(lis)
 }
 
-// Shutdown flips the health service to NOT_SERVING so load balancers stop
-// routing new work, then drains in-flight RPCs. If draining exceeds grace the
-// remaining connections are closed forcibly.
+// Shutdown marks NOT_SERVING, drains in-flight RPCs, then force-closes past grace.
 func (s *Server) Shutdown(grace time.Duration) {
 	s.health.Shutdown()
 

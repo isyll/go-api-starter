@@ -2,8 +2,7 @@ package config
 
 import "time"
 
-// HTTPConfig configures the always-on HTTP surface: the grpc-gateway
-// REST/JSON mirror, browser CORS, and the raw webhook endpoints.
+// Always-on HTTP surface: grpc-gateway mirror, CORS, webhooks.
 type HTTPConfig struct {
 	ListenAddr    string         `yaml:"listen_addr"`
 	CORS          CORSConfig     `yaml:"cors"`
@@ -11,8 +10,7 @@ type HTTPConfig struct {
 	ShutdownGrace time.Duration  `yaml:"shutdown_grace"`
 }
 
-// CORSConfig configures the browser CORS middleware. The list fields are
-// comma-separated so they survive env substitution.
+// List fields are comma-separated so they survive env substitution.
 type CORSConfig struct {
 	AllowedOrigins   string        `yaml:"allowed_origins"`
 	AllowedMethods   string        `yaml:"allowed_methods"`
@@ -21,8 +19,7 @@ type CORSConfig struct {
 	MaxAge           time.Duration `yaml:"max_age"`
 }
 
-// WebhooksConfig holds the provider secrets used to verify inbound webhook
-// signatures. Empty secrets reject every request for that provider.
+// Empty secrets reject every request for that provider.
 type WebhooksConfig struct {
 	Wave struct {
 		Secret string `yaml:"secret"`

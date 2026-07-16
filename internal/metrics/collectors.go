@@ -6,8 +6,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// RegisterPoolCollectors exposes pgx pool and Redis connection pool gauges on
-// the default registry. Call once per process after the pools are ready.
+// RegisterPoolCollectors registers pool gauges; call once after pools are ready.
 func RegisterPoolCollectors(pool *pgxpool.Pool, rdb *redis.Client) {
 	prometheus.MustRegister(
 		&pgxPoolCollector{pool: pool},

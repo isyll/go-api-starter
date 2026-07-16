@@ -245,8 +245,7 @@ func (b *Bus) dispatch(
 			if err := b.asynq.Enqueue(
 				ctx, evt, opts,
 			); err != nil {
-				// A duplicate means an earlier delivery already enqueued this
-				// task; at-least-once redelivery must not count as failure.
+				// Redelivery already enqueued this task; not a failure.
 				if isDuplicateEnqueue(err) {
 					metrics.EventsEnqueueDedupedTotal.
 						WithLabelValues(evt.EventType()).
@@ -291,11 +290,7 @@ func (b *Bus) dispatch(
 	return firstCritErr
 }
 
-// DrainOutbox pumps pending outbox rows until ctx ends. Each batch is claimed
-// and processed inside one transaction, so FOR UPDATE SKIP LOCKED keeps the
-// rows locked for the whole batch and any number of replicas can drain
-// concurrently without double-dispatching. When a full batch is fetched the
-// loop keeps going, so throughput is bounded by the database, not the tick.
+// DrainOutbox pumps pending rows; SKIP LOCKED lets replicas drain concurrently.
 func (b *Bus) DrainOutbox(
 	ctx context.Context,
 	interval time.Duration,
@@ -348,9 +343,7 @@ func (b *Bus) drainOnce(ctx context.Context) {
 	}
 }
 
-// drainBatch claims and processes one batch in a single transaction. A mark or
-// dead-letter failure aborts the batch: the transaction is poisoned anyway and
-// the rollback releases the rows for a later attempt.
+// drainBatch processes one batch in a tx; rollback releases the rows for retry.
 func (b *Bus) drainBatch(ctx context.Context) (fetched int, ok bool) {
 	var publishFailures, publishAttempts int
 

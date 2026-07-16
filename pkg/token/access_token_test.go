@@ -75,7 +75,7 @@ func TestTokensAreUniqueAndHashedAtRest(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotEqual(t, a, b)
 
-	// The raw token must never appear as a Redis key: only its hash.
+	// Raw token must never appear as a Redis key, only its hash.
 	for _, key := range mr.Keys() {
 		assert.NotContains(t, key, a)
 		assert.NotContains(t, key, b)

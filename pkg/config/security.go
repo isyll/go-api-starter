@@ -12,8 +12,7 @@ type SecurityConfig struct {
 			RefreshTokenExpiry time.Duration `yaml:"refresh_token_expiry"`
 		} `yaml:"oat"`
 
-		// Lockout throttles password guessing per account. Zero values fall
-		// back to 10 attempts in a 15 minute window.
+		// Zero values fall back to 10 attempts per 15 minutes.
 		Lockout struct {
 			MaxAttempts int           `yaml:"max_attempts"`
 			Window      time.Duration `yaml:"window"`
@@ -25,8 +24,7 @@ type SecurityConfig struct {
 		Alphabet  string `yaml:"alphabet"`
 	} `yaml:"id_obfuscation"`
 
-	// PasswordHash holds the argon2id cost parameters. Zero values fall back
-	// to sensible defaults in the auth package.
+	// argon2id cost parameters; zero values fall back to auth defaults.
 	PasswordHash struct {
 		Memory      uint32 `yaml:"memory"`
 		Iterations  uint32 `yaml:"iterations"`

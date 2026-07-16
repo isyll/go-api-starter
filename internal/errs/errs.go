@@ -1,6 +1,4 @@
-// Package errs is the gRPC-native domain error model. Domain code returns
-// *Error values; the gRPC error interceptor is the only place that turns them
-// into a status.Status with rich details (ErrorInfo, BadRequest, LocalizedMessage).
+// Package errs is the gRPC-native domain error model.
 package errs
 
 import (
@@ -11,15 +9,12 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/errs/codes"
 )
 
-// FieldViolation describes one invalid request field.
 type FieldViolation struct {
 	Field       string
 	Description string
 }
 
-// Error is a transport-agnostic domain error. It carries the gRPC status code,
-// a stable machine-readable app code, an i18n message key, optional field-level
-// validation violations, and optional structured data.
+// Error is a transport-agnostic domain error.
 type Error struct {
 	grpcCode   grpccodes.Code
 	appCode    codes.Code
@@ -103,12 +98,12 @@ func Internal(code codes.Code, messageKey string) *Error {
 	return newError(grpccodes.Internal, code, messageKey)
 }
 
-// ServerError is an alias for Internal kept for readability at call sites.
+// ServerError is an alias for Internal.
 func ServerError(code codes.Code, messageKey string) *Error {
 	return Internal(code, messageKey)
 }
 
-// Validation builds an InvalidArgument error carrying field-level violations.
+// Validation builds an InvalidArgument error with field violations.
 func Validation(code codes.Code, messageKey string, fields ...FieldViolation) *Error {
 	e := newError(grpccodes.InvalidArgument, code, messageKey)
 	e.fields = fields

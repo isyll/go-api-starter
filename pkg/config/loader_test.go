@@ -17,7 +17,6 @@ type DummyConfig struct {
 }
 
 func TestLoadConfig(t *testing.T) {
-	// Create a temporary file
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "test_config.yaml")
 
@@ -28,7 +27,6 @@ version: 1
 	err := os.WriteFile(filePath, yamlContent, 0o644)
 	require.NoError(t, err)
 
-	// Load valid config
 	cfg, err := config.LoadConfig[DummyConfig](filePath)
 	require.NoError(t, err)
 	assert.NotNil(t, cfg)
@@ -47,12 +45,10 @@ version: 2
 	err := os.WriteFile(filePath, yamlContent, 0o644)
 	require.NoError(t, err)
 
-	// Test fallback
 	cfg1, err := config.LoadConfig[DummyConfig](filePath)
 	require.NoError(t, err)
 	assert.Equal(t, "DefaultName", cfg1.Name)
 
-	// Test env override
 	t.Setenv("APP_NAME", "EnvName")
 	cfg2, err := config.LoadConfig[DummyConfig](filePath)
 	require.NoError(t, err)

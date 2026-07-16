@@ -6,7 +6,7 @@ import (
 )
 
 func TestPasswordHashAndVerify(t *testing.T) {
-	h := newPasswordHasher(0, 0, 0, 0, 0) // defaults
+	h := newPasswordHasher(0, 0, 0, 0, 0)
 
 	encoded, err := h.hash("correct horse battery staple")
 	if err != nil {

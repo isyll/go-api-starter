@@ -16,9 +16,7 @@ import (
 	idgen "github.com/isyll/go-grpc-starter/pkg/id"
 )
 
-// Stream returns the streaming interceptor chain, mirroring Unary. Streaming
-// RPCs get the same recovery, metrics, logging, error mapping, authentication,
-// and per-message validation as unary ones.
+// Stream mirrors Unary for streaming RPCs.
 func (i *Set) Stream() []grpc.StreamServerInterceptor {
 	return []grpc.StreamServerInterceptor{
 		i.recoveryStream,
@@ -32,8 +30,7 @@ func (i *Set) Stream() []grpc.StreamServerInterceptor {
 	}
 }
 
-// wrappedStream overrides the stream context so interceptors can attach
-// request-scoped values for the handler.
+// wrappedStream overrides the stream context to carry request-scoped values.
 type wrappedStream struct {
 	grpc.ServerStream
 	ctx context.Context
@@ -182,8 +179,6 @@ func (i *Set) authStream(
 	return handler(srv, withStreamContext(ctx, ss))
 }
 
-// validationStream validates every received client message against its
-// buf.validate rules before it reaches the handler.
 func (i *Set) validationStream(
 	srv any,
 	ss grpc.ServerStream,

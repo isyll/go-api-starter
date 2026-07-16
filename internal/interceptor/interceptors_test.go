@@ -25,8 +25,6 @@ import (
 	apptoken "github.com/isyll/go-grpc-starter/pkg/token"
 )
 
-// ---- fakes -----------------------------------------------------------------
-
 type stubTokens struct {
 	claims map[string]*apptoken.AccessTokenClaims
 }
@@ -114,8 +112,6 @@ func passthroughHandler(called *bool) grpc.UnaryHandler {
 	}
 }
 
-// ---- BearerToken -----------------------------------------------------------
-
 func TestBearerToken(t *testing.T) {
 	t.Run("missing metadata", func(t *testing.T) {
 		_, err := BearerToken(context.Background())
@@ -144,8 +140,6 @@ func TestBearerToken(t *testing.T) {
 	})
 }
 
-// ---- locale ----------------------------------------------------------------
-
 func TestParseAcceptLanguage(t *testing.T) {
 	cases := []struct{ in, want string }{
 		{"fr-CA,fr;q=0.9,en;q=0.8", "fr"},
@@ -157,8 +151,6 @@ func TestParseAcceptLanguage(t *testing.T) {
 		assert.Equal(t, c.want, parseAcceptLanguage(c.in), "input %q", c.in)
 	}
 }
-
-// ---- auth interceptor -------------------------------------------------------
 
 func unaryInfo(method string) *grpc.UnaryServerInfo {
 	return &grpc.UnaryServerInfo{FullMethod: method}
@@ -244,8 +236,6 @@ func TestAuthUnaryRejectsRevokedSession(t *testing.T) {
 	assert.False(t, called)
 }
 
-// ---- error mapping ----------------------------------------------------------
-
 func TestMapErrorBuildsRichStatus(t *testing.T) {
 	domainErr := errs.Validation(
 		appcodes.ValidationError, "common.validation_error",
@@ -281,8 +271,6 @@ func TestMapErrorHidesUnknownErrors(t *testing.T) {
 	assert.Equal(t, codes.Internal, st.Code())
 	assert.Equal(t, "internal error", st.Message())
 }
-
-// ---- protovalidate ----------------------------------------------------------
 
 func TestValidateMessageRejectsInvalidRequest(t *testing.T) {
 	set := testSet(t, &stubTokens{}, &stubSessions{})

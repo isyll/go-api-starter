@@ -1,7 +1,4 @@
-// Package webhook serves raw net/http endpoints for payment provider callbacks
-// and OAuth redirects. These bypass the gRPC gateway and the token interceptor:
-// their trust comes from a provider signature, and verified requests are handed
-// off to the background worker rather than processed inline.
+// Package webhook serves raw HTTP provider callbacks, trusted via signature.
 package webhook
 
 import (

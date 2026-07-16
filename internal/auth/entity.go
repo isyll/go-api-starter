@@ -6,7 +6,6 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/users"
 )
 
-// DeviceSession is a per-device authenticated session.
 type DeviceSession struct {
 	ID               int64
 	UserID           int64
@@ -47,7 +46,6 @@ func (ds *DeviceSession) IsValid(timeout time.Duration) bool {
 	return !ds.IsRevoked() && !ds.IsInactive(timeout)
 }
 
-// RefreshToken is a rotating refresh credential bound to a device session.
 type RefreshToken struct {
 	ID            string
 	SessionID     int64

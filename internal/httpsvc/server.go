@@ -1,8 +1,4 @@
-// Package httpsvc serves the HTTP surface that runs alongside the gRPC server:
-// the grpc-gateway REST/JSON mirror and the raw webhook endpoints, on a
-// listener separate from gRPC. The gateway proxies to the in-process gRPC
-// server over loopback, so authentication, validation, and error mapping run
-// once, in the gRPC interceptors.
+// Package httpsvc serves the grpc-gateway REST mirror and webhook endpoints.
 package httpsvc
 
 import (

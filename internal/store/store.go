@@ -1,6 +1,4 @@
-// Package store is the pgx + sqlc data-access layer. It owns the connection
-// pool and runs every operation inside a transaction that applies the
-// row-level-security GUCs the schema's audit triggers and RLS policies read.
+// Package store is the pgx + sqlc layer; every op runs in an RLS-scoped tx.
 package store
 
 import (
@@ -15,7 +13,6 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/reqctx"
 )
 
-// Store wraps a pgx pool and the sqlc queries.
 type Store struct {
 	pool *pgxpool.Pool
 	q    *db.Queries
@@ -25,10 +22,8 @@ func New(pool *pgxpool.Pool) *Store {
 	return &Store{pool: pool, q: db.New(pool)}
 }
 
-// Pool exposes the underlying pool for health checks and shutdown.
 func (s *Store) Pool() *pgxpool.Pool { return s.pool }
 
-// InTx reports whether ctx already carries an open store transaction.
 func InTx(ctx context.Context) bool {
 	_, ok := ctx.Value(txKey{}).(*db.Queries)
 	return ok
@@ -39,8 +34,7 @@ type (
 	txRawKey struct{}
 )
 
-// Run executes fn with sqlc queries bound to the ambient transaction if one is
-// present in ctx, otherwise inside a fresh RLS-scoped transaction.
+// Run runs fn on the ambient tx, else a fresh RLS-scoped tx.
 func (s *Store) Run(
 	ctx context.Context,
 	fn func(ctx context.Context, q *db.Queries) error,
@@ -55,15 +49,13 @@ func (s *Store) Run(
 	})
 }
 
-// WithTx runs fn inside a single transaction. Repositories that call Run within
-// fn share that transaction, so a service can compose several writes (and an
-// outbox publish) atomically. RLS GUCs are applied once at the start.
+// WithTx runs fn in one tx; composed writes commit atomically.
 func (s *Store) WithTx(
 	ctx context.Context,
 	fn func(ctx context.Context) error,
 ) error {
 	if _, ok := ctx.Value(txKey{}).(*db.Queries); ok {
-		return fn(ctx) // already inside a transaction; join it
+		return fn(ctx) // already in a tx; join it
 	}
 
 	tx, err := s.pool.Begin(ctx)
@@ -84,8 +76,7 @@ func (s *Store) WithTx(
 	return tx.Commit(ctx)
 }
 
-// SetChangeReason sets the app.change_reason GUC on the ambient transaction so
-// the status/suspension audit triggers record it. No-op outside a transaction.
+// SetChangeReason sets a GUC audit triggers record; no-op outside a tx.
 func SetChangeReason(ctx context.Context, reason string) error {
 	tx, ok := ctx.Value(txRawKey{}).(pgx.Tx)
 	if !ok {
@@ -95,8 +86,7 @@ func SetChangeReason(ctx context.Context, reason string) error {
 	return err
 }
 
-// applyRLS sets the per-request GUCs the schema reads: app.current_user_id
-// (recorded as changed_by by audit triggers) and app.current_role.
+// applyRLS sets the per-request RLS GUCs the schema reads.
 func applyRLS(ctx context.Context, tx pgx.Tx) error {
 	s := reqctx.SubjectFrom(ctx)
 	userID := "0"

@@ -12,9 +12,7 @@ import (
 	appcodes "github.com/isyll/go-grpc-starter/internal/errs/codes"
 )
 
-// validationUnary enforces the buf.validate rules declared in the .proto
-// files. It runs innermost, after authentication, so rejected requests still
-// carry the caller's identity in logs.
+// Runs innermost, after auth, so rejected requests keep caller identity in logs.
 func (i *Set) validationUnary(
 	ctx context.Context,
 	req any,
@@ -47,7 +45,7 @@ func (i *Set) validateMessage(req any) error {
 			violationsToFields(ve)...,
 		)
 	}
-	// Compilation or runtime failure of a rule is a server bug, not bad input.
+	// A rule's compile/runtime failure is a server bug, not bad input.
 	return errs.Internal(appcodes.InternalError, "common.internal_error")
 }
 

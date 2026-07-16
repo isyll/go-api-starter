@@ -1,4 +1,4 @@
-// Package handlers holds the reactions wired to bus event.
+// Package handlers holds the reactions wired to bus events.
 package handlers
 
 import (

@@ -14,9 +14,7 @@ import (
 
 const TaskTypeDispatch = "events:dispatch"
 
-// Defaults applied to every dispatch task; per-subscription options override
-// them. The timeout keeps a hung handler from pinning a worker slot, and the
-// bounded retry keeps poison events from cycling for days.
+// Bounded retry and timeout stop poison events and hung handlers.
 const (
 	defaultTaskMaxRetry = 10
 	defaultTaskTimeout  = 30 * time.Second

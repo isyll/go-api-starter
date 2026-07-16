@@ -24,8 +24,6 @@ const (
 
 const searchPath = "public,auth,notifications,audit,events"
 
-// InitPool opens a pgx connection pool for the given role, with the schema
-// search_path and statement timeout applied to every connection.
 func InitPool(
 	cfg *config.DatabaseConfig,
 	role Role,
@@ -124,8 +122,7 @@ func applyPoolConfig(poolCfg *pgxpool.Config, pc config.ConnectionPoolConfig) {
 	}
 }
 
-// BuildDSN renders credentials as a key=value connection string with every
-// value quoted, so passwords with spaces or special characters stay intact.
+// BuildDSN quotes every value so passwords with special characters survive.
 func BuildDSN(creds config.DBCredentials, extra ...string) string {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
@@ -138,8 +135,6 @@ func BuildDSN(creds config.DBCredentials, extra ...string) string {
 	return dsn
 }
 
-// quoteDSN escapes a value for a libpq key=value connection string: the value
-// is single-quoted so passwords with spaces or special characters stay intact.
 func quoteDSN(v string) string {
 	v = strings.ReplaceAll(v, `\`, `\\`)
 	v = strings.ReplaceAll(v, `'`, `\'`)

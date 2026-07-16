@@ -35,8 +35,7 @@ type Service struct {
 	hasher       passwordHasher
 	lockout      loginLimiter
 
-	// dummyHash keeps the not-found path as slow as a real verification so
-	// response timing does not reveal whether an email is registered.
+	// Equalizes login timing so a missing email is not detectable.
 	dummyHash string
 }
 
@@ -167,8 +166,7 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (*TokenPair, error) 
 }
 
 func (s *Service) VerifyEmail(ctx context.Context, token string) error {
-	// GetDel makes the token single-use: concurrent requests cannot both
-	// consume it. If the update below fails the user just requests a new one.
+	// GetDel makes the token single-use against concurrent consumers.
 	var data tokenData
 	found, err := s.cacheManager.GetDel(ctx, cache.VerificationTokenKey(token), &data)
 	if err != nil || !found {
@@ -249,7 +247,6 @@ func (s *Service) ChangePassword(
 	if err := s.users.UpdatePasswordHash(ctx, userID, hash); err != nil {
 		return err
 	}
-	// Other devices must re-authenticate with the new password.
 	if err := s.RevokeOtherSessions(ctx, userID, currentSessionID, "password_change"); err != nil {
 		s.logger.Warn("revoke other sessions after password change failed", "error", err, "user_id", userID)
 	}

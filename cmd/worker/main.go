@@ -1,7 +1,4 @@
-// Command worker runs every background worker in one process: the email
-// sender, the push-notification sender, and the event dispatcher (outbox drain
-// + async event handlers). Asynq isolates work per queue, so a single binary is
-// simpler to operate than three at template stage.
+// Command worker runs all background workers in one process.
 package main
 
 import (
@@ -90,7 +87,6 @@ func main() {
 
 	var workers []startStopper
 
-	// Email worker.
 	localizer, err := locale.New(cfg.App)
 	if err != nil {
 		logx.Fatal("worker: i18n init failed", "error", err)
@@ -98,7 +94,6 @@ func main() {
 	emailProc := emailworker.NewProcessor(cfg.Email, logx, localizer)
 	workers = append(workers, emailworker.NewWorker(redisAddr, redisPassword, emailProc, cfg.Email, logx))
 
-	// Push-notification worker (skipped when FCM is unavailable).
 	if fcmClient := initFCM(cfg, logx); fcmClient != nil {
 		proc := notifworker.NewProcessor(
 			fcmClient,
@@ -112,7 +107,6 @@ func main() {
 		workers = append(workers, notifworker.NewWorker(redisAddr, redisPassword, proc, cfg.Notifications, logx))
 	}
 
-	// Event dispatcher: outbox drain + async event handlers.
 	asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: redisAddr, Password: redisPassword})
 	defer func() { _ = asynqClient.Close() }()
 	dispatcher := event.NewAsynqDispatcher(asynqClient, logx)

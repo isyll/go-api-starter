@@ -28,7 +28,6 @@ func NewClient(cfg *config.FirebaseConfig) (*Client, error) {
 	return &Client{app: app}, nil
 }
 
-// GetMessagingClient returns the FCM messaging client.
 func (c *Client) GetMessagingClient(ctx context.Context) (*messaging.Client, error) {
 	client, err := c.app.Messaging(ctx)
 	if err != nil {

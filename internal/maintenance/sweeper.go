@@ -1,6 +1,4 @@
-// Package maintenance runs the periodic retention sweeps that keep
-// high-churn tables bounded: stale refresh tokens, processed outbox rows,
-// and old login attempts.
+// Package maintenance runs periodic retention sweeps on high-churn tables.
 package maintenance
 
 import (
@@ -28,7 +26,7 @@ func NewSweeper(
 	return &Sweeper{store: st, cfg: cfg, logger: logx}
 }
 
-// Run sweeps once at startup, then on every interval tick until ctx ends.
+// Run sweeps once at startup, then every interval tick.
 func (s *Sweeper) Run(ctx context.Context) {
 	s.sweep(ctx)
 

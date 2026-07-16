@@ -20,9 +20,7 @@ type Configs struct {
 	Maintenance   *MaintenanceConfig
 }
 
-// LoadAllConfigs is the single entrypoint: it loads every config file from
-// configs/, applies defaults, and validates the result. Every file is
-// required; a missing or malformed file is a hard error.
+// Loads every config file; a missing or malformed one is fatal.
 func LoadAllConfigs() (*Configs, error) {
 	LoadEnvFile()
 
@@ -92,7 +90,6 @@ func LoadAllConfigs() (*Configs, error) {
 	return cfg, nil
 }
 
-// Validate checks the invariants the process needs to start.
 func (c *Configs) Validate() error {
 	var problems []string
 	if c.App.Server.Port == "" {

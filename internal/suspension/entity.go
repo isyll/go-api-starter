@@ -14,7 +14,6 @@ const (
 	SuspensionReasonOther              SuspensionReason = "other"
 )
 
-// AccountSuspension is a single suspension record against a user account.
 type AccountSuspension struct {
 	ID             int64
 	UserID         int64

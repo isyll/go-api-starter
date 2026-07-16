@@ -18,8 +18,6 @@ func NewProcessor(logx *logger.Logger) *Processor {
 	return &Processor{logger: logx}
 }
 
-// ProcessTask decodes a verified webhook. Extend it to settle payments,
-// update orders, or emit a domain event through the outbox.
 func (p *Processor) ProcessTask(_ context.Context, task *asynq.Task) error {
 	var ev ReceivedEvent
 	if err := json.Unmarshal(task.Payload(), &ev); err != nil {

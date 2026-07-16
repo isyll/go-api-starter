@@ -9,9 +9,7 @@ import (
 	"github.com/isyll/go-grpc-starter/internal/users"
 )
 
-// createSessionAndTokens creates the device session and its first refresh
-// token atomically. The access token lives in Redis; if the transaction rolls
-// back after it was issued, the orphan simply expires with its TTL.
+// Access token lives in Redis; on rollback the orphan expires via TTL.
 func (s *Service) createSessionAndTokens(
 	ctx context.Context,
 	user *users.User,
@@ -23,8 +21,7 @@ func (s *Service) createSessionAndTokens(
 	session := device.toSession(user.ID)
 	var tokens *TokenPair
 	err := s.tx.WithTx(ctx, func(ctx context.Context) error {
-		// One active session per physical device: logging in again on a
-		// device replaces its previous session, whoever owned it.
+		// One active session per device; relogin replaces any prior owner's.
 		if session.DeviceID != "" {
 			if err := s.sessions.RevokeActiveByDeviceID(ctx, session.DeviceID, "relogin"); err != nil {
 				return err
@@ -124,8 +121,6 @@ func (s *Service) RevokeAllSessions(ctx context.Context, userID int64, reason st
 	return nil
 }
 
-// RevokeOtherSessions revokes every active session except keepSessionID.
-// Used after a password change so other devices must re-authenticate.
 func (s *Service) RevokeOtherSessions(
 	ctx context.Context, userID, keepSessionID int64, reason string,
 ) error {
@@ -146,8 +141,7 @@ func (s *Service) RevokeOtherSessions(
 	return nil
 }
 
-// evictOldestIfOverLimit enforces the per-user device cap. Eviction is best
-// effort: a listing failure must not block a login.
+// Best effort: a listing failure must not block login.
 func (s *Service) evictOldestIfOverLimit(ctx context.Context, userID int64) {
 	maxDevices := s.cfg.Security.Auth.MaxDevicesPerUser
 	if maxDevices <= 0 {

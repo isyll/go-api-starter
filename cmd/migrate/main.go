@@ -1,4 +1,4 @@
-// Command migrate applies and rolls back PostgreSQL migrations for
+// Command migrate applies and rolls back PostgreSQL migrations.
 package main
 
 import (

@@ -1,4 +1,4 @@
-// Command server runs the gRPC API. It wires every domain through
+// Command server runs the gRPC API.
 package main
 
 import (

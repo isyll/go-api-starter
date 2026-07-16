@@ -12,9 +12,7 @@ import (
 
 const minPasswordLen = 8
 
-// passwordHasher produces and verifies argon2id password hashes. Cost
-// parameters come from config; verification reads them back from the encoded
-// hash, so existing hashes stay valid after a parameter change.
+// Verify reads cost params from the hash, so old hashes stay valid.
 type passwordHasher struct {
 	memory      uint32
 	iterations  uint32
@@ -57,7 +55,6 @@ func (h passwordHasher) hash(plain string) (string, error) {
 	), nil
 }
 
-// verifyPassword reports whether plain matches the encoded argon2id hash.
 func verifyPassword(encoded, plain string) bool {
 	parts := strings.Split(encoded, "$")
 	if len(parts) != 6 || parts[1] != "argon2id" {

@@ -10,7 +10,6 @@ func TestGetOrDefault(t *testing.T) {
 	t.Run("env var set", func(t *testing.T) {
 		t.Setenv("TEST_GET_ENV_KEY", "hello world")
 		got := env.GetOrDefault("TEST_GET_ENV_KEY", "default")
-		// sanitize lowercases and collapses; "hello world" stays.
 		if got != "hello world" {
 			t.Fatalf("got %q, want %q", got, "hello world")
 		}
@@ -42,9 +41,7 @@ func TestIsDev(t *testing.T) {
 		{"test short", "test", true},
 		{"production", env.Production, false},
 		{"prod short", "prod", false},
-		// IsDev is a strict predicate; defaulting to development
-		// when both APP_ENV and GO_ENV are unset is InitApp's job,
-		// not IsDev's.
+		// Defaulting to development when both are unset is InitApp's job.
 		{"empty", "", false},
 	}
 	for _, tc := range cases {

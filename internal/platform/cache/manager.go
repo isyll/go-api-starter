@@ -107,8 +107,7 @@ func (c *CacheManager) GetOrSet(
 	}
 
 	v, sfErr, shared := c.sf.Do(key, func() (any, error) {
-		// Re-check inside the flight: a concurrent winner may have already
-		// filled the cache between our miss and acquiring the flight.
+		// Re-check inside the flight; a concurrent winner may have filled it.
 		var raw json.RawMessage
 		ok, gErr := c.Get(ctx, key, &raw)
 		if gErr == nil && ok {
@@ -151,8 +150,7 @@ func (c *CacheManager) Delete(ctx context.Context, key string) error {
 	return c.client.Del(ctx, fullKey).Err()
 }
 
-// IncrementWithTTL bumps a plain counter and starts its expiry window on the
-// first increment. Used for rate limiting and login lockout.
+// IncrementWithTTL starts the TTL only on the first increment.
 func (c *CacheManager) IncrementWithTTL(
 	ctx context.Context,
 	key string,
@@ -168,7 +166,7 @@ func (c *CacheManager) IncrementWithTTL(
 	return incr.Val(), nil
 }
 
-// Counter reads a counter written by IncrementWithTTL; missing keys are 0.
+// Counter returns 0 when the key is missing.
 func (c *CacheManager) Counter(ctx context.Context, key string) (int64, error) {
 	n, err := c.client.Get(ctx, c.buildKey(key)).Int64()
 	if errors.Is(err, redis.Nil) {
@@ -177,9 +175,7 @@ func (c *CacheManager) Counter(ctx context.Context, key string) (int64, error) {
 	return n, err
 }
 
-// GetDel atomically reads and deletes a key. Use it for single-use tokens
-// (email verification, password reset) so two concurrent requests cannot both
-// consume the same token.
+// GetDel atomically reads and deletes, so a token stays single-use.
 func (c *CacheManager) GetDel(
 	ctx context.Context,
 	key string,
@@ -223,8 +219,7 @@ func (c *CacheManager) InvalidateByTag(
 	return err
 }
 
-// InvalidatePattern deletes every key matching the glob pattern. It iterates
-// with SCAN so it never blocks Redis the way KEYS would on a large keyspace.
+// InvalidatePattern deletes matching keys via SCAN to avoid blocking Redis.
 func (c *CacheManager) InvalidatePattern(
 	ctx context.Context,
 	pattern string,
@@ -232,7 +227,7 @@ func (c *CacheManager) InvalidatePattern(
 	return c.scanDelete(ctx, c.buildKey(pattern))
 }
 
-// Flush removes every cache entry under this manager's prefix.
+// Flush removes every entry under this manager's prefix.
 func (c *CacheManager) Flush(ctx context.Context) error {
 	return c.scanDelete(ctx, c.buildKey("*"))
 }

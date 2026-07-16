@@ -1,5 +1,4 @@
-// Package obs serves the operational HTTP endpoints shared by every process:
-// Prometheus metrics, liveness, readiness, and (opt-in) pprof.
+// Package obs serves metrics, liveness, readiness, and opt-in pprof.
 package obs
 
 import (
@@ -17,10 +16,7 @@ import (
 // Check probes one dependency for readiness.
 type Check func(ctx context.Context) error
 
-// StartServer serves /metrics, /healthz, and /readyz on the port. /readyz runs
-// every check and returns 503 if any fails. Setting PPROF_ENABLED=true also
-// mounts /debug/pprof; keep it off unless the port is private to the cluster.
-// The returned server is already listening; shut it down with Shutdown.
+// StartServer starts the metrics/health server; PPROF_ENABLED also mounts pprof (keep private).
 func StartServer(
 	port string,
 	checks map[string]Check,

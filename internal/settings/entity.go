@@ -10,7 +10,6 @@ const (
 	ThemeDark   Theme = "dark"
 )
 
-// Settings is the JSON preference bag stored in auth.user_settings.settings.
 type Settings struct {
 	Locale             string `json:"locale"`
 	Timezone           string `json:"timezone"`
@@ -31,7 +30,6 @@ func DefaultSettings() Settings {
 	}
 }
 
-// UserSettings is the settings row keyed by user id.
 type UserSettings struct {
 	UserID    int64
 	Settings  Settings

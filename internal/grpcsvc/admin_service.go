@@ -1,4 +1,4 @@
-// Package grpcsvc implements the gRPC handlers that map protobuf requests to domain services.
+// Package grpcsvc implements the gRPC handlers over the domain services.
 package grpcsvc
 
 import (
@@ -138,5 +138,5 @@ func pageParams(p *commonv1.Page) (page, size int) {
 	return page, size
 }
 
-// maxPage keeps (page-1)*size well within int32 range once cast for the DB query.
+// maxPage keeps (page-1)*size within int32 range for the DB query.
 const maxPage = 1_000_000

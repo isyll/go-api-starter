@@ -1,7 +1,6 @@
 package emails
 
-// Template names match the directories under templates/emails, generated from
-// the React Email sources in emails/ (see docs/emails.md).
+// Names match the directories under templates/emails.
 const (
 	TemplateVerifyEmail   = "verify_email"
 	TemplatePasswordReset = "password_reset"

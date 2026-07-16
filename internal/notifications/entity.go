@@ -19,10 +19,8 @@ const (
 	NotificationStatusDismissed NotificationStatus = "dismissed"
 )
 
-// JSONB is a free-form JSON object stored in a jsonb column.
 type JSONB map[string]any
 
-// FCMToken is a device's current Firebase Cloud Messaging registration.
 type FCMToken struct {
 	ID         int64
 	UserID     int64
@@ -36,7 +34,6 @@ type FCMToken struct {
 	UpdatedAt  time.Time
 }
 
-// NotificationPreferences holds a user's per-channel notification settings.
 type NotificationPreferences struct {
 	UserID            int64
 	Push              bool
@@ -50,7 +47,6 @@ type NotificationPreferences struct {
 	UpdatedAt         time.Time
 }
 
-// NotificationTemplate is the per-event-type push template with translations.
 type NotificationTemplate struct {
 	ID               int
 	EventType        string
@@ -75,7 +71,6 @@ type NotificationTemplateTranslation struct {
 	UpdatedAt  time.Time
 }
 
-// NotificationLog is one dispatched-notification attempt.
 type NotificationLog struct {
 	ID           int64
 	UserID       *int64

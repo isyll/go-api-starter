@@ -14,8 +14,7 @@ import (
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
-// MaxAvatarBytes bounds an uploaded avatar; the gRPC handler enforces it while
-// streaming so no oversized payload is ever buffered.
+// MaxAvatarBytes bounds an avatar; the handler enforces it while streaming.
 const MaxAvatarBytes = 5 << 20
 
 var avatarContentTypes = map[string]string{
@@ -49,8 +48,6 @@ func NewService(
 	return &Service{repo: repo, sessions: sessions, bus: bus, storage: store, logger: logx}
 }
 
-// UploadAvatar validates and stores an avatar image, then persists its URL on
-// the user. The bytes are already bounded by MaxAvatarBytes by the caller.
 func (s *Service) UploadAvatar(
 	ctx context.Context, userID int64, contentType string, data []byte,
 ) (string, error) {

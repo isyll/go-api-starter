@@ -53,8 +53,6 @@ func New(env string) *Logger {
 	return &Logger{appLogger: logger.Sugar(), buf: buf}
 }
 
-// levelFromEnv reads LOG_LEVEL (debug, info, warn, error); anything else
-// keeps the environment default.
 func levelFromEnv(def zapcore.Level) zapcore.Level {
 	if raw := os.Getenv("LOG_LEVEL"); raw != "" {
 		var lvl zapcore.Level

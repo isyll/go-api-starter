@@ -13,9 +13,7 @@ const (
 	defaultLockoutWindow   = 15 * time.Minute
 )
 
-// loginLimiter throttles password guessing per account with a Redis counter.
-// It fails open: if Redis is unreachable the login proceeds, because locking
-// every user out during a cache outage is the worse failure mode.
+// Fails open: on Redis errors logins proceed instead of locking everyone out.
 type loginLimiter struct {
 	cache       *cache.CacheManager
 	logger      *logger.Logger

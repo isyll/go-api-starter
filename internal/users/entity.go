@@ -17,7 +17,6 @@ const (
 	UserRoleAdmin UserRole = "admin"
 )
 
-// User is the transport-agnostic user account entity.
 type User struct {
 	ID           int64
 	Email        string

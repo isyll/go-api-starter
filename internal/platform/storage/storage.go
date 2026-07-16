@@ -1,10 +1,4 @@
 // Package storage is the object-storage seam (MinIO / S3-compatible).
-//
-// The avatar upload streams bytes through the server via Put. To scale out,
-// swap in a presigned-URL flow (the client PUTs directly to the bucket using a
-// short-lived signed URL) behind this same interface: only the transport
-// changes, not the domain. New upload types (documents, exports, ...) reuse Put
-// with a different key prefix, so the interface does not grow per type.
 package storage
 
 import (
@@ -20,9 +14,7 @@ import (
 )
 
 type Storage interface {
-	// Put stores an object of the given size and content type under key.
 	Put(ctx context.Context, key string, r io.Reader, size int64, contentType string) error
-	// PublicURL returns a retrieval URL for a stored object.
 	PublicURL(key string) string
 }
 
@@ -32,7 +24,7 @@ type minioStore struct {
 	publicBaseURL string
 }
 
-// NewMinIO connects to the object store and ensures the bucket exists.
+// NewMinIO connects and creates the bucket if missing.
 func NewMinIO(ctx context.Context, cfg *config.StorageConfig) (Storage, error) {
 	client, err := minio.New(cfg.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),

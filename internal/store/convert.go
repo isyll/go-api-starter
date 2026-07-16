@@ -8,9 +8,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// Conversion helpers between pgx/pgtype values and plain Go types used by the
-// domain entities. Repositories use these when mapping sqlc rows to entities.
-
 func Time(t pgtype.Timestamptz) time.Time {
 	if t.Valid {
 		return t.Time
@@ -37,7 +34,6 @@ func TSPtr(t *time.Time) pgtype.Timestamptz {
 	return pgtype.Timestamptz{Time: *t, Valid: true}
 }
 
-// Str dereferences a nullable text column into a plain string ("" when NULL).
 func Str(s *string) string {
 	if s == nil {
 		return ""
@@ -45,12 +41,10 @@ func Str(s *string) string {
 	return *s
 }
 
-// Ptr returns a pointer to s, so an empty string is stored as ” (not NULL).
 func Ptr(s string) *string {
 	return &s
 }
 
-// NullStr maps "" to a NULL text param and any other value to a pointer.
 func NullStr(s string) *string {
 	if s == "" {
 		return nil
@@ -84,7 +78,7 @@ func ParseUUID(s string) pgtype.UUID {
 	return pgtype.UUID{Bytes: u, Valid: true}
 }
 
-// TimeOfDay parses "HH:MM" or "HH:MM:SS" into a pgtype.Time; NULL when nil/empty.
+// TimeOfDay parses "HH:MM" or "HH:MM:SS"; nil/empty yields NULL.
 func TimeOfDay(s *string) pgtype.Time {
 	if s == nil || *s == "" {
 		return pgtype.Time{}

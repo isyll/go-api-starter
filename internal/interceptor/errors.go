@@ -15,18 +15,13 @@ import (
 
 const errorDomain = "go-grpc-starter"
 
-// translator resolves an i18n message key against a language. *locale.Bundle
-// satisfies it.
+// translator resolves i18n keys; *locale.Bundle satisfies it.
 type translator interface {
 	T(lang, id string, data ...map[string]any) string
 	DefaultLanguage() string
 }
 
-// mapError is the single place that turns a domain *errs.Error into a gRPC
-// status with rich details: an ErrorInfo (stable app code), a LocalizedMessage
-// (the message resolved against the request locale), and a BadRequest carrying
-// any field-level validation violations. Errors that are already a gRPC status
-// pass through; anything else becomes an opaque internal error.
+// mapError is the single place domain errors become gRPC statuses.
 func mapError(ctx context.Context, err error, tr translator) error {
 	if err == nil {
 		return nil

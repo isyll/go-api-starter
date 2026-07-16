@@ -10,10 +10,7 @@ import (
 	"github.com/isyll/go-grpc-starter/pkg/logger"
 )
 
-// QueueMonitor polls Asynq queue statistics into Prometheus gauges. Depth per
-// state is the scaling signal: growing pending means more worker replicas or
-// concurrency, growing retry means a failing dependency, anything archived
-// needs an operator.
+// QueueMonitor polls Asynq queue depth per state into Prometheus gauges.
 type QueueMonitor struct {
 	inspector *asynq.Inspector
 	interval  time.Duration
@@ -59,7 +56,7 @@ func (m *QueueMonitor) collect() {
 	for _, q := range m.queues {
 		info, err := m.inspector.GetQueueInfo(q)
 		if err != nil {
-			// Queues only exist after their first task; stay quiet until then.
+			// Queues exist only after their first task; stay quiet until then.
 			m.logger.Debug(
 				"queue monitor: queue info unavailable",
 				"queue", q,

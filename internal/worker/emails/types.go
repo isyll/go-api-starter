@@ -14,7 +14,7 @@ const (
 	PriorityLow    Priority = "low"
 )
 
-// queueName namespaces email queues so only the email server consumes them.
+// queueName namespaces queues so only the email worker consumes them.
 func queueName(p Priority) string {
 	return "emails:" + string(p)
 }

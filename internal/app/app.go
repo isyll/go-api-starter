@@ -297,6 +297,7 @@ func (a *App) AwaitShutdown() {
 	if httpGrace <= 0 {
 		httpGrace = grace
 	}
+	// Stop HTTP before gRPC so in-flight gateway calls can drain.
 	a.http.Shutdown(httpGrace)
 	a.server.Shutdown(grace)
 

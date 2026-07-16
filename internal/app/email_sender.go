@@ -67,8 +67,7 @@ func (e *emailSender) subject(lang, key, fallback string) string {
 	return fallback
 }
 
-// templateData carries the variables the generated templates substitute:
-// {{.URL}}, {{.Token}}, and {{.Year}}.
+// Keys must match the generated template placeholders.
 func templateData(url, token string) map[string]any {
 	return map[string]any{
 		"URL":   url,

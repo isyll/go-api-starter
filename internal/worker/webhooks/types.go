@@ -1,6 +1,4 @@
-// Package webhooks carries inbound provider webhooks from the HTTP edge to a
-// background worker over Asynq, so the request handler never runs business
-// logic inline.
+// Package webhooks carries inbound provider webhooks to a background worker.
 package webhooks
 
 import "time"
@@ -13,8 +11,7 @@ func QueueNames() []string {
 	return []string{queueWebhooks}
 }
 
-// ReceivedEvent is the verified webhook handed off to the worker. Payload is
-// the raw provider body, kept verbatim for per-provider decoding.
+// ReceivedEvent is a verified webhook; Payload is the raw provider body.
 type ReceivedEvent struct {
 	Provider   string            `json:"provider"`
 	Payload    []byte            `json:"payload"`

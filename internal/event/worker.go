@@ -20,9 +20,7 @@ type Worker struct {
 	logger *logger.Logger
 }
 
-// Queues are namespaced so each Asynq server only consumes its own work.
-// Without the prefix, the email and notification servers would pick up event
-// tasks they have no handler for and burn retries bouncing them around.
+// Queues are namespaced so each server only consumes its own tasks.
 const (
 	QueueHigh   = "events:high"
 	QueueNormal = "events:normal"

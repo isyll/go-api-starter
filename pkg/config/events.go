@@ -6,8 +6,7 @@ type EventsConfig struct {
 	Outbox struct {
 		Interval time.Duration `yaml:"interval"`
 
-		// BatchSize rows are claimed per drain transaction; the drain loops
-		// while full batches keep coming.
+		// Rows claimed per drain transaction; drain loops while batches stay full.
 		BatchSize int `yaml:"batch_size"`
 
 		MetricsInterval time.Duration `yaml:"metrics_interval"`
@@ -20,7 +19,6 @@ type EventsConfig struct {
 	} `yaml:"worker"`
 }
 
-// applyDefaults fills the outbox and worker settings when left unset.
 func (c *EventsConfig) applyDefaults() {
 	if c.Outbox.Interval == 0 {
 		c.Outbox.Interval = 5 * time.Second

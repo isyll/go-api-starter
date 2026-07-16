@@ -19,8 +19,7 @@ var (
 	errStaleEvent    = errors.New("timestamp outside tolerance")
 )
 
-// Verifier authenticates a raw webhook body against a provider signature.
-// Implementations fail closed: an unset secret rejects every request.
+// Verifier authenticates a webhook body; fail closed: unset secret rejects.
 type Verifier interface {
 	Verify(h http.Header, body []byte) error
 }
